@@ -1,0 +1,47 @@
+.wrap {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 40px;
+
+  @include breakpoint(mobile-m) {
+    margin-top: 20px;
+  }
+}
+
+.btn {
+  background: var(--dark-gray);
+  color: var(--white);
+  border-radius: 10px;
+  padding: 8px 10px;
+  min-width: 40px;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+
+  &:not(:disabled):hover {
+    @media (hover: hover) and (pointer: fine) {
+      background-color: var(--accent-color);
+      color: var(--dark-gray)
+    }
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.active {
+  background-color: var(--accent-color);
+  color: var(--dark-gray);
+  pointer-events: none;
+  font-weight: 700;
+}
+
+.dots {
+  font-weight: 700;
+  padding: 0 6px;
+  opacity: 0.7;
+}

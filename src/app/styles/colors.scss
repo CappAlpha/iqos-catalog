@@ -1,0 +1,27 @@
+:root {
+  /* white */
+  --white: #fff;
+  --white-blur: rgba(255, 255, 255, 0.1);
+
+  /* black */
+  --black: #000;
+
+  /* gray */
+  --gray: #4B5563;
+  --gray-border: #4B5563;
+  --dark-gray: #34303d;
+  --light-gray: #dddddd;
+  --image-bg-gray: #fafafa;
+
+  /* red */
+  --additional-red: #ff5b45;
+  --red-hover: #de321b;
+
+  /* others */
+  --accent-color: #00d1d2;
+  --opacity-white-60: rgba(255, 255, 255, 0.6);
+  --opacity-colors-black-40: rgba(0, 0, 0, 0.4);
+
+  /* vars */
+  --scrollbar-width: 8px;
+}

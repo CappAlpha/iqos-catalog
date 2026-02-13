@@ -1,0 +1,147 @@
+@use "sass:map";
+@use "sass:meta";
+@use "./animations.scss" as *;
+
+// If change it there, also change in useBreakpoint hook
+$breakpoints: (
+  mobile: 390,
+  mobile-m: 768,
+  tablet: 1024,
+  desktop-s: 1280,
+  desktop-m: 1440,
+  desktop-l: 1600,
+);
+
+@mixin breakpoint($point, $type: max) {
+  $delta: 0;
+
+  @if $type==max {
+    $delta: 0.1;
+  }
+
+  @if meta.type-of($point)==number {
+    @media (#{$type}-width: ($point - $delta + px)) {
+      @content;
+    }
+  }
+
+  @else {
+    $breakpoint: map.get($breakpoints, #{$point});
+    $breakpointValue: $breakpoint - $delta + px;
+
+    @media (#{$type}-width: $breakpointValue) {
+      @content;
+    }
+  }
+}
+
+@mixin scrollbar {
+  &::-webkit-scrollbar {
+    width: var(--scrollbar-width);
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: var(--blue);
+    border-radius: 6px;
+    transition: background-color 0.3s ease-in-out;
+
+    &:hover {
+      @media (hover: hover) and (pointer: fine) {
+        background-color: var(--deep-blue-hover);
+        cursor: pointer;
+      }
+    }
+  }
+}
+
+@mixin rect($size) {
+  width: $size + px;
+  height: $size + px;
+}
+
+@mixin wrapPage {
+  max-width: 1480px;
+  margin-inline: auto;
+  padding-inline: 40px;
+  padding-bottom: 100px;
+
+  @include breakpoint(desktop-s) {
+    padding-inline: 32px;
+  }
+
+  @include breakpoint(mobile-m) {
+    padding-inline: 16px;
+  }
+}
+
+@mixin wrap {
+  max-width: 1480px;
+  margin-inline: auto;
+  padding-inline: 40px;
+
+  @include breakpoint(desktop-s) {
+    padding-inline: 32px;
+  }
+
+  @include breakpoint(mobile-m) {
+    padding-inline: 16px;
+  }
+}
+
+@mixin pseudo {
+  position: absolute;
+  inset: 0;
+  display: block;
+  content: "";
+}
+
+@mixin expandableArea {
+  --_clickable-area-expandable-ratio: var(--clickable-area-expandable-ratio, 6px);
+  position: var(--clickable-area-position, relative);
+  isolation: isolate;
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: calc(-1 * var(--_clickable-area-expandable-ratio));
+    z-index: -1;
+  }
+}
+
+@mixin title {
+  font-size: 56px;
+  font-weight: 600;
+  line-height: 1.2;
+
+  @include breakpoint(desktop-s) {
+    font-size: 40px;
+  }
+
+  @include breakpoint(mobile-m) {
+    font-size: 32px;
+  }
+}
+
+@mixin subtitle {
+  font-weight: 500;
+  font-size: 24px;
+  line-height: 1.1;
+
+  @include breakpoint(mobile-m) {
+    font-size: 16px;
+  }
+}
+
+@mixin skeleton {
+  position: relative;
+
+  &:before {
+    @include pseudo;
+    background: linear-gradient(90deg,
+        var(--light-gray) 25%,
+        var(--white) 50%,
+        var(--light-gray) 75%);
+    background-size: 200% 100%;
+    animation: 1.5s linear infinite skeleton;
+  }
+}

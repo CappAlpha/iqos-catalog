@@ -1,0 +1,53 @@
+.root,
+.rootSkeleton {
+  position: relative;
+  min-width: 220px;
+}
+
+.rootSkeleton {
+  @include skeleton;
+  height: 39.5px;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.select {
+  appearance: none;
+  width: 100%;
+  padding: 10px 36px 10px 12px;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--dark-gray);
+  font-size: 14px;
+  line-height: 1.25;
+  outline: 1px solid var(--gray-border);
+  transition: all 0.2s ease-in-out;
+
+  &:hover {
+    @media (hover: hover) and (pointer: fine) {
+      outline-color: var(--accent-color);
+    }
+  }
+
+  &:focus-visible {
+    outline-color: var(--accent-color);
+    box-shadow: 0 0 0 3px var(--accent-color);
+  }
+}
+
+.chevron {
+  position: absolute;
+  right: 12px;
+  top: 40%;
+  width: 10px;
+  height: 10px;
+  pointer-events: none;
+  transform: translateY(-40%) rotate(45deg);
+  border-right: 2px solid var(--gray);
+  border-bottom: 2px solid var(--gray);
+}
+
+.disabled {
+  opacity: 0.6;
+  pointer-events: none;
+}

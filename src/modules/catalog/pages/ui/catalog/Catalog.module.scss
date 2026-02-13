@@ -1,0 +1,19 @@
+.root {
+  @include wrapPage;
+}
+
+.wrap,
+.wrapError {
+  display: grid;
+  grid-template-columns: 0.25fr 1fr;
+  grid-template-rows: 1fr;
+  gap: 20px;
+
+  @include breakpoint(tablet) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.wrapError {
+  grid-template-columns: 1fr;
+}

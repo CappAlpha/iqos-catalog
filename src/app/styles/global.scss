@@ -1,0 +1,63 @@
+html,
+body {
+  width: 100%;
+  height: 100%;
+  color: var(--dark-gray);
+  background: var(--white);
+  font-family: var(--font-geist) !important;
+  font-weight: 500;
+  font-size: 14px;
+  user-select: text;
+  min-height: 100dvh;
+  min-width: 320px;
+  scroll-padding-top: 100px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  scrollbar-gutter: stable;
+}
+
+@media screen and (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: var(--dark-gray);
+  font-family: var(--font-geist-mono) !important;
+  text-wrap: balance;
+}
+
+h1,
+h2 {
+  @include title;
+}
+
+h3,
+h4,
+h5,
+h6 {
+  @include subtitle;
+}
+
+p {
+  text-wrap: pretty;
+}
+
+body {
+  @include scrollbar;
+}
+
+body[data-no-scroll="true"] {
+  overflow: hidden;
+}
+
+::selection {
+  background-color: var(--accent-color);
+  color: var(--dark-gray);
+}

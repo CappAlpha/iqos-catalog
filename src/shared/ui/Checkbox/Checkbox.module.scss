@@ -1,0 +1,74 @@
+.root {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  user-select: none;
+
+  color: var(--dark-gray);
+  font-size: 16px;
+  line-height: 1.25;
+
+  @include breakpoint(desktop-s) {
+    font-size: 14px;
+  }
+
+  &:hover {
+    @media (hover: hover) and (pointer: fine) {
+      cursor: pointer;
+
+      .box {
+        border-color: var(--accent-color);
+      }
+    }
+  }
+}
+
+.input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.box {
+  min-width: 20px;
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  border: 1px solid var(--gray-border);
+  background: var(--white);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease-in-out;
+}
+
+.label {
+  display: inline-flex;
+  align-items: center;
+}
+
+.input:focus-visible+.box {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-color) 25%, transparent);
+  border-color: var(--accent-color);
+}
+
+.input:checked+.box {
+  background: var(--accent-color);
+  border-color: var(--accent-color);
+}
+
+.input:checked+.box::after {
+  content: "";
+  width: 9px;
+  height: 5px;
+  border-left: 2px solid #fff;
+  border-bottom: 2px solid #fff;
+  transform: rotate(-45deg);
+  margin-top: -1px;
+}
+
+.disabled {
+  cursor: default;
+  opacity: 0.55;
+  pointer-events: none;
+}

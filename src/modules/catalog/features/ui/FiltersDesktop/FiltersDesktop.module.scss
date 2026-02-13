@@ -1,0 +1,118 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  position: sticky;
+  top: 20px;
+  height: fit-content;
+  padding: 15px;
+  outline: 1px solid var(--gray-border);
+  border-radius: 10px;
+  transition: all 0.4s ease-in-out;
+
+  &:hover {
+    @media (hover: hover) and (pointer: fine) {
+      outline-color: var(--accent-color);
+    }
+  }
+
+  @include breakpoint(desktop-s) {
+    padding: 10px;
+  }
+}
+
+.title {
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.subtitle {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.categories {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-bottom: 10px;
+  animation: fromZeroWidth 0.3s ease-in-out;
+
+  &::after {
+    content: '';
+    opacity: 0;
+    width: 0;
+    height: 1px;
+    background: var(--gray-border);
+    position: absolute;
+    bottom: 0;
+    animation: toZeroWidth 0.4s ease-in-out;
+  }
+
+  &:hover {
+    @media (hover: hover) and (pointer: fine) {
+      &::after {
+        content: '';
+        opacity: 1;
+        width: 100%;
+        height: 1px;
+        background: var(--gray-border);
+        position: absolute;
+        bottom: 0;
+        animation: fromZeroWidth 0.4s ease-in-out;
+      }
+    }
+  }
+}
+
+@keyframes fromZeroWidth {
+  0% {
+    opacity: 0;
+    width: 0;
+  }
+
+  100% {
+    opacity: 1;
+    width: 100%;
+  }
+}
+
+@keyframes toZeroWidth {
+  0% {
+    opacity: 1;
+    width: 100%;
+  }
+
+  100% {
+    opacity: 0;
+    width: 0;
+  }
+}
+
+.titleSkeleton,
+.subtitleSkeleton,
+.checkBoxSkeleton {
+  @include skeleton;
+
+  &::before {
+    border-radius: 4px;
+  }
+}
+
+.titleSkeleton {
+  width: 50%;
+  height: 31px;
+}
+
+.subtitleSkeleton {
+  width: 50%;
+  height: 20px;
+}
+
+.checkBoxSkeleton {
+  min-width: 22px;
+  width: 22px;
+  height: 22px;
+}
