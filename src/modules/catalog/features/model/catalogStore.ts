@@ -1,9 +1,9 @@
 import { flow, makeAutoObservable, runInAction } from "mobx";
 import { clamp } from "../../../../shared/lib/math";
 import { fetchCatalog } from "../api/fetchCatalog";
-import { CATALOG_DEFAULT, UNCAT_ID } from "./constants";
+import { CATALOG_DEFAULT, feedUrl, UNCAT_ID } from "./constants";
 import type { Category, Product, SortKey, Status } from "./types";
-import { compareText, cmpNumNullLastAsc } from "../lib/store";
+import { getComparator } from "../lib/store";
 
 class CatalogStore {
   status: Status = "idle";
@@ -12,81 +12,44 @@ class CatalogStore {
   categories: Category[] = [];
   products: Product[] = [];
 
-  selectedCategoryId = "";
+  selectedCategoryId: string | null = null;
   sort: SortKey = CATALOG_DEFAULT.sort;
-
   page = CATALOG_DEFAULT.page;
   pageSize = CATALOG_DEFAULT.pageSize;
 
-  uiLoading = false;
-  private uiTimer: ReturnType<typeof setTimeout> | null = null;
+  isTransitioning = false;
+  private _transitionTimer: ReturnType<typeof setTimeout> | null = null;
 
   constructor() {
     makeAutoObservable(this, {}, { autoBind: true });
   }
 
-  get isLoading() {
-    return this.status === "loading";
-  }
-  get isError() {
-    return this.status === "error";
-  }
-  get isInitial() {
-    return this.status === "idle" && this.products.length === 0;
-  }
-
-  get categoryMeta() {
-    const byId = new Map<string, Category>();
-    for (const c of this.categories) byId.set(c.id, c);
-
+  get categoryWithCount() {
     const counts = new Map<string, number>();
+    const byId = new Map<string, Category>();
+
+    this.categories.forEach(c => byId.set(c.id, c));
+
     for (const p of this.products) {
-      if (p.categoryId == null) continue;
-      counts.set(p.categoryId, (counts.get(p.categoryId) ?? 0) + 1);
+      const catId = p.categoryId ?? UNCAT_ID;
+      counts.set(catId, (counts.get(catId) ?? 0) + 1);
     }
 
-    if (counts.has(UNCAT_ID) && !byId.has(UNCAT_ID)) {
-      byId.set(UNCAT_ID, { id: UNCAT_ID, title: "Без категории", parentId: null });
-    }
-
-    const allowed = new Set<string>();
-    for (const [id, n] of counts) if (n > 0) allowed.add(id);
-
-    return { byId, counts, allowed };
+    return { counts, byId };
   }
 
   get filteredProducts(): Product[] {
     if (!this.selectedCategoryId) return this.products;
-    return this.products.filter((p) => p.categoryId === this.selectedCategoryId);
-  }
-
-  private get productComparator() {
-    const sortKey = this.sort;
-
-    return (a: Product, b: Product) => {
-      if (sortKey === "nameAsc") return compareText(a.name, b.name);
-      if (sortKey === "nameDesc") return compareText(b.name, a.name);
-
-      const priceCmp =
-        sortKey === "priceAsc"
-          ? cmpNumNullLastAsc(a.price, b.price)
-          : -cmpNumNullLastAsc(a.price, b.price);
-
-      return priceCmp || compareText(a.name, b.name);
-    };
+    return this.products.filter(p => (p.categoryId ?? UNCAT_ID) === this.selectedCategoryId);
   }
 
   get sortedProducts(): Product[] {
-    const cmp = this.productComparator;
-    return this.filteredProducts
-      .map((p, idx) => ({ p, idx }))
-      .sort((A, B) => cmp(A.p, B.p) || (A.idx - B.idx))
-      .map((x) => x.p);
+    return this.filteredProducts.slice().sort(getComparator(this.sort));
   }
 
   // Pagination
   get totalCount() {
-    return this.sortedProducts.length;
+    return this.filteredProducts.length;
   }
 
   get totalPages() {
@@ -97,99 +60,92 @@ class CatalogStore {
     return clamp(this.page, 1, this.totalPages);
   }
 
-  get pagedProducts(): Product[] {
+  get viewProducts(): Product[] {
     const start = (this.safePage - 1) * this.pageSize;
     return this.sortedProducts.slice(start, start + this.pageSize);
   }
 
-  // UI
-  get visiblePagedCount() {
-    return this.pagedProducts.reduce((acc, p) => acc + (p.available ? 1 : 0), 0);
+  get showSkeleton() {
+    return this.status === "loading" || this.status === "idle" || this.isTransitioning;
+  }
+
+  get isLoading() {
+    return this.status === "loading";
+  }
+
+  get isEmpty() {
+    return this.status === "success" && !this.showSkeleton && this.products.length === 0;
   }
 
   get skeletonCount() {
-    return this.totalCount > 0 ? this.visiblePagedCount : this.pageSize;
+    return this.totalCount > 0 ? this.viewProducts.length : this.pageSize;
   }
 
-  private clearUiLoading() {
-    if (this.uiTimer) clearTimeout(this.uiTimer);
-    this.uiTimer = null;
-    this.uiLoading = false;
-  }
+  private uiLoading(ms = 400) {
+    this.isTransitioning = true;
 
-  private pulseUiLoading(ms = 500) {
-    if (this.status !== "success") return;
+    if (this._transitionTimer) clearTimeout(this._transitionTimer);
 
-    this.uiLoading = true;
-
-    if (this.uiTimer) clearTimeout(this.uiTimer);
-    this.uiTimer = setTimeout(() => {
-      runInAction(() => this.clearUiLoading());
+    this._transitionTimer = setTimeout(() => {
+      runInAction(() => {
+        this.isTransitioning = false;
+        this._transitionTimer = null;
+      });
     }, ms);
-  }
-
-  private commit(
-    apply: () => void,
-    opts: { resetPage?: boolean; clampPage?: boolean } = {}
-  ) {
-    this.pulseUiLoading();
-    apply();
-
-    if (opts.resetPage) this.page = 1;
-    if (opts.clampPage) this.page = clamp(this.page, 1, this.totalPages);
   }
 
   setSort(key: SortKey) {
     if (this.sort === key) return;
-    this.commit(() => (this.sort = key), { resetPage: true });
+
+    this.uiLoading();
+    this.sort = key;
+    this.page = 1;
   }
 
-  setCategory(id: string) {
+  setCategory(id: string | null) {
     if (this.selectedCategoryId === id) return;
-    this.commit(() => (this.selectedCategoryId = id), { resetPage: true });
+    this.selectedCategoryId = id;
+    this.page = 1;
   }
 
-  setPage(next: number) {
-    const raw = Math.max(1, Math.floor(next));
-
-    const n = this.status === "success" ? clamp(raw, 1, this.totalPages) : raw;
-
-    if (this.page === n) return;
-    this.commit(() => (this.page = n));
+  setPage(n: number) {
+    this.uiLoading();
+    this.page = n;
   }
 
   setPageSize(size: number) {
-    const s = Math.max(1, Math.floor(size));
-    if (this.pageSize === s) return;
-    this.commit(() => (this.pageSize = s), { resetPage: true });
+    if (this.pageSize === size) return;
+
+    this.uiLoading();
+    this.pageSize = size;
+    this.page = 1;
   }
 
-  private normalizeFiltersAfterLoad() {
-    if (!this.selectedCategoryId) return;
-    const n = this.categoryMeta.counts.get(this.selectedCategoryId) ?? 0;
-    if (n === 0) this.selectedCategoryId = "";
-  }
+  fetchData = flow(function* (this: CatalogStore) {
+    if (this._transitionTimer) clearTimeout(this._transitionTimer);
+    this.isTransitioning = false;
 
-  load = flow(function* (this: CatalogStore) {
-    this.clearUiLoading();
+    if (this.status === "success" && this.products.length > 0) return;
 
-    if (this.status === "success" && this.products.length) return;
     this.status = "loading";
     this.error = null;
 
     try {
-      const data = yield fetchCatalog({ feedUrl: "https://www.iqos.ru/mindbox_feed.xml" });
+      const data = yield fetchCatalog({ feedUrl: feedUrl });
 
       this.categories = data.categories;
       this.products = data.products;
 
-      this.normalizeFiltersAfterLoad();
-      this.page = clamp(this.page, 1, this.totalPages);
+      if (this.selectedCategoryId) {
+        const count = this.categoryWithCount.counts.get(this.selectedCategoryId) ?? 0;
+        if (count === 0) this.selectedCategoryId = null;
+      }
 
+      this.page = clamp(this.page, 1, Math.max(1, Math.ceil(data.products.length / this.pageSize)));
       this.status = "success";
     } catch (e) {
       this.status = "error";
-      this.error = e instanceof Error ? e.message : "Неизвестная ошибка загрузки.";
+      this.error = e instanceof Error ? e.message : "Ошибка загрузки";
     }
   });
 }

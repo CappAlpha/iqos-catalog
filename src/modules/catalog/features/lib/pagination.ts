@@ -1,21 +1,33 @@
 import type { PaginationItem } from "../model/types";
 
+const range = (start: number, end: number) => {
+  const length = end - start + 1;
+  return Array.from({ length }, (_, i) => start + i);
+};
+
+const toPage = (value: number) => ({ type: "page" as const, value });
+const toDots = (side: "left" | "right") => ({ type: "dots" as const, side });
+
 export const buildPagination = (current: number, total: number): PaginationItem[] => {
   if (total <= 1) return [];
-  if (total <= 7) return Array.from({ length: total }, (_, i) => ({ type: "page", value: i + 1 }));
 
-  const left = Math.max(2, current - 1);
-  const right = Math.min(total - 1, current + 1);
+  if (total <= 7) {
+    return range(1, total).map(page => (toPage(page)));
+  }
 
-  const items: PaginationItem[] = [{ type: "page", value: 1 }];
+  const left = Math.max(current - 1, 2);
+  const right = Math.min(current + 1, total - 1);
 
-  if (left > 2) items.push({ type: "dots", side: "left" });
+  const hasLeftDots = left > 2;
+  const hasRightDots = right < total - 1;
 
-  for (let p = left; p <= right; p++) items.push({ type: "page", value: p });
-
-  if (right < total - 1) items.push({ type: "dots", side: "right" });
-
-  items.push({ type: "page", value: total });
+  const items: PaginationItem[] = [
+    toPage(1),
+    ...(hasLeftDots ? [toDots("left")] : []),
+    ...range(left, right).map(toPage),
+    ...(hasRightDots ? [toDots("right")] : []),
+    toPage(total)
+  ];
 
   return items;
-}
+};

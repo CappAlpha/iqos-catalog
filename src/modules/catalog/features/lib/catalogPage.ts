@@ -1,18 +1,24 @@
-import { CATALOG_DEFAULT } from "../model/constants";
+import { CATALOG_DEFAULT, sortOptions } from "../model/constants";
 import type { SortKey } from "../model/types";
 
+function isSortKey(key: string): key is SortKey {
+  return sortOptions.map(({ id }) => id).includes(key);
+}
+
 export function normalizeSort(v: string | null): SortKey {
-  if (v === "nameAsc" || v === "nameDesc" || v === "priceAsc" || v === "priceDesc") return v;
+  if (v && isSortKey(v)) return v;
   return CATALOG_DEFAULT.sort;
 }
 
 export function normalizePage(v: string | null): number {
   const n = Number.parseInt(v ?? "", 10);
-  if (!Number.isFinite(n) || n < 1) return CATALOG_DEFAULT.page;
-  return n;
+  return Number.isFinite(n) && n >= 1 ? n : CATALOG_DEFAULT.page;
 }
 
-export function setOrDelete(params: URLSearchParams, key: string, value: string, defaultValue: string) {
-  if (!value || value === defaultValue) params.delete(key);
-  else params.set(key, value);
+export function syncUrlParam(params: URLSearchParams, key: string, value: string | null, defaultValue?: string) {
+  if (!value || value === defaultValue) {
+    params.delete(key);
+  } else {
+    params.set(key, value);
+  }
 }
