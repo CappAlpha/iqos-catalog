@@ -1,7 +1,7 @@
 import { flow, makeAutoObservable, runInAction } from "mobx";
 import { clamp } from "../../../../shared/lib/math";
 import { fetchCatalog } from "../api/fetchCatalog";
-import { CATALOG_DEFAULT, feedUrl, UNCAT_ID } from "./constants";
+import { CATALOG_DEFAULT, UNCAT_ID } from "./constants";
 import type { Category, Product, SortKey, Status } from "./types";
 import { getComparator } from "../lib/store";
 
@@ -131,7 +131,7 @@ class CatalogStore {
     this.error = null;
 
     try {
-      const data = yield fetchCatalog({ feedUrl: feedUrl });
+      const data = yield fetchCatalog();
 
       this.categories = data.categories;
       this.products = data.products;

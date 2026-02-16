@@ -51,7 +51,7 @@ export const Catalog = observer(function Catalog() {
         {showSidebar && (
           isInitialLoading
             ? <FiltersDesktopSkeleton count={5} />
-            : <FiltersDesktop categories={categories} />
+            : <FiltersDesktop />
         )}
 
         <CatalogGrid />

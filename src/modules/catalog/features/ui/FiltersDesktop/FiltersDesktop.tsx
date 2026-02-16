@@ -1,16 +1,23 @@
 
 
+import { observer } from 'mobx-react-lite';
 import { Checkbox } from '../../../../../shared/ui/Checkbox';
-import type { Category } from '../../model/types';
 import s from './FiltersDesktop.module.scss';
+import { catalogStore } from '../../model/catalogStore';
 
-export interface Props {
-  categories: Category[];
-}
+export const FiltersDesktop = observer(() => {  
+  const { categories, categoryWithCount, setCategory } = catalogStore;
 
-export const FiltersDesktop = ({ categories }: Props) => {
-  // TODO: Remove
-  const someCategories = categories.slice(0, 5);
+  // TODO: refactor and move to store
+  const categoriesFilter = categories.map((category) => ({
+    id: category.id,
+    title: category.title,
+    count: categoryWithCount.counts.get(category.id) ?? 0,
+  })).filter((category) => category.count > 0);
+
+  const onCategoryChange = (id: string) => {
+    setCategory(id);
+  };
 
   return (
     <div className={s.root}>
@@ -19,20 +26,20 @@ export const FiltersDesktop = ({ categories }: Props) => {
       <div className={s.categoriesWrap}>
         <h4 className={s.subtitle}>Устройство</h4>
         <div className={s.categories}>
-          {someCategories.map((category) => (
-            <Checkbox key={category.id} checked={false} onChange={() => { }} label={category.title} />
+          {categoriesFilter.map((category) => (
+            <Checkbox key={category.id} checked={false} onChange={() => onCategoryChange(category.id)} label={category.title + " " + categoryWithCount.counts.get(category.id)} />
           ))}
         </div>
       </div>
 
-      <div className={s.categoriesWrap}>
+      {/* <div className={s.categoriesWrap}>
         <h4 className={s.subtitle}>Аксессуары и комплектующие</h4>
         <div className={s.categories}>
           {someCategories.map((category) => (
-            <Checkbox key={category.id} checked={false} onChange={() => { }} label={category.title} />
+            <Checkbox key={category.id} checked={false} onChange={() => setCategory(category.id)} label={category.title} />
           ))}
         </div>
-      </div>
+      </div> */}
     </div>
   );
-};
+});

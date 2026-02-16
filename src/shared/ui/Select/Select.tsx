@@ -1,9 +1,8 @@
 import cn from "classnames";
 import type { ChangeEvent } from "react";
+import type { SelectOption } from "../../../modules/catalog/features/model/types";
 
 import s from "./Select.module.scss";
-
-type SelectOption = { id: string; label: string };
 
 interface SelectProps {
   value: string;

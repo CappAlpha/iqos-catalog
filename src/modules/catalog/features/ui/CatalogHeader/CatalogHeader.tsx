@@ -5,7 +5,7 @@ import type { SortKey } from '../../model/types';
 import { FiltersMobile } from '../FiltersMobile';
 import { observer } from 'mobx-react-lite';
 import { SelectSkeleton } from '../../../../../shared/ui/Select/SelectSkeleton';
-import { sortOptions } from '../../model/constants';
+import { SORT_OPTIONS } from '../../model/constants';
 
 interface Props {
   isTablet: boolean;
@@ -22,7 +22,7 @@ export const CatalogHeader = observer(({ isTablet }: Props) => {
         {isTablet && <FiltersMobile />}
         {isLoading ? <SelectSkeleton /> : <Select
           value={sort}
-          options={sortOptions}
+          options={SORT_OPTIONS}
           onChange={(id) => setSort(id as SortKey)}
         />}
       </div>}

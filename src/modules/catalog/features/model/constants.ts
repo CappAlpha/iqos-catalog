@@ -1,9 +1,8 @@
 import type { SortKey } from "./types";
 
-export const feedUrl = "/mindbox_feed.xml";
-// export const feedUrl = "https://www.iqos.ru/mindbox_feed.xml";
+export const DEFAULT_FEED_URL = "/mindbox_feed.xml";
+// export const DEFAULT_FEED_URL = "https://www.iqos.ru/mindbox_feed.xml";
 
-export const ROOT = "root" as const;
 export const UNCAT_ID = "uncategorized" as const;
 export const UNCAT_TITLE = "Без категории" as const;
 
@@ -14,7 +13,7 @@ export const CATALOG_DEFAULT = {
   pageSize: 12
 };
 
-export const sortOptions = [
+export const SORT_OPTIONS = [
   { id: "nameAsc", label: "Название (A→Я)" },
   { id: "nameDesc", label: "Название (Я→A)" },
   { id: "priceAsc", label: "Цена (↑)" },

@@ -1,8 +1,8 @@
-import { CATALOG_DEFAULT, sortOptions } from "../model/constants";
+import { CATALOG_DEFAULT, SORT_OPTIONS } from "../model/constants";
 import type { SortKey } from "../model/types";
 
 function isSortKey(key: string): key is SortKey {
-  return sortOptions.map(({ id }) => id).includes(key);
+  return SORT_OPTIONS.map(({ id }) => id).includes(key);
 }
 
 export function normalizeSort(v: string | null): SortKey {
