@@ -8,6 +8,11 @@ export type Category = {
   parentId: string | null;
 };
 
+export type MergedCategory = Category & {
+  ids: string[]; 
+  isAll?: boolean;
+};
+
 export type Product = {
   id: string;
   name: string;

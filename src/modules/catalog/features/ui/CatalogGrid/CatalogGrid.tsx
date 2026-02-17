@@ -31,7 +31,7 @@ export const CatalogGrid = observer(() => {
   return (
     <div className={s.grid}>
       {viewProducts.map((product) => (
-        product.available && <ProductCard key={product.id} product={product} />
+        product.available && <ProductCard key={product.id + product.name} product={product} />
       ))}
     </div >
   );

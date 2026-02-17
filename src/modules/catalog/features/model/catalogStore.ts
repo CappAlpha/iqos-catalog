@@ -2,7 +2,7 @@ import { flow, makeAutoObservable, runInAction } from "mobx";
 import { clamp } from "../../../../shared/lib/math";
 import { fetchCatalog } from "../api/fetchCatalog";
 import { CATALOG_DEFAULT, UNCAT_ID } from "./constants";
-import type { Category, Product, SortKey, Status } from "./types";
+import type { Category, MergedCategory, Product, SortKey, Status } from "./types";
 import { getComparator } from "../lib/store";
 
 class CatalogStore {
@@ -24,23 +24,62 @@ class CatalogStore {
     makeAutoObservable(this, {}, { autoBind: true });
   }
 
+  get mergedCategories(): MergedCategory[] {
+    const map = new Map<string, MergedCategory>();
+
+    this.categories.forEach((cat) => {
+      const title = cat.title.trim();
+      const existing = map.get(title);
+
+      if (existing) {
+        existing.ids.push(cat.id);
+      } else {
+        map.set(title, {
+          ...cat,
+          ids: [cat.id],
+        });
+      }
+    });
+
+    return Array.from(map.values());
+  }
+
   get categoryWithCount() {
     const counts = new Map<string, number>();
-    const byId = new Map<string, Category>();
+    const byId = new Map<string, MergedCategory>();
 
-    this.categories.forEach(c => byId.set(c.id, c));
+    this.mergedCategories.forEach((c) => {
+      byId.set(c.id, c);
+      counts.set(c.id, 0);
+    });
 
     for (const p of this.products) {
       const catId = p.categoryId ?? UNCAT_ID;
-      counts.set(catId, (counts.get(catId) ?? 0) + 1);
+
+      for (const [groupId, group] of byId.entries()) {
+        if (group.isAll) continue;
+        if (group.ids.includes(catId)) {
+          counts.set(groupId, (counts.get(groupId) ?? 0) + 1);
+          break;
+        }
+      }
     }
 
     return { counts, byId };
   }
 
   get filteredProducts(): Product[] {
-    if (!this.selectedCategoryId) return this.products;
-    return this.products.filter(p => (p.categoryId ?? UNCAT_ID) === this.selectedCategoryId);
+    if (!this.selectedCategoryId) {
+      return this.products;
+    }
+
+    const group = this.categoryWithCount.byId.get(this.selectedCategoryId);
+    if (!group) return this.products;
+
+    return this.products.filter((p) => {
+      const prodCatId = p.categoryId ?? UNCAT_ID;
+      return group.ids.includes(prodCatId);
+    });
   }
 
   get sortedProducts(): Product[] {
@@ -108,6 +147,15 @@ class CatalogStore {
     this.page = 1;
   }
 
+  toggleCategory(id: string | null) {
+    if (this.selectedCategoryId === id) {
+      this.selectedCategoryId = null;
+    } else {
+      this.selectedCategoryId = id;
+      this.page = 1;
+    }
+  }
+
   setPage(n: number) {
     this.uiLoading();
     this.page = n;
@@ -125,10 +173,11 @@ class CatalogStore {
     if (this._transitionTimer) clearTimeout(this._transitionTimer);
     this.isTransitioning = false;
 
-    if (this.status === "success" && this.products.length > 0) return;
-
     this.status = "loading";
     this.error = null;
+
+    this.categories = [];
+    this.products = [];
 
     try {
       const data = yield fetchCatalog();
@@ -136,12 +185,7 @@ class CatalogStore {
       this.categories = data.categories;
       this.products = data.products;
 
-      if (this.selectedCategoryId) {
-        const count = this.categoryWithCount.counts.get(this.selectedCategoryId) ?? 0;
-        if (count === 0) this.selectedCategoryId = null;
-      }
-
-      this.page = clamp(this.page, 1, Math.max(1, Math.ceil(data.products.length / this.pageSize)));
+      this.page = clamp(this.page, 1, Math.max(1, Math.ceil(this.totalCount / this.pageSize)));
       this.status = "success";
     } catch (e) {
       this.status = "error";

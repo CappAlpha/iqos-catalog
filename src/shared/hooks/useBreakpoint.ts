@@ -1,51 +1,50 @@
 import { useEffect, useState } from "react";
 
-const useMedia = (query: string, defaultState: boolean = false) => {
-  const [state, setState] = useState(defaultState);
+export const useMedia = (query: string, defaultState: boolean = false) => {
+  const getInitialState = (): boolean => {
+    if (typeof globalThis.window === "undefined" || !globalThis.window.matchMedia) {
+      return defaultState;
+    }
+    return globalThis.window.matchMedia(query).matches;
+  };
+
+  const [state, setState] = useState(getInitialState);
 
   useEffect(() => {
-    let mounted = true;
-    const mql = globalThis.matchMedia(query);
+    if (typeof globalThis.window === "undefined" || !globalThis.window.matchMedia) {
+      return;
+    }
 
-    const onChange = () => {
-      if (!mounted) {
-        return;
-      }
-      setState(mql.matches);
+    const mql = globalThis.window.matchMedia(query);
+
+    const onChange = (event: MediaQueryListEvent) => {
+      setState(event.matches);
     };
 
-    if (mql.addEventListener) {
-      mql.addEventListener("change", onChange);
-    } else {
-      mql.addListener(onChange);
-    }
+    mql.addEventListener("change", onChange);
+
     setState(mql.matches);
 
     return () => {
-      mounted = false;
-      if (mql.removeEventListener) {
-        mql.removeEventListener("change", onChange);
-      } else {
-        mql.removeListener(onChange);
-      }
-      setState(mql.matches);
+      mql.removeEventListener("change", onChange);
     };
   }, [query]);
 
   return state;
 };
 
-type Breakpoint =
+export type Breakpoint =
   | "mobile"
   | "mobileM"
   | "tablet"
   | "desktopS"
   | "desktop"
   | "desktopL";
-type BreakpointType = "max" | "min";
+
+export type BreakpointType = "max" | "min";
 
 // If change it there, also change in _mixins.scss
-const breakpoints: Record<Breakpoint, number> = {
+export const breakpoints: Record<Breakpoint, number> = {
   mobile: 390,
   mobileM: 768,
   tablet: 1024,
@@ -56,18 +55,24 @@ const breakpoints: Record<Breakpoint, number> = {
 
 export const useBreakpoint = (
   breakpoint: Breakpoint,
-  type: BreakpointType = "max",
-  defaultState: boolean = false,
-) =>
-  useMedia(`(${type}-width: ${breakpoints[breakpoint] - 0.1}px)`, defaultState);
+  type: BreakpointType = "min",
+  defaultState: boolean = false
+) => {
+  const value = breakpoints[breakpoint];
+  const query = `(${type}-width: ${value}px)`;
 
-export const useTablet = (defaultState?: boolean) =>
-  useBreakpoint("tablet", "max", defaultState);
+  return useMedia(query, defaultState);
+};
+
 export const useMobile = (defaultState?: boolean) =>
   useBreakpoint("mobile", "max", defaultState);
 export const useMobileM = (defaultState?: boolean) =>
   useBreakpoint("mobileM", "max", defaultState);
+export const useTablet = (defaultState?: boolean) =>
+  useBreakpoint("tablet", "max", defaultState);
 export const useDesktopS = (defaultState?: boolean) =>
-  useBreakpoint("desktopS", "max", defaultState);
+  useBreakpoint("desktopS", "min", defaultState);
+export const useDesktop = (defaultState?: boolean) =>
+  useBreakpoint("desktop", "min", defaultState);
 export const useDesktopL = (defaultState?: boolean) =>
-  useBreakpoint("desktopL", "max", defaultState);
+  useBreakpoint("desktopL", "min", defaultState);

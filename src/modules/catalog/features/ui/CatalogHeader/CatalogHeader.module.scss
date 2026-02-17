@@ -16,6 +16,7 @@
 
 .wrap{
   display: flex;
+  align-items: center;
   gap: 10px;
 
   @include breakpoint(mobile) {

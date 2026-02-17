@@ -6,18 +6,14 @@ import s from './FiltersDesktop.module.scss';
 import { catalogStore } from '../../model/catalogStore';
 
 export const FiltersDesktop = observer(() => {  
-  const { categories, categoryWithCount, setCategory } = catalogStore;
+  const { mergedCategories, categoryWithCount, toggleCategory } = catalogStore;
 
-  // TODO: refactor and move to store
-  const categoriesFilter = categories.map((category) => ({
+  // TODO: refactor and move to store?
+  const categoriesFilter = mergedCategories.map((category) => ({
     id: category.id,
     title: category.title,
     count: categoryWithCount.counts.get(category.id) ?? 0,
   })).filter((category) => category.count > 0);
-
-  const onCategoryChange = (id: string) => {
-    setCategory(id);
-  };
 
   return (
     <div className={s.root}>
@@ -27,7 +23,7 @@ export const FiltersDesktop = observer(() => {
         <h4 className={s.subtitle}>Устройство</h4>
         <div className={s.categories}>
           {categoriesFilter.map((category) => (
-            <Checkbox key={category.id} checked={false} onChange={() => onCategoryChange(category.id)} label={category.title + " " + categoryWithCount.counts.get(category.id)} />
+            <Checkbox key={category.id} checked={false} onChange={() => toggleCategory(category.id)} label={category.title + " " + categoryWithCount.counts.get(category.id)} />
           ))}
         </div>
       </div>
