@@ -8,6 +8,7 @@
   &:hover {
     @media (hover: hover) and (pointer: fine) {
       .select {
+        cursor: pointer;
         border-color: var(--accent-color);
       }
 
@@ -25,17 +26,19 @@
   overflow: hidden;
 }
 
+.select,
+.option {
+  font-size: 14px;
+  line-height: 1.25;
+}
+
 .select {
   position: relative;
   padding: 10px 36px 10px 12px;
   border-radius: 10px;
   background: transparent;
-  color: var(--dark-gray);
-  font-size: 14px;
-  line-height: 1.25;
   border: 1px solid var(--gray-border);
   transition: all 0.2s ease-in-out;
-  cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -114,14 +117,11 @@
 
 .option {
   padding: 10px 12px;
-  color: var(--dark-gray);
-  font-size: 14px;
-  line-height: 1.25;
-  cursor: pointer;
   transition: all 0.3s ease-in-out;
 
   &:hover {
     @media (hover: hover) and (pointer: fine) {
+      cursor: pointer;
       background-color: var(--accent-color);
       color: var(--dark-gray);
     }
