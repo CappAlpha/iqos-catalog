@@ -60,7 +60,7 @@ class CatalogStore {
     for (const product of this.products) {
       const catId = product.categoryId ?? UNCAT_ID;
       const groupId = idToGroupId.get(catId);
-      
+
       if (groupId && counts.has(groupId)) {
         counts.set(groupId, counts.get(groupId)! + 1);
       }
@@ -78,11 +78,11 @@ class CatalogStore {
     for (const key of keys) {
       const root = this.findRootCategory(key);
       const ids = new Set<string>();
-      
+
       if (root) {
         this.collectAllChildIds(root.id, ids);
       }
-      
+
       map.set(key, ids);
     }
 
@@ -99,7 +99,7 @@ class CatalogStore {
 
   private collectAllChildIds(rootId: string, collected: Set<string>): void {
     collected.add(rootId);
-    
+
     for (const child of this.categories) {
       if (child.parentId === rootId) {
         this.collectAllChildIds(child.id, collected);
@@ -113,7 +113,7 @@ class CatalogStore {
 
     const buildGroup = (key: FilterGroupKey, title: string): FilterGroup => {
       const groupIds = groupIdsMap.get(key) ?? new Set();
-      
+
       const categories = this.mergedCategories
         .filter((cat) => cat.ids.some((id) => groupIds.has(id)))
         .map((cat) => ({
@@ -223,6 +223,13 @@ class CatalogStore {
     if (this.pageSize === size) return;
     this.uiLoading();
     this.pageSize = size;
+    this.page = 1;
+  }
+
+  resetFilters() {
+    this.uiLoading();
+    this.selectedCategoryId = null;
+    this.sort = "nameAsc";
     this.page = 1;
   }
 

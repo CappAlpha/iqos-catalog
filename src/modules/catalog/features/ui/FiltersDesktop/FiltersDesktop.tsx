@@ -4,9 +4,10 @@ import { observer } from 'mobx-react-lite';
 import { Checkbox } from '../../../../../shared/ui/Checkbox';
 import s from './FiltersDesktop.module.scss';
 import { catalogStore } from '../../model/catalogStore';
+import { Button } from '../../../../../shared/ui/Button';
 
 export const FiltersDesktop = observer(() => {
-  const { filterGroups, selectedCategoryId, toggleCategory } = catalogStore;
+  const { filterGroups, selectedCategoryId, toggleCategory, resetFilters } = catalogStore;
 
   return (
     <div className={s.root}>
@@ -26,6 +27,8 @@ export const FiltersDesktop = observer(() => {
           </div>
         )
       })}
+
+      <Button className={s.resetBtn} noPadding color='transparent' onClick={resetFilters}>Сбросить фильтры</Button>
     </div>
   );
 });

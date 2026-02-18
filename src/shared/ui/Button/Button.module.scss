@@ -49,26 +49,26 @@
   &.color {
     &_transparent {
       background: transparent;
-      color: var(--deep-blue);
-      fill: var(--dark-blue);
+      color: var(--dark-gray);
+      fill: var(--dark-gray);
 
       &:hover {
         @media (hover: hover) and (pointer: fine) {
-          color: var(--gray);
-          fill: var(--white);
+          color: var(--accent-color);
+          fill: var(--accent-color);
         }
       }
     }
 
     &_outline {
       background: transparent;
-      color: var(--blue);
+      color: var(--dark-gray);
       outline: 1px solid var(--gray-border);
-      fill: var(--dark-blue);
+      fill: var(--dark-gray);
 
       &:hover {
         @media (hover: hover) and (pointer: fine) {
-          background: var(--deep-blue-hover);
+          background: var(--accent-color);
           color: var(--white);
           fill: var(--white);
         }
