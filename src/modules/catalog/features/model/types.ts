@@ -2,6 +2,20 @@ export type Status = "idle" | "loading" | "success" | "error";
 
 export type SortKey = "nameAsc" | "nameDesc" | "priceAsc" | "priceDesc";
 
+export type FilterGroupKey = "devices" | "sticks" | "accessories";
+
+export type SelectOption = { id: string; label: string };
+
+export interface FilterGroup {
+  key: FilterGroupKey;
+  title: string;
+  categories: Array<{
+    id: string;
+    title: string;
+    count: number;
+  }>;
+}
+
 export type Category = {
   id: string;
   title: string;
@@ -9,7 +23,7 @@ export type Category = {
 };
 
 export type MergedCategory = Category & {
-  ids: string[]; 
+  ids: string[];
   isAll?: boolean;
 };
 
@@ -24,8 +38,6 @@ export type Product = {
   url: string | null;
   available: boolean;
 };
-
-export type SelectOption = { id: string; label: string };
 
 export type FeedResult = {
   categories: Category[];

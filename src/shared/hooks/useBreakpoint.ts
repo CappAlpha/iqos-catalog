@@ -23,8 +23,6 @@ export const useMedia = (query: string, defaultState: boolean = false) => {
 
     mql.addEventListener("change", onChange);
 
-    setState(mql.matches);
-
     return () => {
       mql.removeEventListener("change", onChange);
     };
@@ -33,7 +31,7 @@ export const useMedia = (query: string, defaultState: boolean = false) => {
   return state;
 };
 
-export type Breakpoint =
+type Breakpoint =
   | "mobile"
   | "mobileM"
   | "tablet"
@@ -41,7 +39,7 @@ export type Breakpoint =
   | "desktop"
   | "desktopL";
 
-export type BreakpointType = "max" | "min";
+type BreakpointType = "max" | "min";
 
 // If change it there, also change in _mixins.scss
 export const breakpoints: Record<Breakpoint, number> = {

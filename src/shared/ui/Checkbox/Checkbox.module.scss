@@ -1,12 +1,12 @@
 .root {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   gap: 10px;
   user-select: none;
-
   color: var(--dark-gray);
   font-size: 16px;
-  line-height: 1.25;
+  line-height: 1.2;
+  transition: all 0.3s ease-in-out;
 
   @include breakpoint(desktop-s) {
     font-size: 14px;
@@ -19,6 +19,10 @@
       .box {
         border-color: var(--accent-color);
       }
+
+      .label {
+        color: var(--accent-color);
+      }
     }
   }
 }
@@ -27,6 +31,7 @@
   position: absolute;
   opacity: 0;
   pointer-events: none;
+  visibility: hidden;
 }
 
 .box {
@@ -43,8 +48,8 @@
 }
 
 .label {
-  display: inline-flex;
-  align-items: center;
+  line-clamp: 1;
+  transition: all 0.3s ease-in-out;
 }
 
 .input:focus-visible+.box {
@@ -61,8 +66,8 @@
   content: "";
   width: 9px;
   height: 5px;
-  border-left: 2px solid #fff;
-  border-bottom: 2px solid #fff;
+  border-left: 2px solid var(--white);
+  border-bottom: 2px solid var(--white);
   transform: rotate(-45deg);
   margin-top: -1px;
 }

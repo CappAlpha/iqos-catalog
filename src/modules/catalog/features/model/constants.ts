@@ -7,7 +7,6 @@ export const UNCAT_ID = "uncategorized" as const;
 export const UNCAT_TITLE = "Без категории" as const;
 
 export const CATALOG_DEFAULT = {
-  cat: "",
   sort: "nameAsc" as SortKey,
   page: 1,
   pageSize: 12
@@ -19,3 +18,9 @@ export const SORT_OPTIONS = [
   { id: "priceAsc", label: "Цена (↑)" },
   { id: "priceDesc", label: "Цена (↓)" },
 ];
+
+export const GROUP_KEYWORDS = {
+  devices: ["Устройства"],
+  sticks: ["Стики"],
+  accessories: ["Аксессуары и комплектующие"],
+};

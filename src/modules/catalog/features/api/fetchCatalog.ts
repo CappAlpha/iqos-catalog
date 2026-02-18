@@ -24,7 +24,7 @@ export async function fetchCatalog({
     });
 
     if (!data || !data.trim()) {
-      throw new Error("Сервер вернул пустой ответ.");
+      throw new Error("Сервер вернул пустой ответ.", { cause: data });
     }
 
     return parseXmlCatalog(data);
@@ -38,15 +38,15 @@ export async function fetchCatalog({
       const url = error.config?.url;
 
       if (status) {
-        throw new Error(`Ошибка загрузки (${status}): Не удалось получить данные с ${url}`);
+        throw new Error(`Ошибка загрузки (${status}): Не удалось получить данные с ${url}`, { cause: error });
       }
-      throw new Error("Сетевая ошибка: сервер недоступен.");
+      throw new Error("Сетевая ошибка: сервер недоступен.", { cause: error });
     }
 
     if (error instanceof Error) {
       throw error;
     }
 
-    throw new Error("Неизвестная ошибка при загрузке каталога.");
+    throw new Error("Неизвестная ошибка при загрузке каталога.", { cause: error });
   }
 }

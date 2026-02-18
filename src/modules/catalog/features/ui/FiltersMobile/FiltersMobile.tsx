@@ -1,11 +1,7 @@
 import { Button } from '../../../../../shared/ui/Button';
 import s from './FiltersMobile.module.scss';
 
-interface Props {
-  //
-}
-
-export const FiltersMobile = ({ }: Props) => {
+export const FiltersMobile = () => {
   return (
     <Button>Фильтры</Button>
   );
