@@ -20,8 +20,14 @@
   color: var(--dark-gray);
   font-size: 14px;
   line-height: 1.25;
+  border: none;
   outline: 1px solid var(--gray-border);
   transition: all 0.2s ease-in-out;
+
+  option {
+    color: var(--dark-gray);
+
+  }
 
   &:hover {
     @media (hover: hover) and (pointer: fine) {
@@ -31,7 +37,11 @@
 
   &:focus-visible {
     outline-color: var(--accent-color);
-    box-shadow: 0 0 0 3px var(--accent-color);
+    box-shadow: 0 0 0 2px var(--accent-color);
+  }
+
+  &:open {
+    border-radius: 10px 10px 0 0;
   }
 }
 

@@ -7,23 +7,17 @@ import s from "./Select.module.scss";
 interface SelectProps {
   value: string;
   onChange: (id: string, event: ChangeEvent<HTMLSelectElement>) => void;
-
   options: SelectOption[];
-  placeholder?: string;
-
   disabled?: boolean;
   className?: string;
-  ariaLabel?: string;
 }
 
 export const Select = ({
   value,
   onChange,
   options,
-  placeholder,
   disabled,
   className,
-  ariaLabel,
 }: SelectProps) => {
   const styles = cn(s.root, disabled && s.disabled, className);
 
@@ -33,15 +27,8 @@ export const Select = ({
         className={s.select}
         value={value}
         disabled={disabled}
-        aria-label={ariaLabel}
         onChange={(e) => onChange(e.target.value, e)}
       >
-        {placeholder &&
-          <option value="" disabled>
-            {placeholder}
-          </option>
-        }
-
         {options.map((o) => (
           <option key={o.id} value={o.id}>
             {o.label}

@@ -23,7 +23,6 @@ export const Catalog = observer(function Catalog() {
   const {
     error,
     isLoading,
-    categories,
     totalPages,
     safePage,
     fetchData,
@@ -40,7 +39,6 @@ export const Catalog = observer(function Catalog() {
     topRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
-  const isInitialLoading = isLoading && categories.length === 0;
   const showSidebar = !isTablet && !error;
 
   return (
@@ -49,8 +47,8 @@ export const Catalog = observer(function Catalog() {
 
       <div className={cn(s.wrap, error && s.wrapError)}>
         {showSidebar && (
-          isInitialLoading
-            ? <FiltersDesktopSkeleton count={5} />
+          isLoading
+            ? <FiltersDesktopSkeleton arrays={3} count={5} />
             : <FiltersDesktop />
         )}
 
