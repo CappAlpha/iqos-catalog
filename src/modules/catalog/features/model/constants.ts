@@ -15,8 +15,8 @@ export const CATALOG_DEFAULT = {
 export const SORT_OPTIONS = [
   { id: "nameAsc", label: "Название (A→Я)" },
   { id: "nameDesc", label: "Название (Я→A)" },
-  { id: "priceAsc", label: "Цена (↑)" },
-  { id: "priceDesc", label: "Цена (↓)" },
+  { id: "priceAsc", label: "Сначала дешевле" },
+  { id: "priceDesc", label: "Сначала дороже" },
 ];
 
 export const GROUP_KEYWORDS = {

@@ -1,7 +1,21 @@
 .root,
 .rootSkeleton {
   position: relative;
+  width: 100%;
   min-width: 220px;
+  user-select: none;
+
+  &:hover {
+    @media (hover: hover) and (pointer: fine) {
+      .select {
+        border-color: var(--accent-color);
+      }
+
+      .options {
+        border-color: var(--accent-color);
+      }
+    }
+  }
 }
 
 .rootSkeleton {
@@ -12,49 +26,112 @@
 }
 
 .select {
-  appearance: none;
-  width: 100%;
+  position: relative;
   padding: 10px 36px 10px 12px;
   border-radius: 10px;
   background: transparent;
   color: var(--dark-gray);
   font-size: 14px;
   line-height: 1.25;
-  border: none;
-  outline: 1px solid var(--gray-border);
+  border: 1px solid var(--gray-border);
   transition: all 0.2s ease-in-out;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 
-  option {
-    color: var(--dark-gray);
-
-  }
-
-  &:hover {
-    @media (hover: hover) and (pointer: fine) {
-      outline-color: var(--accent-color);
-    }
-  }
-
-  &:focus-visible {
-    outline-color: var(--accent-color);
-    box-shadow: 0 0 0 2px var(--accent-color);
-  }
-
-  &:open {
+  &.open {
     border-radius: 10px 10px 0 0;
+    border-bottom: none;
   }
+}
+
+.value {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .chevron {
   position: absolute;
   right: 12px;
-  top: 40%;
+  top: 50%;
   width: 10px;
   height: 10px;
   pointer-events: none;
-  transform: translateY(-40%) rotate(45deg);
+  transform: translateY(-50%) rotate(45deg);
   border-right: 2px solid var(--gray);
   border-bottom: 2px solid var(--gray);
+  transition: all 0.3s ease-in-out;
+
+  .open & {
+    rotate: 180deg;
+  }
+}
+
+.options {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: var(--white);
+  border: 1px solid var(--gray-border);
+  border-top: none;
+  border-radius: 0 0 10px 10px;
+  z-index: 100;
+  max-height: 200px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-10px);
+  transition: all 0.3s ease-in-out;
+
+  &.open {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: var(--light-gray);
+    border-radius: 0 0 10px 0;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: var(--gray-border);
+    border-radius: 3px;
+
+    &:hover {
+      background: var(--gray);
+    }
+  }
+}
+
+.option {
+  padding: 10px 12px;
+  color: var(--dark-gray);
+  font-size: 14px;
+  line-height: 1.25;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+
+  &:hover {
+    @media (hover: hover) and (pointer: fine) {
+      background-color: var(--accent-color);
+      color: var(--dark-gray);
+    }
+  }
+
+  &.selected {
+    background-color: var(--accent-color);
+    color: var(--dark-gray);
+    font-weight: 500;
+  }
 }
 
 .disabled {
