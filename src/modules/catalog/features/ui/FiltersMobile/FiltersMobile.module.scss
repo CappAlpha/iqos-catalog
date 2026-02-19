@@ -1,3 +1,74 @@
 .root {
-  
+  position: fixed;
+  inset: 0;
+  opacity: 0;
+  visibility: hidden;
+  z-index: 1000;
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1001;
+}
+
+.open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.wrap {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  z-index: 1002;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  padding: 20px 20px 0 20px;
+  width: 65dvw;
+  height: 65dvh;
+  overflow-y: auto;
+  background: var(--white);
+  border-radius: 15px;
+
+  @include scrollbar;
+
+  @include breakpoint(mobile-m) {
+    width: 70dvw;
+    border-radius: 6px;
+  }
+}
+
+.title {
+  margin-bottom: 20px;
+}
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 15px;
+}
+
+.resetBtn {
+  position: sticky;
+  bottom: 0;
+  background-color: var(--white) !important;
+  border-radius: 0;
+  width: 100%;
+  height: fit-content;
+  z-index: 1;
+}
+
+.closeBtn {
+  position: fixed;
+  right: 20px;
+  top: 20px;
+  z-index: 1003;
+  font-size: 35px;
+  line-height: 1;
+  color: var(--white) !important;
 }

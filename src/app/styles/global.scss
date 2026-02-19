@@ -61,6 +61,11 @@ p {
   text-wrap: pretty;
 }
 
+b{
+  font-family: IQOS Bold, -apple-system, system-ui, Arial, sans-serif;
+  font-weight: 700;
+}
+
 body {
   @include scrollbar;
 }

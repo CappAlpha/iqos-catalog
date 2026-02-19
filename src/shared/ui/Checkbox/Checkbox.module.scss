@@ -12,6 +12,10 @@
     font-size: 14px;
   }
 
+  @include breakpoint(mobile-m) {
+    font-size: 12px;
+  }
+
   &:hover {
     @media (hover: hover) and (pointer: fine) {
       cursor: pointer;
@@ -45,6 +49,12 @@
   align-items: center;
   justify-content: center;
   transition: all 0.3s ease-in-out;
+
+  @include breakpoint(mobile-m) {
+    min-width: 16px;
+    width: 16px;
+    height: 16px;
+  }
 }
 
 .label {

@@ -41,9 +41,9 @@ export const ProductCard = ({ product }: Readonly<Props>) => {
 
       <div className={s.bottom}>
         <div className={s.bottomWrap}>
-          <span className={s.price}>
+          <b className={s.price}>
             {price} &#8381;
-          </span>
+          </b>
           <Button
           >
             Добавить

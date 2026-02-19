@@ -77,10 +77,8 @@
   }
 
   &.disabled {
+    opacity: 0.6;
     pointer-events: none;
-    color: var(--almost-dark-gray);
-    outline-color: var(--almost-dark-gray);
-    background: var(--input-gray);
   }
 
   &.loading {

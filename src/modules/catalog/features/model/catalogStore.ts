@@ -20,8 +20,6 @@ class CatalogStore {
   isTransitioning = false;
   private _transitionTimer: ReturnType<typeof setTimeout> | null = null;
 
-  private _groupIdsCache: Map<FilterGroupKey, Set<string>> | null = null;
-
   constructor() {
     makeAutoObservable(this, {}, { autoBind: true });
   }
@@ -70,26 +68,20 @@ class CatalogStore {
   }
 
   private getGroupIdsMap(): Map<FilterGroupKey, Set<string>> {
-    if (this._groupIdsCache) return this._groupIdsCache;
-
     const map = new Map<FilterGroupKey, Set<string>>();
     const keys = Object.keys(GROUP_KEYWORDS) as FilterGroupKey[];
 
     for (const key of keys) {
       const root = this.findRootCategory(key);
       const ids = new Set<string>();
-
       if (root) {
         this.collectAllChildIds(root.id, ids);
       }
-
       map.set(key, ids);
     }
 
-    this._groupIdsCache = map;
     return map;
   }
-
   private findRootCategory(key: FilterGroupKey): Category | null {
     const keywords = GROUP_KEYWORDS[key];
     return this.categories.find((cat) =>
@@ -241,13 +233,22 @@ class CatalogStore {
     this.error = null;
     this.categories = [];
     this.products = [];
-    this._groupIdsCache = null;
 
     try {
       const data = yield fetchCatalog();
       this.categories = data.categories;
       this.products = data.products;
       this.page = clamp(this.page, 1, Math.max(1, Math.ceil(this.totalCount / this.pageSize)));
+
+      console.log("[CatalogStore] Data loaded:", {
+        categories: this.categories.length,
+        products: this.products.length,
+        filterGroups: this.filterGroups.map((g) => ({
+          key: g.key,
+          count: g.categories.length,
+        })),
+      });
+
       this.status = "success";
     } catch (e) {
       this.status = "error";
