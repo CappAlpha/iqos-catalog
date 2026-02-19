@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import cn from "classnames";
 import s from "./Select.module.scss";
+import { useOutsideClick } from "../../hooks/useOutsideClick";
 
 interface Option {
   id: string;
@@ -24,19 +25,9 @@ export const Select = ({
 }: CustomSelectProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const selectRef = useRef<HTMLDivElement>(null);
+  useOutsideClick(() => setIsOpen(false), selectRef);
 
   const selectedOption = options.find((o) => o.id === value);
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (selectRef.current && !selectRef.current.contains(event.target as Node)) {
-        setIsOpen(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
 
   useEffect(() => {
     const handleEscape = (event: KeyboardEvent) => {

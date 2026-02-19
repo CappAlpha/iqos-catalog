@@ -5,23 +5,14 @@ import cn from 'classnames';
 import { observer } from 'mobx-react-lite';
 import { catalogStore } from '../../model/catalogStore';
 import { FiltersGroup } from '../FiltersGroup';
+import { useOutsideClick } from '../../../../../shared/hooks/useOutsideClick';
 
 export const FiltersMobile = observer(() => {
   const [isOpen, setIsOpen] = useState(false);
   const wrapRef = useRef<HTMLDivElement>(null);
+  useOutsideClick(() => setIsOpen(false), wrapRef);
 
   const { isLoading, filterGroups, selectedCategoryId, setCategory, resetFilters } = catalogStore;
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (wrapRef.current && !wrapRef.current.contains(event.target as Node)) {
-        setIsOpen(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
 
   const handleSetCategory = (id: string) => {
     setCategory(id);
