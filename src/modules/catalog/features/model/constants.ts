@@ -1,4 +1,4 @@
-import type { SortKey } from "./types";
+import type { FilterGroupKey, SortKey } from "./types";
 
 export const DEFAULT_FEED_URL = "/mindbox_feed.xml";
 // export const DEFAULT_FEED_URL = "https://www.iqos.ru/mindbox_feed.xml";
@@ -23,4 +23,10 @@ export const GROUP_KEYWORDS = {
   devices: ["Устройства"],
   sticks: ["Стики"],
   accessories: ["Аксессуары и комплектующие"],
+};
+
+export const GROUP_TITLES: Record<FilterGroupKey, string> = {
+  devices: "Устройства",
+  sticks: "Тип стиков",
+  accessories: "Аксессуары и комплектующие",
 };

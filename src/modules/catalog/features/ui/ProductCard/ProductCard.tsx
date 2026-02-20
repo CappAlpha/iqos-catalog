@@ -44,8 +44,7 @@ export const ProductCard = ({ product }: Readonly<Props>) => {
           <b className={s.price}>
             {price} &#8381;
           </b>
-          <Button
-          >
+          <Button>
             Добавить
           </Button>
         </div>
