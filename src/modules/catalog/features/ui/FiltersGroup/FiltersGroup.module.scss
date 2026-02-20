@@ -13,8 +13,12 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
-  padding-bottom: 10px;
+  padding-bottom: 20px;
   animation: fromZeroWidth 0.3s ease-in-out;
+
+  @include breakpoint(tablet) {
+    padding-bottom: 0;
+  }
 
   &::after {
     content: '';

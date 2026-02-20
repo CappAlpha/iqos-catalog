@@ -1,6 +1,7 @@
 import s from "./Pagination.module.scss";
-import { useMobile } from "../../../../../shared/hooks/useBreakpoint";
+import { useMobileS } from "../../../../../shared/hooks/useBreakpoint";
 import { buildPagination } from "../../lib/pagination";
+import cn from "classnames";
 
 interface Props {
   page: number;
@@ -13,55 +14,63 @@ export const Pagination = ({
   totalPages,
   onChange,
 }: Props) => {
-  const isMobile = useMobile();
+  const isMobileS = useMobileS();
   const items = buildPagination(page, totalPages);
 
   return (
-    <nav className={s.wrap} aria-label="Pagination">
-      {!isMobile &&
-        <button
-          className={s.btn}
-          onClick={() => onChange(page - 1)}
-          disabled={page <= 1}
-          aria-label="Предыдущая страница"
-        >
-          ←
-        </button>
-      }
+    <nav className={s.root} aria-label="Pagination">
+      <ul className={s.wrap}>
+        <li>
+          {!isMobileS &&
+            <button
+              className={s.btn}
+              onClick={() => onChange(page - 1)}
+              disabled={page <= 1}
+              aria-label="Предыдущая страница"
+            >
+              ←
+            </button>
+          }
+        </li>
 
-      {items.map((it) => {
-        if (it.type === "dots") {
+
+        {items.map((it, i) => {
+          if (it.type === "dots") {
+            return (
+              <li key={`dots-${i}`} className={s.dots} aria-hidden="true">
+                …
+              </li>
+            );
+          }
+
+          const isActive = it.value === page;
           return (
-            <span key={`dots-${it.side}`} className={s.dots} aria-hidden="true">
-              …
-            </span>
+            <li key={`page-${it.value}`}>
+              <button
+                className={cn(s.btn, isActive && s.active)}
+                onClick={() => onChange(it.value)}
+                aria-current={isActive ? "page" : undefined}
+                aria-label={isActive ? `Страница ${it.value}, текущая` : `Идти на страницу ${it.value}`}
+              >
+                {it.value}
+              </button>
+            </li>
           );
-        }
+        })}
 
-        const active = it.value === page;
-        return (
-          <button
-            key={`page-${it.value}`}
-            className={`${s.btn} ${active ? s.active : ""}`}
-            onClick={() => onChange(it.value)}
-            aria-current={active ? "page" : undefined}
-            aria-label={active ? `Страница ${it.value}, текущая` : `Идти на страницу ${it.value}`}
-          >
-            {it.value}
-          </button>
-        );
-      })}
-
-      {!isMobile &&
-        <button
-          className={s.btn}
-          onClick={() => onChange(page + 1)}
-          disabled={page >= totalPages}
-          aria-label="Следующая страница"
-        >
-          →
-        </button>
-      }
+        <li>
+          {!isMobileS &&
+            <button
+              className={s.btn}
+              onClick={() => onChange(page + 1)}
+              disabled={page >= totalPages}
+              aria-label="Следующая страница"
+            >
+              →
+            </button>
+          }
+        </li>
+      </ul>
     </nav>
   );
 }
