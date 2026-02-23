@@ -61,7 +61,7 @@ p {
   text-wrap: pretty;
 }
 
-b{
+b {
   font-family: IQOS Bold, -apple-system, system-ui, Arial, sans-serif;
   font-weight: 700;
 }
@@ -77,4 +77,16 @@ body[data-no-scroll="true"] {
 ::selection {
   background-color: var(--accent-color);
   color: var(--dark-gray);
+}
+
+@view-transition {
+  navigation: auto;
+}
+
+::view-transition-old(root) {
+  animation: hideOpacity 0.3s forwards;
+}
+
+::view-transition-new(root) {
+  animation: showOpacity 0.5s ease-out forwards;
 }

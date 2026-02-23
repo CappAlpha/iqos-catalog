@@ -18,7 +18,7 @@ class CatalogStore {
   pageSize = CATALOG_DEFAULT.pageSize;
 
   isTransitioning = false;
-  private _transitionTimer: ReturnType<typeof setTimeout> | null = null;
+  #transitionTimer: ReturnType<typeof setTimeout> | null = null;
 
   constructor() {
     makeAutoObservable(this, {}, { autoBind: true });
@@ -172,12 +172,12 @@ class CatalogStore {
 
   private triggerTransition(ms = 400) {
     this.isTransitioning = true;
-    if (this._transitionTimer) clearTimeout(this._transitionTimer);
+    if (this.#transitionTimer) clearTimeout(this.#transitionTimer);
 
-    this._transitionTimer = setTimeout(() => {
+    this.#transitionTimer = setTimeout(() => {
       runInAction(() => {
         this.isTransitioning = false;
-        this._transitionTimer = null;
+        this.#transitionTimer = null;
       });
     }, ms);
   }
@@ -228,7 +228,7 @@ class CatalogStore {
   }
 
   fetchData = flow(function* (this: CatalogStore) {
-    if (this._transitionTimer) clearTimeout(this._transitionTimer);
+    if (this.#transitionTimer) clearTimeout(this.#transitionTimer);
     this.isTransitioning = false;
 
     this.status = "loading";

@@ -110,7 +110,9 @@
     border-radius: 3px;
 
     &:hover {
-      background: var(--gray);
+      @media (hover: hover) and (pointer: fine) {
+        background: var(--gray);
+      }
     }
   }
 }
