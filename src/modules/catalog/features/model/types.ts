@@ -4,8 +4,6 @@ export type SortKey = "nameAsc" | "nameDesc" | "priceAsc" | "priceDesc";
 
 export type FilterGroupKey = "devices" | "sticks" | "accessories";
 
-export type SelectOption = { id: string; label: string };
-
 export interface FilterGroup {
   key: FilterGroupKey;
   title: string;

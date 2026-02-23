@@ -5,7 +5,7 @@ import { Checkbox } from '../../../../../shared/ui/Checkbox';
 import type { FilterGroup } from '../../model/types';
 import s from './FiltersGroup.module.scss';
 
-export interface Props {
+interface Props {
   filterGroups: FilterGroup[];
   selectedCategoryId: string | null;
   toggleCategory: (id: string) => void;
