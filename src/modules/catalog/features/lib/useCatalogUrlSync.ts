@@ -1,67 +1,72 @@
-import { useEffect } from "react";
-import { useSearchParams } from "react-router";
+import { useEffect, useRef } from "react";
+import { useSearchParams, useLocation } from "react-router";
 import { catalogStore } from "../model/catalogStore";
-import { normalizeSort, normalizePage, syncUrlParam } from "./catalogPage";
+import { normalizeSort, normalizePage } from "./catalogPage";
 
 export const useCatalogUrlSync = () => {
   const [searchParams, setSearchParams] = useSearchParams();
+  const location = useLocation();
+  const isInternalNav = useRef(false);
 
-  const {
-    selectedCategoryId, sort, page, safePage, status,
-    setCategory, setSort, setPage
-  } = catalogStore;
-
-  // URL -> Store 
-  const catParam = searchParams.get("cat");
-  const sortParam = searchParams.get("sort");
-  const pageParam = searchParams.get("page");
-
-  useEffect(() => {
-    const nextCat = catParam ?? "";
-    const nextSort = normalizeSort(sortParam);
-    const nextPage = normalizePage(pageParam);
-
-    if (selectedCategoryId !== nextCat) setCategory(nextCat);
-    if (sort !== nextSort) setSort(nextSort);
-    if (page !== nextPage) setPage(nextPage);
-
-  }, [catParam, sortParam, pageParam]);
+  const { selectedCategoryId, sort, page, status } = catalogStore;
+  const defaultSort = normalizeSort(null);
 
   // Store -> URL
   useEffect(() => {
     if (status !== "success") return;
 
-    const nextParams = new URLSearchParams(searchParams);
-    let changed = false;
+    const currentUrlCat = searchParams.get("cat") ?? "";
+    const currentUrlSort = searchParams.get("sort");
+    const currentUrlPage = searchParams.get("page");
 
-    const syncParam = (key: string, value: string, defaultValue: string) => {
-      const currentUrlValue = nextParams.get(key);
-      const nextValue = value === defaultValue ? null : value;
+    const targetCat = selectedCategoryId ?? "";
+    const targetSort = sort === defaultSort ? null : sort;
+    const targetPage = page <= 1 ? null : String(page);
 
-      if (currentUrlValue !== nextValue) {
-        syncUrlParam(nextParams, key, value, defaultValue);
-        changed = true;
-      }
-    };
+    if (
+      currentUrlCat !== targetCat ||
+      (currentUrlSort || null) !== (targetSort || null) ||
+      (currentUrlPage || null) !== (targetPage || null)
+    ) {
+      const nextParams = new URLSearchParams(searchParams);
 
-    syncParam("cat", selectedCategoryId ?? "", "");
-    syncParam("sort", sort, "nameAsc");
+      if (targetCat) nextParams.set("cat", targetCat);
+      else nextParams.delete("cat");
 
-    const currentPageStr = nextParams.get("page");
-    if (safePage <= 1) {
-      if (currentPageStr) {
-        nextParams.delete("page");
-        changed = true;
-      }
-    } else {
-      if (currentPageStr !== String(safePage)) {
-        nextParams.set("page", String(safePage));
-        changed = true;
-      }
-    }
+      if (targetSort) nextParams.set("sort", targetSort);
+      else nextParams.delete("sort");
 
-    if (changed) {
+      if (targetPage) nextParams.set("page", targetPage);
+      else nextParams.delete("page");
+
+      isInternalNav.current = true;
       setSearchParams(nextParams, { replace: true });
     }
-  }, [status, selectedCategoryId, sort, safePage, setSearchParams]);
+  }, [selectedCategoryId, sort, page, status, defaultSort, searchParams, setSearchParams]);
+
+
+  // URL -> Store
+  useEffect(() => {
+    if (isInternalNav.current) {
+      isInternalNav.current = false;
+      return;
+    }
+
+    const currentParams = new URLSearchParams(location.search);
+    const urlCat = currentParams.get("cat") ?? "";
+    const urlSort = normalizeSort(currentParams.get("sort"));
+    const urlPage = normalizePage(currentParams.get("page"));
+
+    if ((catalogStore.selectedCategoryId ?? "") !== urlCat) {
+      catalogStore.setCategory(urlCat === "" ? null : urlCat);
+    }
+
+    if (catalogStore.sort !== urlSort) {
+      catalogStore.setSort(urlSort);
+    }
+
+    if (catalogStore.page !== urlPage) {
+      catalogStore.setPage(urlPage);
+    }
+  }, [location.search]);
 };

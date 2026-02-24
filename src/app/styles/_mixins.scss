@@ -63,10 +63,12 @@ $breakpoints: (
 @mixin wrapPage {
   max-width: 1480px;
   margin-inline: auto;
+  padding-top: 40px;
   padding-inline: 40px;
   padding-bottom: 100px;
 
   @include breakpoint(desktop-s) {
+    padding-top: 20px;
     padding-inline: 32px;
   }
 
