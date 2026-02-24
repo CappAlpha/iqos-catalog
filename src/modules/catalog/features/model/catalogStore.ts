@@ -213,13 +213,6 @@ class CatalogStore {
     this.page = n;
   }
 
-  setPageSize(size: number) {
-    if (this.pageSize === size) return;
-    this.updateWithTransition(() => {
-      this.pageSize = size;
-    });
-  }
-
   resetFilters() {
     this.updateWithTransition(() => {
       this.selectedCategoryId = null;
@@ -240,7 +233,7 @@ class CatalogStore {
       const data = yield fetchCatalog();
       this.categories = data.categories;
       this.products = data.products;
-      this.page = clamp(this.page, 1, Math.max(1, Math.ceil(this.totalCount / this.pageSize)));
+      this.page = this.safePage;
 
       this.status = "success";
     } catch (e) {

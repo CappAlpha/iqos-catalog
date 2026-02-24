@@ -8,8 +8,8 @@
   outline: solid 1px var(--gray-border);
   transition: all 0.3s ease-in-out;
 
-  @media (hover: hover) {
-    &:hover {
+  &:hover {
+    @media (hover: hover) and (pointer: fine) {
       outline-color: var(--accent-color);
 
       img {
@@ -72,7 +72,6 @@
   line-clamp: 2;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
-
   overflow: hidden;
   font-size: 20px;
   font-weight: 700;
