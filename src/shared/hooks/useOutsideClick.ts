@@ -10,5 +10,5 @@ export const useOutsideClick = (onClickOutside: () => void, ref: RefObject<HTMLD
 
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+  }, [onClickOutside, ref]);
 };

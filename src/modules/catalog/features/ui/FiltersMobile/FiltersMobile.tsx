@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { Button } from '../../../../../shared/ui/Button';
 import s from './FiltersMobile.module.scss';
 import cn from 'classnames';
