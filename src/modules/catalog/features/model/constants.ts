@@ -9,7 +9,7 @@ export const UNCAT_TITLE = "Без категории" as const;
 export const CATALOG_DEFAULT = {
   sort: "nameAsc" as SortKey,
   page: 1,
-  pageSize: 12
+  pageSize: 12,
 };
 
 export const SORT_OPTIONS = [

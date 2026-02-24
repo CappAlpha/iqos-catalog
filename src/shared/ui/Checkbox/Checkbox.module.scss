@@ -62,17 +62,17 @@
   transition: all 0.3s ease-in-out;
 }
 
-.input:focus-visible+.box {
+.input:focus-visible + .box {
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-color) 25%, transparent);
   border-color: var(--accent-color);
 }
 
-.input:checked+.box {
+.input:checked + .box {
   background: var(--accent-color);
   border-color: var(--accent-color);
 }
 
-.input:checked+.box::after {
+.input:checked + .box::after {
   content: "";
   width: 9px;
   height: 5px;

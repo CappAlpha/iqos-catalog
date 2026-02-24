@@ -21,7 +21,7 @@
   }
 
   &::after {
-    content: '';
+    content: "";
     opacity: 0;
     width: 0;
     height: 1px;
@@ -34,7 +34,7 @@
   &:hover {
     @media (hover: hover) and (pointer: fine) {
       &::after {
-        content: '';
+        content: "";
         opacity: 1;
         width: 100%;
         height: 1px;

@@ -1,7 +1,8 @@
 import { makeAutoObservable, autorun, runInAction } from "mobx";
+
 import type { Product } from "../../../catalog/features/model/types";
-import type { CartActionType, CartItem, Order } from "./types";
 import { CART_STORAGE_KEY, ORDERS_STORAGE_KEY } from "./constants";
+import type { CartActionType, CartItem, Order } from "./types";
 
 class CartStore {
   items: CartItem[] = [];
@@ -21,12 +22,16 @@ class CartStore {
 
     autorun(() => {
       localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(this.items));
-      localStorage.setItem(ORDERS_STORAGE_KEY, JSON.stringify(this.orderHistory));
+      localStorage.setItem(
+        ORDERS_STORAGE_KEY,
+        JSON.stringify(this.orderHistory),
+      );
     });
   }
 
   private syncStorage(event: StorageEvent) {
-    if (event.key !== CART_STORAGE_KEY && event.key !== ORDERS_STORAGE_KEY) return;
+    if (event.key !== CART_STORAGE_KEY && event.key !== ORDERS_STORAGE_KEY)
+      return;
 
     try {
       runInAction(() => {
@@ -54,7 +59,9 @@ class CartStore {
 
     if (
       this.items.length > 0 &&
-      this.items.every((i) => this.activeTransitions.get(i.product.id) === "remove")
+      this.items.every(
+        (i) => this.activeTransitions.get(i.product.id) === "remove",
+      )
     ) {
       return true;
     }
@@ -67,7 +74,7 @@ class CartStore {
     action: CartActionType,
     updateFn: () => void,
     delayAction = false,
-    ms = 400
+    ms = 400,
   ) {
     this.activeTransitions.set(productId, action);
 
@@ -115,9 +122,14 @@ class CartStore {
   }
 
   removeFromCart(productId: string) {
-    this.updateItemWithTransition(productId, "remove", () => {
-      this.items = this.items.filter(i => i.product.id !== productId);
-    }, true);
+    this.updateItemWithTransition(
+      productId,
+      "remove",
+      () => {
+        this.items = this.items.filter((i) => i.product.id !== productId);
+      },
+      true,
+    );
   }
 
   setQuantity(productId: string, quantity: number) {

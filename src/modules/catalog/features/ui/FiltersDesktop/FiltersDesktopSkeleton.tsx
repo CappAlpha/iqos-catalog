@@ -1,5 +1,5 @@
-import s from './FiltersDesktop.module.scss';
-import secondS from '../FiltersGroup/FiltersGroup.module.scss';
+import secondS from "../FiltersGroup/FiltersGroup.module.scss";
+import s from "./FiltersDesktop.module.scss";
 
 interface Props {
   arrays: number;

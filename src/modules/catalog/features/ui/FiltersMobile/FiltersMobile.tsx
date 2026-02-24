@@ -1,18 +1,26 @@
-import { useRef, useState } from 'react';
-import { Button } from '../../../../../shared/ui/Button';
-import s from './FiltersMobile.module.scss';
-import cn from 'classnames';
-import { observer } from 'mobx-react-lite';
-import { catalogStore } from '../../model/catalogStore';
-import { FiltersGroup } from '../FiltersGroup';
-import { useOutsideClick } from '../../../../../shared/hooks/useOutsideClick';
+import cn from "classnames";
+import { observer } from "mobx-react-lite";
+import { useRef, useState } from "react";
+
+import { useOutsideClick } from "../../../../../shared/hooks/useOutsideClick";
+import { Button } from "../../../../../shared/ui/Button";
+import { catalogStore } from "../../model/catalogStore";
+import { FiltersGroup } from "../FiltersGroup";
+
+import s from "./FiltersMobile.module.scss";
 
 export const FiltersMobile = observer(() => {
   const [isOpen, setIsOpen] = useState(false);
   const wrapRef = useRef<HTMLDivElement>(null);
   useOutsideClick(() => setIsOpen(false), wrapRef);
 
-  const { isLoading, filterGroups, selectedCategoryId, setCategory, resetFilters } = catalogStore;
+  const {
+    isLoading,
+    filterGroups,
+    selectedCategoryId,
+    setCategory,
+    resetFilters,
+  } = catalogStore;
 
   const handleSetCategory = (id: string) => {
     setCategory(id);
@@ -26,7 +34,13 @@ export const FiltersMobile = observer(() => {
 
   return (
     <>
-      <Button onClick={() => setIsOpen(!isOpen)} className={s.btn} loading={isLoading}>Фильтры</Button>
+      <Button
+        onClick={() => setIsOpen(!isOpen)}
+        className={s.btn}
+        loading={isLoading}
+      >
+        Фильтры
+      </Button>
 
       <div className={cn(s.root, isOpen && s.open)}>
         <div className={s.overlay} />
@@ -34,13 +48,31 @@ export const FiltersMobile = observer(() => {
           <h3 className={s.title}>Фильтры</h3>
 
           <div className={s.filters}>
-            <FiltersGroup className={s.filtersGroup} filterGroups={filterGroups} selectedCategoryId={selectedCategoryId} toggleCategory={handleSetCategory} />
+            <FiltersGroup
+              className={s.filtersGroup}
+              filterGroups={filterGroups}
+              selectedCategoryId={selectedCategoryId}
+              toggleCategory={handleSetCategory}
+            />
           </div>
 
-          <Button className={s.resetBtn} color='transparent' onClick={handleResetFilters}>Сбросить фильтры</Button>
+          <Button
+            className={s.resetBtn}
+            color="transparent"
+            onClick={handleResetFilters}
+          >
+            Сбросить фильтры
+          </Button>
         </div>
 
-        <Button className={s.closeBtn} noPadding color='transparent' onClick={() => setIsOpen(false)}>&#10006;</Button>
+        <Button
+          className={s.closeBtn}
+          noPadding
+          color="transparent"
+          onClick={() => setIsOpen(false)}
+        >
+          &#10006;
+        </Button>
       </div>
     </>
   );

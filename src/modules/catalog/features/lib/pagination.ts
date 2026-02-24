@@ -8,11 +8,14 @@ const range = (start: number, end: number) => {
 const toPage = (value: number) => ({ type: "page" as const, value });
 const toDots = (side: "left" | "right") => ({ type: "dots" as const, side });
 
-export const buildPagination = (current: number, total: number): PaginationItem[] => {
+export const buildPagination = (
+  current: number,
+  total: number,
+): PaginationItem[] => {
   if (total <= 1) return [];
 
   if (total <= 7) {
-    return range(1, total).map(page => (toPage(page)));
+    return range(1, total).map((page) => toPage(page));
   }
 
   const left = Math.max(current - 1, 2);
@@ -26,7 +29,7 @@ export const buildPagination = (current: number, total: number): PaginationItem[
     ...(hasLeftDots ? [toDots("left")] : []),
     ...range(left, right).map(toPage),
     ...(hasRightDots ? [toDots("right")] : []),
-    toPage(total)
+    toPage(total),
   ];
 
   return items;

@@ -1,1 +1,1 @@
-export * from './CatalogGrid';
+export * from "./CatalogGrid";

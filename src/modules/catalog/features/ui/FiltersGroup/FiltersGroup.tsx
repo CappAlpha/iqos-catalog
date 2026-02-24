@@ -1,9 +1,9 @@
+import cn from "classnames";
 
+import { Checkbox } from "../../../../../shared/ui/Checkbox";
+import type { FilterGroup } from "../../model/types";
 
-import cn from 'classnames';
-import { Checkbox } from '../../../../../shared/ui/Checkbox';
-import type { FilterGroup } from '../../model/types';
-import s from './FiltersGroup.module.scss';
+import s from "./FiltersGroup.module.scss";
 
 interface Props {
   filterGroups: FilterGroup[];
@@ -12,7 +12,12 @@ interface Props {
   className?: string;
 }
 
-export const FiltersGroup = ({ filterGroups, selectedCategoryId, toggleCategory, className }: Props) => {
+export const FiltersGroup = ({
+  filterGroups,
+  selectedCategoryId,
+  toggleCategory,
+  className,
+}: Props) => {
   return (
     <>
       {filterGroups.map(({ key, title, categories }) => {
@@ -22,12 +27,17 @@ export const FiltersGroup = ({ filterGroups, selectedCategoryId, toggleCategory,
           <div key={key} className={cn(s.root, className)}>
             <h4 className={s.title}>{title}</h4>
             <div className={s.categories}>
-              {categories.map((category) =>
-                <Checkbox key={category.id} checked={selectedCategoryId === category.id} onChange={() => toggleCategory(category.id)} label={`${category.title} (${category.count})`} />
-              )}
+              {categories.map((category) => (
+                <Checkbox
+                  key={category.id}
+                  checked={selectedCategoryId === category.id}
+                  onChange={() => toggleCategory(category.id)}
+                  label={`${category.title} (${category.count})`}
+                />
+              ))}
             </div>
           </div>
-        )
+        );
       })}
     </>
   );

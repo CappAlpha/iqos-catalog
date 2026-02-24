@@ -1,7 +1,8 @@
 import axios from "axios";
+
+import { DEFAULT_FEED_URL } from "../model/constants";
 import type { FeedResult } from "../model/types";
 import { parseXmlCatalog } from "./feedParser";
-import { DEFAULT_FEED_URL } from "../model/constants";
 
 interface FetchParams {
   signal?: AbortSignal;
@@ -38,7 +39,10 @@ export async function fetchCatalog({
       const url = error.config?.url;
 
       if (status) {
-        throw new Error(`Ошибка загрузки (${status}): Не удалось получить данные с ${url}`, { cause: error });
+        throw new Error(
+          `Ошибка загрузки (${status}): Не удалось получить данные с ${url}`,
+          { cause: error },
+        );
       }
       throw new Error("Сетевая ошибка: сервер недоступен.", { cause: error });
     }
@@ -47,6 +51,8 @@ export async function fetchCatalog({
       throw error;
     }
 
-    throw new Error("Неизвестная ошибка при загрузке каталога.", { cause: error });
+    throw new Error("Неизвестная ошибка при загрузке каталога.", {
+      cause: error,
+    });
   }
 }

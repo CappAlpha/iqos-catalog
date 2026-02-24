@@ -1,7 +1,12 @@
-import { NavLink, useNavigate, type NavLinkProps } from "react-router";
 import { flushSync } from "react-dom";
+import { NavLink, useNavigate, type NavLinkProps } from "react-router";
 
-export const TransitionNavLink = ({ to, children, onClick, className }: NavLinkProps) => {
+export const TransitionNavLink = ({
+  to,
+  children,
+  onClick,
+  className,
+}: NavLinkProps) => {
   const navigate = useNavigate();
 
   const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {

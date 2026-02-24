@@ -1,18 +1,17 @@
+import cn from "classnames";
 import { observer } from "mobx-react-lite";
 import { useEffect, useRef } from "react";
-import cn from "classnames";
 
-import { catalogStore } from "../../../features/model/catalogStore";
 import { useTablet } from "../../../../../shared/hooks/useBreakpoint";
-
+import { useCatalogUrlSync } from "../../../features/lib/useCatalogUrlSync";
+import { catalogStore } from "../../../features/model/catalogStore";
 import { CatalogGrid } from "../../../features/ui/CatalogGrid";
-import { Pagination } from "../../../features/ui/Pagination";
 import { CatalogHeader } from "../../../features/ui/CatalogHeader";
 import { FiltersDesktop } from "../../../features/ui/FiltersDesktop";
 import { FiltersDesktopSkeleton } from "../../../features/ui/FiltersDesktop/FiltersDesktopSkeleton";
+import { Pagination } from "../../../features/ui/Pagination";
 
 import s from "./Catalog.module.scss";
-import { useCatalogUrlSync } from "../../../features/lib/useCatalogUrlSync";
 
 export const Catalog = observer(function Catalog() {
   const isTablet = useTablet();
@@ -27,7 +26,7 @@ export const Catalog = observer(function Catalog() {
     safePage,
     fetchData,
     setPage,
-    isTransitioning
+    isTransitioning,
   } = catalogStore;
 
   useEffect(() => {
@@ -46,11 +45,12 @@ export const Catalog = observer(function Catalog() {
       <CatalogHeader isTablet={isTablet} />
 
       <div className={cn(s.wrap, error && s.wrapError)}>
-        {showSidebar && (
-          isLoading
-            ? <FiltersDesktopSkeleton arrays={3} count={5} />
-            : <FiltersDesktop />
-        )}
+        {showSidebar &&
+          (isLoading ? (
+            <FiltersDesktopSkeleton arrays={3} count={5} />
+          ) : (
+            <FiltersDesktop />
+          ))}
 
         <CatalogGrid />
       </div>

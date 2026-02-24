@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import { useSearchParams, useLocation } from "react-router";
+
 import { catalogStore } from "../model/catalogStore";
 import { normalizeSort, normalizePage } from "./catalogPage";
 
@@ -42,8 +43,15 @@ export const useCatalogUrlSync = () => {
       isInternalNav.current = true;
       setSearchParams(nextParams, { replace: true });
     }
-  }, [selectedCategoryId, sort, page, status, defaultSort, searchParams, setSearchParams]);
-
+  }, [
+    selectedCategoryId,
+    sort,
+    page,
+    status,
+    defaultSort,
+    searchParams,
+    setSearchParams,
+  ]);
 
   // URL -> Store
   useEffect(() => {

@@ -1,4 +1,5 @@
 import { ProductCardSkeleton } from "../ProductCard/ProductCardSkeleton";
+
 import s from "./CatalogGrid.module.scss";
 
 export const CatalogGridSkeleton = ({ count = 12 }: { count?: number }) => {
@@ -9,4 +10,4 @@ export const CatalogGridSkeleton = ({ count = 12 }: { count?: number }) => {
       ))}
     </div>
   );
-}
+};

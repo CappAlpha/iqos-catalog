@@ -1,17 +1,21 @@
-import { observer } from "mobx-react-lite";
 import cn from "classnames";
+import { observer } from "mobx-react-lite";
+
+import { Button } from "../../../../../shared/ui/Button";
 import { cartStore } from "../../model/cartStore";
 import type { CartItem } from "../../model/types";
 
 import s from "./CartItemCard.module.scss";
-import { Button } from "../../../../../shared/ui/Button";
 
 interface Props {
   item: CartItem;
 }
 
 export const CartItemCard = observer(({ item }: Readonly<Props>) => {
-  const { product: { pictureUrl, name, categoryTitle, id, price }, quantity } = item;
+  const {
+    product: { pictureUrl, name, categoryTitle, id, price },
+    quantity,
+  } = item;
   const { removeFromCart, setQuantity, getItemAction } = cartStore;
 
   const action = getItemAction(id);
@@ -62,9 +66,11 @@ export const CartItemCard = observer(({ item }: Readonly<Props>) => {
             </Button>
           </div>
 
-          {price && <b className={cn(s.price, isCountChanged && s.updatingText)}>
-            {price * quantity} &#8381;
-          </b>}
+          {price && (
+            <b className={cn(s.price, isCountChanged && s.updatingText)}>
+              {price * quantity} &#8381;
+            </b>
+          )}
 
           <Button
             className={s.deleteBtn}

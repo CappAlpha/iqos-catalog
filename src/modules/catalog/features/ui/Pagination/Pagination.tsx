@@ -1,7 +1,9 @@
-import s from "./Pagination.module.scss";
+import cn from "classnames";
+
 import { useMobileS } from "../../../../../shared/hooks/useBreakpoint";
 import { buildPagination } from "../../lib/pagination";
-import cn from "classnames";
+
+import s from "./Pagination.module.scss";
 
 interface Props {
   page: number;
@@ -9,11 +11,7 @@ interface Props {
   onChange: (page: number) => void;
 }
 
-export const Pagination = ({
-  page,
-  totalPages,
-  onChange,
-}: Props) => {
+export const Pagination = ({ page, totalPages, onChange }: Props) => {
   const isMobileS = useMobileS();
   const items = buildPagination(page, totalPages);
 
@@ -21,7 +19,7 @@ export const Pagination = ({
     <nav className={s.root} aria-label="Pagination">
       <ul className={s.wrap}>
         <li>
-          {!isMobileS &&
+          {!isMobileS && (
             <button
               className={s.btn}
               onClick={() => onChange(page - 1)}
@@ -30,9 +28,8 @@ export const Pagination = ({
             >
               ←
             </button>
-          }
+          )}
         </li>
-
 
         {items.map((it, i) => {
           if (it.type === "dots") {
@@ -50,7 +47,11 @@ export const Pagination = ({
                 className={cn(s.btn, isActive && s.active)}
                 onClick={() => onChange(it.value)}
                 aria-current={isActive ? "page" : undefined}
-                aria-label={isActive ? `Страница ${it.value}, текущая` : `Идти на страницу ${it.value}`}
+                aria-label={
+                  isActive
+                    ? `Страница ${it.value}, текущая`
+                    : `Идти на страницу ${it.value}`
+                }
               >
                 {it.value}
               </button>
@@ -59,7 +60,7 @@ export const Pagination = ({
         })}
 
         <li>
-          {!isMobileS &&
+          {!isMobileS && (
             <button
               className={s.btn}
               onClick={() => onChange(page + 1)}
@@ -68,9 +69,9 @@ export const Pagination = ({
             >
               →
             </button>
-          }
+          )}
         </li>
       </ul>
     </nav>
   );
-}
+};

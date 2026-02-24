@@ -27,20 +27,16 @@ export const useMedia = (query: string, defaultState: boolean = false) => {
     ];
   }, [query]);
 
-  return useSyncExternalStore(
-    subscribe,
-    getSnapshot,
-    getServerSnapshot
-  );
+  return useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 };
 
 export const useBreakpoint = (
   breakpoint: Breakpoint,
   type: BreakpointType = "min",
-  defaultState: boolean = false
+  defaultState: boolean = false,
 ) => {
   const value = breakpoints[breakpoint];
-  
+
   const adjustValue = type === "max" ? value - 0.02 : value;
   const query = `(${type}-width: ${adjustValue}px)`;
 
@@ -48,9 +44,14 @@ export const useBreakpoint = (
 };
 
 export const useMobile = (def?: boolean) => useBreakpoint("mobile", "max", def);
-export const useMobileS = (def?: boolean) => useBreakpoint("mobileS", "max", def);
-export const useMobileM = (def?: boolean) => useBreakpoint("mobileM", "max", def);
+export const useMobileS = (def?: boolean) =>
+  useBreakpoint("mobileS", "max", def);
+export const useMobileM = (def?: boolean) =>
+  useBreakpoint("mobileM", "max", def);
 export const useTablet = (def?: boolean) => useBreakpoint("tablet", "max", def);
-export const useDesktopS = (def?: boolean) => useBreakpoint("desktopS", "max", def);
-export const useDesktop = (def?: boolean) => useBreakpoint("desktop", "max", def);
-export const useDesktopL = (def?: boolean) => useBreakpoint("desktopL", "max", def);
+export const useDesktopS = (def?: boolean) =>
+  useBreakpoint("desktopS", "max", def);
+export const useDesktop = (def?: boolean) =>
+  useBreakpoint("desktop", "max", def);
+export const useDesktopL = (def?: boolean) =>
+  useBreakpoint("desktopL", "max", def);

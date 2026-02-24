@@ -1,7 +1,9 @@
-import { useState, useRef, useEffect } from "react";
 import cn from "classnames";
-import s from "./Select.module.scss";
+import { useState, useRef, useEffect } from "react";
+
 import { useOutsideClick } from "../../hooks/useOutsideClick";
+
+import s from "./Select.module.scss";
 
 interface Option {
   id: string;
@@ -66,9 +68,7 @@ export const Select = ({
         role="button"
         aria-label="Выберите опцию"
       >
-        <span className={s.value}>
-          {selectedOption?.label}
-        </span>
+        <span className={s.value}>{selectedOption?.label}</span>
         <div className={s.chevron} />
       </div>
 

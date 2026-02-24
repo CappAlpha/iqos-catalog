@@ -23,7 +23,7 @@
   &:not(:disabled):hover {
     @media (hover: hover) and (pointer: fine) {
       background-color: var(--accent-color);
-      color: var(--dark-gray)
+      color: var(--dark-gray);
     }
   }
 

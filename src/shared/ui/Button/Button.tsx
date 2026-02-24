@@ -45,11 +45,7 @@ export const Button = ({
       {children}
     </a>
   ) : (
-    <button
-      className={styles}
-      onClick={onClick}
-      onMouseDown={onMouseDown}
-    >
+    <button className={styles} onClick={onClick} onMouseDown={onMouseDown}>
       {children}
     </button>
   );

@@ -1,20 +1,33 @@
-import { observer } from "mobx-react-lite";
-import { Button } from "../../../../../shared/ui/Button";
 import cn from "classnames";
-import s from "./Cart.module.scss";
+import { observer } from "mobx-react-lite";
+
+import { Button } from "../../../../../shared/ui/Button";
+import { TransitionNavLink } from "../../../../../shared/ui/TransitionNavLink/TransitionNavLink.tsx";
 import { cartStore } from "../../../features/model/cartStore";
 import { CartItemCard } from "../../../features/ui/CartItemCard.ts";
-import { TransitionNavLink } from "../../../../../shared/ui/TransitionNavLink/TransitionNavLink.tsx";
+
+import s from "./Cart.module.scss";
 
 export const Cart = observer(() => {
-  const { items, totalPrice, totalItems, isEmpty, checkout, orderHistory, isCartUpdating, isCartClearing } = cartStore;
+  const {
+    items,
+    totalPrice,
+    totalItems,
+    isEmpty,
+    checkout,
+    orderHistory,
+    isCartUpdating,
+    isCartClearing,
+  } = cartStore;
 
   return (
     <div className={s.root}>
       <h1 className={s.title}>Корзина</h1>
 
       {isEmpty || isCartClearing ? (
-        <div className={cn(s.emptyState, isCartClearing && s.emptyStateSkeleton)}>
+        <div
+          className={cn(s.emptyState, isCartClearing && s.emptyStateSkeleton)}
+        >
           <h2>Ваша корзина пуста</h2>
           <p>Добавьте товары из каталога, чтобы оформить заказ.</p>
           <Button>
@@ -33,12 +46,28 @@ export const Cart = observer(() => {
             <div className={s.summaryBox}>
               <h3 className={s.summaryTitle}>Сумма заказа</h3>
               <div className={s.summaryRow}>
-                <p>Товары (<span className={cn(isCartUpdating && s.updatingText)}>{totalItems}</span> шт.)</p>
-                <p><span className={cn(isCartUpdating && s.updatingText)}>{totalPrice}</span> &#8381;</p>
+                <p>
+                  Товары (
+                  <span className={cn(isCartUpdating && s.updatingText)}>
+                    {totalItems}
+                  </span>{" "}
+                  шт.)
+                </p>
+                <p>
+                  <span className={cn(isCartUpdating && s.updatingText)}>
+                    {totalPrice}
+                  </span>{" "}
+                  &#8381;
+                </p>
               </div>
               <div className={s.summaryTotal}>
                 <p>Итого</p>
-                <p><span className={cn(isCartUpdating && s.updatingText)}>{totalPrice}</span> &#8381;</p>
+                <p>
+                  <span className={cn(isCartUpdating && s.updatingText)}>
+                    {totalPrice}
+                  </span>{" "}
+                  &#8381;
+                </p>
               </div>
               <Button className={s.checkoutBtn} onClick={checkout}>
                 Оформить заказ
@@ -55,11 +84,15 @@ export const Cart = observer(() => {
             {orderHistory.map((order) => (
               <div key={order.id} className={s.historyCard}>
                 <div className={s.historyHeader}>
-                  <p><b>Заказ #{order.id}</b></p>
+                  <p>
+                    <b>Заказ #{order.id}</b>
+                  </p>
                   <p>{new Date(order.date).toLocaleDateString()}</p>
                 </div>
                 <div className={s.historyTotal}>
-                  <p><b>Сумма: {order.totalPrice} &#8381;</b></p>
+                  <p>
+                    <b>Сумма: {order.totalPrice} &#8381;</b>
+                  </p>
                 </div>
               </div>
             ))}

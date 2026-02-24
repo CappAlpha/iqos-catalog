@@ -1,4 +1,5 @@
 import currency from "currency.js";
+
 import { UNCAT_ID, UNCAT_TITLE } from "../model/constants";
 import type { Category, FeedResult, Product } from "../model/types";
 
@@ -33,13 +34,15 @@ export const parseXmlCatalog = (xmlText: string): FeedResult => {
   const categories: Category[] = [];
   const catTitleById = new Map<string, string>();
 
-  for (const category of Array.from(doc.querySelectorAll(SELECTORS.categories))) {
+  for (const category of Array.from(
+    doc.querySelectorAll(SELECTORS.categories),
+  )) {
     const id = getAttr(category, "id");
     const title = getText(category);
     if (!id || !title) {
       console.error("Некорректная категория:", category);
       continue;
-    };
+    }
 
     const parentId = getAttr(category, "parentId");
     const cat: Category = { id, title, parentId };
@@ -57,9 +60,10 @@ export const parseXmlCatalog = (xmlText: string): FeedResult => {
     if (!id || !name) {
       console.error("Некорректный товар:", offer);
       continue;
-    };
+    }
 
-    const available = (getAttr(offer, "available") ?? "true").toLowerCase() === "true";
+    const available =
+      (getAttr(offer, "available") ?? "true").toLowerCase() === "true";
 
     const categoryId = getText(offer.querySelector("categoryId"));
     if (!categoryId) hasNoCategory = true;
@@ -82,7 +86,9 @@ export const parseXmlCatalog = (xmlText: string): FeedResult => {
     });
   }
 
-  const hasRootCategoryAlready = categories.some((category) => category.id === UNCAT_ID);
+  const hasRootCategoryAlready = categories.some(
+    (category) => category.id === UNCAT_ID,
+  );
 
   const finalCategories =
     hasNoCategory && !hasRootCategoryAlready
@@ -91,11 +97,11 @@ export const parseXmlCatalog = (xmlText: string): FeedResult => {
 
   const normalizedProducts = hasNoCategory
     ? products.map((product) =>
-      product.categoryId
-        ? product
-        : { ...product, categoryId: UNCAT_ID, categoryTitle: UNCAT_TITLE }
-    )
+        product.categoryId
+          ? product
+          : { ...product, categoryId: UNCAT_ID, categoryTitle: UNCAT_TITLE },
+      )
     : products;
 
   return { categories: finalCategories, products: normalizedProducts };
-}
+};

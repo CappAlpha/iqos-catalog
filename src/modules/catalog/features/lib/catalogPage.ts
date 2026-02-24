@@ -15,7 +15,12 @@ export function normalizePage(v: string | null): number {
   return Number.isFinite(n) && n >= 1 ? n : CATALOG_DEFAULT.page;
 }
 
-export function syncUrlParam(params: URLSearchParams, key: string, value: string | null, defaultValue?: string) {
+export function syncUrlParam(
+  params: URLSearchParams,
+  key: string,
+  value: string | null,
+  defaultValue?: string,
+) {
   if (!value || value === defaultValue) {
     params.delete(key);
   } else {

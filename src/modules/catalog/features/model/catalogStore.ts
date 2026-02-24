@@ -1,9 +1,23 @@
 import { flow, makeAutoObservable, runInAction } from "mobx";
+
 import { clamp } from "../../../../shared/lib/math";
 import { fetchCatalog } from "../api/fetchCatalog";
-import { CATALOG_DEFAULT, UNCAT_ID, GROUP_KEYWORDS, GROUP_TITLES } from "./constants";
-import type { Category, FilterGroup, FilterGroupKey, MergedCategory, Product, SortKey, Status } from "./types";
 import { getComparator } from "../lib/store";
+import {
+  CATALOG_DEFAULT,
+  UNCAT_ID,
+  GROUP_KEYWORDS,
+  GROUP_TITLES,
+} from "./constants";
+import type {
+  Category,
+  FilterGroup,
+  FilterGroupKey,
+  MergedCategory,
+  Product,
+  SortKey,
+  Status,
+} from "./types";
 
 class CatalogStore {
   status: Status = "idle";
@@ -78,8 +92,8 @@ class CatalogStore {
 
     for (const key of keys) {
       const keywords = GROUP_KEYWORDS[key];
-      const root = this.categories.find(cat =>
-        keywords.some(keyword => cat.title.includes(keyword))
+      const root = this.categories.find((cat) =>
+        keywords.some((keyword) => cat.title.includes(keyword)),
       );
 
       const ids = new Set<string>();
@@ -102,13 +116,13 @@ class CatalogStore {
       const groupIds = groupIdsMap.get(key) ?? new Set();
 
       const categories = this.mergedCategories
-        .filter(cat => cat.ids.some(id => groupIds.has(id)))
-        .map(cat => ({
+        .filter((cat) => cat.ids.some((id) => groupIds.has(id)))
+        .map((cat) => ({
           id: cat.id,
           title: cat.title,
           count: counts.get(cat.id) ?? 0,
         }))
-        .filter(cat => cat.count > 0);
+        .filter((cat) => cat.count > 0);
 
       return { key, title: GROUP_TITLES[key], categories };
     });
@@ -121,7 +135,7 @@ class CatalogStore {
     if (!group) return this.products;
 
     const groupIds = new Set(group.ids);
-    return this.products.filter(p => groupIds.has(p.categoryId ?? UNCAT_ID));
+    return this.products.filter((p) => groupIds.has(p.categoryId ?? UNCAT_ID));
   }
 
   get sortedProducts(): Product[] {
@@ -146,7 +160,11 @@ class CatalogStore {
   }
 
   get showSkeleton() {
-    return this.status === "loading" || this.status === "idle" || this.isTransitioning;
+    return (
+      this.status === "loading" ||
+      this.status === "idle" ||
+      this.isTransitioning
+    );
   }
 
   get isLoading() {
@@ -154,7 +172,11 @@ class CatalogStore {
   }
 
   get isEmpty() {
-    return this.status === "success" && !this.showSkeleton && this.products.length === 0;
+    return (
+      this.status === "success" &&
+      !this.showSkeleton &&
+      this.products.length === 0
+    );
   }
 
   get skeletonCount() {

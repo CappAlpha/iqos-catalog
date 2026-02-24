@@ -1,12 +1,12 @@
 @font-face {
-  font-family: 'IQOS';
-  src: url('../../assets/fonts/IQOS-Regular.woff2') format('woff2');
+  font-family: "IQOS";
+  src: url("../../assets/fonts/IQOS-Regular.woff2") format("woff2");
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'IQOS Bold';
-  src: url('../../assets/fonts/IQOS-Bold.woff2') format('woff2');
+  font-family: "IQOS Bold";
+  src: url("../../assets/fonts/IQOS-Bold.woff2") format("woff2");
   font-display: swap;
 }
 
@@ -16,7 +16,12 @@ body {
   height: 100%;
   color: var(--dark-gray);
   background: var(--white);
-  font-family: IQOS, -apple-system, system-ui, Arial, sans-serif;
+  font-family:
+    IQOS,
+    -apple-system,
+    system-ui,
+    Arial,
+    sans-serif;
   font-weight: 400;
   font-size: 14px;
   user-select: text;
@@ -41,7 +46,12 @@ h4,
 h5,
 h6 {
   color: var(--dark-gray);
-  font-family: IQOS Bold, -apple-system, system-ui, Arial, sans-serif;
+  font-family:
+    IQOS Bold,
+    -apple-system,
+    system-ui,
+    Arial,
+    sans-serif;
   text-wrap: balance;
 }
 
@@ -62,7 +72,12 @@ p {
 }
 
 b {
-  font-family: IQOS Bold, -apple-system, system-ui, Arial, sans-serif;
+  font-family:
+    IQOS Bold,
+    -apple-system,
+    system-ui,
+    Arial,
+    sans-serif;
   font-weight: 700;
 }
 
