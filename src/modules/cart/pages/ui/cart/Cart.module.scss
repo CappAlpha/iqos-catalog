@@ -1,0 +1,162 @@
+.root {
+  @include wrapPage;
+}
+
+.title {
+  @include title;
+
+  margin-bottom: 30px;
+}
+
+.emptyState,
+.wrap {
+  margin-bottom: 40px;
+}
+
+.emptyState {
+  text-align: center;
+  padding: 60px 20px;
+  background: var(--white);
+  border-radius: 15px;
+  outline: solid 1px var(--gray-border);
+
+  h2 {
+    font-size: 24px;
+    margin-bottom: 15px;
+  }
+
+  p {
+    color: var(--gray);
+    margin-bottom: 20px;
+  }
+}
+
+.wrap {
+  display: flex;
+  gap: 30px;
+  align-items: flex-start;
+
+  @include breakpoint(tablet) {
+    flex-direction: column;
+  }
+}
+
+.itemsList {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  width: 100%;
+}
+
+.sidebar {
+  width: 350px;
+  position: sticky;
+  top: 90px;
+
+  @include breakpoint(desktop-s) {
+    width: 300px;
+  }
+
+  @include breakpoint(tablet) {
+    width: 100%;
+    position: static;
+  }
+}
+
+.summaryBox {
+  background: var(--white);
+  border-radius: 15px;
+  padding: 25px;
+  outline: dotted 1px var(--gray-border);
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+
+  &:hover {
+    @media (hover: hover) and (pointer: fine) {
+      outline-color: var(--accent-color);
+    }
+  }
+}
+
+.summaryTitle {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.summaryRow {
+  display: flex;
+  justify-content: space-between;
+  color: var(--gray);
+  font-size: 16px;
+}
+
+.summaryTotal {
+  display: flex;
+  justify-content: space-between;
+  font-size: 22px;
+  font-weight: 700;
+  margin-top: 10px;
+  padding-top: 15px;
+  border-top: 1px solid var(--gray-border);
+}
+
+.checkoutBtn {
+  width: 100%;
+  padding: 15px;
+}
+
+.historyTitle {
+  margin-bottom: 20px;
+}
+
+.historyList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.historyCard {
+  background: var(--white);
+  border-radius: 10px;
+  padding: 15px 20px;
+  outline: solid 1px var(--gray-border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 5px;
+}
+
+.historyHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+
+  b {
+    display: box;
+    display: -moz-box;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  span {
+    color: var(--gray);
+    font-size: 14px;
+  }
+}
+
+.historyTotal {
+  text-align: end;
+  text-wrap: balance;
+  font-weight: 700;
+  font-size: 18px;
+}
+
+.sidebar span.updatingText {
+  @include skeleton;
+  border-radius: 6px;
+}

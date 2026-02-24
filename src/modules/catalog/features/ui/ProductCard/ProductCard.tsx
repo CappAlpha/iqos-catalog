@@ -1,18 +1,19 @@
-"use client";
-
 import cn from "classnames";
-
-
 import s from "./ProductCard.module.scss";
 import { Button } from "../../../../../shared/ui/Button";
 import type { Product } from "../../model/types";
+import { cartStore } from "../../../../cart/features/model/cartStore";
+import { observer } from "mobx-react-lite";
 
 interface Props {
   product: Product;
 }
 
-export const ProductCard = ({ product }: Readonly<Props>) => {
+export const ProductCard = observer(({ product }: Readonly<Props>) => {
   const { name, categoryTitle, price, pictureUrl } = product;
+  const { addToCart, getItemAction } = cartStore;
+
+  const isAddToCartLoading = getItemAction(product.id) === "add";
 
   return (
     <div
@@ -44,11 +45,11 @@ export const ProductCard = ({ product }: Readonly<Props>) => {
           <b className={s.price}>
             {price} &#8381;
           </b>
-          <Button>
+          <Button className={s.button} loading={isAddToCartLoading} onClick={() => addToCart(product)}>
             Добавить
           </Button>
         </div>
       </div>
     </div>
   );
-};
+});
