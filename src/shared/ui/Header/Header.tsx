@@ -48,7 +48,7 @@ export const Header = observer(() => {
                 <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
               </svg>
               {totalItems > 0 && (
-                <b className={cn(s.badge, isCartUpdating && s.updatingBadge)}>{totalItems}</b>
+                <b className={cn(s.badge, totalItems === 1 && s.cartInitial, totalItems > 1 && isCartUpdating && s.updatingBadge)}>{totalItems}</b>
               )}
             </div>
             <span className={s.text}>Корзина</span>

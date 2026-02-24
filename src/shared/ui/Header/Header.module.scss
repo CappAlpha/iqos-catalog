@@ -111,30 +111,46 @@
   padding: 0 4px;
   border: 2px solid var(--white);
   transform: scale(1);
+}
+
+.cartInitial {
   animation: pop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .updatingBadge {
-  opacity: 1;
-  animation: cpop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  animation: heartBeat 0.6s forwards;
 }
 
-@keyframes cpop {
+@keyframes heartBeat {
   0% {
-    opacity: 1;
+    transform: scale(1);
   }
 
-  100% {
-    opacity: 0;
+  14% {
+    transform: scale(1.3);
+  }
+
+  28% {
+    transform: scale(1);
+  }
+
+  42% {
+    transform: scale(1.3);
+  }
+
+  70% {
+    transform: scale(1);
   }
 }
 
 @keyframes pop {
   0% {
+    opacity: 0;
     transform: scale(0);
   }
 
   100% {
+    opacity: 1;
     transform: scale(1);
   }
 }
