@@ -108,10 +108,13 @@
 .priceSkeleton,
 .buttonSkeleton {
   @include skeleton;
+}
 
-  &::before {
-    border-radius: 4px;
-  }
+.titleSkeleton,
+.categorySkeleton,
+.priceSkeleton,
+.buttonSkeleton {
+  border-radius: 4px;
 }
 
 .titleSkeleton {
@@ -132,8 +135,5 @@
 .buttonSkeleton {
   width: 30%;
   height: 42px;
-
-  &::before {
-    border-radius: 20px;
-  }
+  border-radius: 8px;
 }

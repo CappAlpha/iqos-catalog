@@ -144,5 +144,6 @@ $breakpoints: (
         var(--light-gray) 75%);
     background-size: 200% 100%;
     animation: 1.5s linear infinite skeleton;
+    border-radius: inherit;
   }
 }

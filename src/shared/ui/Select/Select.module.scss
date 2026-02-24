@@ -22,8 +22,12 @@
 .rootSkeleton {
   @include skeleton;
   height: 39.5px;
-  border-radius: 10px;
   overflow: hidden;
+}
+
+.rootSkeleton,
+.select {
+  border-radius: 10px;
 }
 
 .select,
@@ -35,7 +39,6 @@
 .select {
   position: relative;
   padding: 10px 36px 10px 12px;
-  border-radius: 10px;
   background: transparent;
   border: 1px solid var(--gray-border);
   transition: all 0.2s ease-in-out;

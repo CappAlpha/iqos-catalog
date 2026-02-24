@@ -5,7 +5,7 @@ import cn from "classnames";
 import { TransitionNavLink } from "../TransitionNavLink";
 
 export const Header = observer(() => {
-  const { totalItems } = cartStore;
+  const { isCartUpdating, totalItems } = cartStore;
 
   return (
     <header className={s.header}>
@@ -48,7 +48,7 @@ export const Header = observer(() => {
                 <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
               </svg>
               {totalItems > 0 && (
-                <b className={s.badge}>{totalItems}</b>
+                <b className={cn(s.badge, isCartUpdating && s.updatingBadge)}>{totalItems}</b>
               )}
             </div>
             <span className={s.text}>Корзина</span>

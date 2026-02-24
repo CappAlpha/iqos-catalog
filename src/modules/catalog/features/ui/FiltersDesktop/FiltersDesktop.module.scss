@@ -26,7 +26,7 @@
   font-weight: 700;
 }
 
-.resetBtn{
+.resetBtn {
   align-self: center;
 }
 
@@ -34,10 +34,7 @@
 .subtitleSkeleton,
 .checkBoxSkeleton {
   @include skeleton;
-
-  &::before {
-    border-radius: 4px;
-  }
+  border-radius: 4px;
 }
 
 .titleSkeleton {

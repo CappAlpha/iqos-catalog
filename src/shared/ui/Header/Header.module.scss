@@ -30,6 +30,7 @@
 
   svg {
     &:first-child {
+      margin-top: 2px;
       padding-right: 5px;
       border-right: 1px solid var(--gray-border);
     }
@@ -46,11 +47,11 @@
   gap: 30px;
 
   @include breakpoint(mobile-m) {
-    gap: 15px;
+    gap: 10px;
   }
 
   @include breakpoint(mobile) {
-    gap: 10px;
+    gap: 5px;
   }
 }
 
@@ -111,6 +112,21 @@
   border: 2px solid var(--white);
   transform: scale(1);
   animation: pop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.updatingBadge {
+  opacity: 1;
+  animation: cpop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes cpop {
+  0% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+  }
 }
 
 @keyframes pop {
