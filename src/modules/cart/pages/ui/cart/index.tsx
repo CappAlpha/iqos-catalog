@@ -6,15 +6,15 @@ import { cartStore } from "../../../features/model/cartStore";
 import { CartItemCard } from "../../../features/ui/CartItemCard.ts";
 import { TransitionNavLink } from "../../../../../shared/ui/TransitionNavLink/TransitionNavLink.tsx";
 
-export const Cart = observer(function Cart() {
-  const { items, totalPrice, totalItems, isEmpty, checkout, orderHistory, isCartUpdating } = cartStore;
+export const Cart = observer(() => {
+  const { items, totalPrice, totalItems, isEmpty, checkout, orderHistory, isCartUpdating, isCartClearing } = cartStore;
 
   return (
     <div className={s.root}>
       <h1 className={s.title}>Корзина</h1>
 
-      {isEmpty ? (
-        <div className={s.emptyState}>
+      {isEmpty || isCartClearing ? (
+        <div className={cn(s.emptyState, isCartClearing && s.emptyStateSkeleton)}>
           <h2>Ваша корзина пуста</h2>
           <p>Добавьте товары из каталога, чтобы оформить заказ.</p>
           <Button>

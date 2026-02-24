@@ -10,6 +10,9 @@ class CartStore {
   activeTransitions = new Map<string, CartActionType>();
   #transitionTimers = new Map<string, ReturnType<typeof setTimeout>>();
 
+  globalAction: "checkout" | null = null;
+  #globalTimer: ReturnType<typeof setTimeout> | null = null;
+
   constructor() {
     makeAutoObservable(this, {}, { autoBind: true });
 
@@ -43,7 +46,20 @@ class CartStore {
   }
 
   get isCartUpdating() {
-    return this.activeTransitions.size > 0;
+    return this.activeTransitions.size > 0 || this.globalAction !== null;
+  }
+
+  get isCartClearing() {
+    if (this.globalAction === "checkout") return true;
+
+    if (
+      this.items.length > 0 &&
+      this.items.every((i) => this.activeTransitions.get(i.product.id) === "remove")
+    ) {
+      return true;
+    }
+
+    return false;
   }
 
   private updateItemWithTransition(
@@ -124,15 +140,23 @@ class CartStore {
   checkout() {
     if (this.isEmpty) return;
 
-    const newOrder: Order = {
-      id: crypto.randomUUID(),
-      date: new Date().toISOString(),
-      items: [...this.items],
-      totalPrice: this.totalPrice,
-    };
+    this.globalAction = "checkout";
+    if (this.#globalTimer) clearTimeout(this.#globalTimer);
 
-    this.orderHistory.unshift(newOrder);
-    this.clearCart();
+    this.#globalTimer = setTimeout(() => {
+      runInAction(() => {
+        const newOrder: Order = {
+          id: crypto.randomUUID(),
+          date: new Date().toISOString(),
+          items: [...this.items],
+          totalPrice: this.totalPrice,
+        };
+
+        this.orderHistory.unshift(newOrder);
+        this.clearCart();
+        this.globalAction = null;
+      });
+    }, 400);
   }
 
   private loadFromStorage() {

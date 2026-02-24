@@ -9,11 +9,13 @@
 }
 
 .emptyState,
-.wrap {
+.wrap,
+.emptyStateSkeleton {
   margin-bottom: 40px;
 }
 
-.emptyState {
+.emptyState,
+.emptyStateSkeleton {
   text-align: center;
   padding: 60px 20px;
   background: var(--white);
@@ -29,6 +31,10 @@
     color: var(--gray);
     margin-bottom: 20px;
   }
+}
+
+.emptyStateSkeleton{
+  @include skeleton;
 }
 
 .wrap {
