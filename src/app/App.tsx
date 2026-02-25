@@ -1,8 +1,8 @@
 import { BrowserRouter } from "react-router";
 
+import "@/app/styles/_reset.scss";
 import "@/app/styles/colors.scss";
 import "@/app/styles/global.scss";
-import "@/app/styles/reset.scss";
 
 import { AppLayout } from "./layout/AppLayout";
 import { AppRoutes } from "./routes/AppRoutes";

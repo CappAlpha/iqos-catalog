@@ -84,10 +84,12 @@ export const Cart = observer(() => {
             {orderHistory.map((order) => (
               <div key={order.id} className={s.historyCard}>
                 <div className={s.historyHeader}>
-                  <p>
+                  <p className={s.orderTitle}>
                     <b>Заказ #{order.id}</b>
                   </p>
-                  <p>{new Date(order.date).toLocaleDateString()}</p>
+                  <p className={s.orderDate}>
+                    {new Date(order.date).toLocaleDateString()}
+                  </p>
                 </div>
                 <div className={s.historyTotal}>
                   <p>

@@ -138,21 +138,20 @@
   display: flex;
   flex-direction: column;
   gap: 5px;
+}
 
-  b {
-    display: box;
-    display: -moz-box;
-    display: -webkit-box;
-    -webkit-line-clamp: 1;
-    line-clamp: 1;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
+.orderTitle {
+  display: -moz-box;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
 
-  span {
-    color: var(--gray);
-    font-size: 14px;
-  }
+.orderDate {
+  color: var(--gray);
+  font-size: 14px;
 }
 
 .historyTotal {
