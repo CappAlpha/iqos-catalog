@@ -79,7 +79,7 @@ class CartStore {
     this.activeTransitions.set(productId, action);
 
     if (this.#transitionTimers.has(productId)) {
-      clearTimeout(this.#transitionTimers.get(productId)!);
+      clearTimeout(this.#transitionTimers.get(productId));
     }
 
     if (!delayAction) updateFn();
