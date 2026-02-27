@@ -123,7 +123,8 @@
   gap: 10px;
 }
 
-.historyCard {
+.historyCard,
+.historyCardIntro {
   background: var(--white);
   border-radius: 10px;
   padding: 15px 20px;
@@ -132,6 +133,24 @@
   justify-content: space-between;
   align-items: center;
   gap: 5px;
+}
+
+.historyCardIntro {
+  animation: 0.4s focusIn ease-in-out;
+}
+
+@keyframes focusIn {
+  0% {
+    -webkit-filter: blur(6px);
+    filter: blur(6px);
+    opacity: 0;
+  }
+
+  100% {
+    -webkit-filter: blur(0px);
+    filter: blur(0px);
+    opacity: 1;
+  }
 }
 
 .historyHeader {

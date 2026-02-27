@@ -157,8 +157,10 @@ class CartStore {
 
     this.#globalTimer = setTimeout(() => {
       runInAction(() => {
+        const newOrderId = crypto.randomUUID();
+
         const newOrder: Order = {
-          id: crypto.randomUUID(),
+          id: newOrderId,
           date: new Date().toISOString(),
           items: [...this.items],
           totalPrice: this.totalPrice,
@@ -167,6 +169,8 @@ class CartStore {
         this.orderHistory.unshift(newOrder);
         this.clearCart();
         this.globalAction = null;
+
+        this.updateItemWithTransition(newOrderId, "add", () => { }, false);
       });
     }, 400);
   }

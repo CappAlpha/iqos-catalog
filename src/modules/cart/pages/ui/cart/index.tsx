@@ -17,6 +17,7 @@ export const Cart = observer(() => {
     checkout,
     orderHistory,
     isCartUpdating,
+    getItemAction,
     isCartClearing,
   } = cartStore;
 
@@ -82,7 +83,7 @@ export const Cart = observer(() => {
           <h2 className={s.historyTitle}>История заказов</h2>
           <div className={s.historyList}>
             {orderHistory.map((order) => (
-              <div key={order.id} className={s.historyCard}>
+              <div key={order.id} className={cn(s.historyCard, getItemAction(order.id) === "add" && s.historyCardIntro)}>
                 <div className={s.historyHeader}>
                   <p className={s.orderTitle}>
                     <b>Заказ #{order.id}</b>
