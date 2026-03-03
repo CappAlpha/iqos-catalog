@@ -26,7 +26,7 @@ export const FiltersDesktop = observer(() => {
         color="transparent"
         onClick={resetFilters}
       >
-        Сбросить фильтры
+        &#8635; Сбросить фильтры
       </Button>
     </div>
   );

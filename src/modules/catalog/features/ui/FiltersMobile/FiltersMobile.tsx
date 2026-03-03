@@ -61,7 +61,7 @@ export const FiltersMobile = observer(() => {
             color="transparent"
             onClick={handleResetFilters}
           >
-            Сбросить фильтры
+            &#8635; Сбросить фильтры
           </Button>
         </div>
 

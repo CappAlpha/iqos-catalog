@@ -170,7 +170,7 @@ class CartStore {
         this.clearCart();
         this.globalAction = null;
 
-        this.updateItemWithTransition(newOrderId, "add", () => { }, false);
+        this.updateItemWithTransition(newOrderId, "add", () => { }, false, 600);
       });
     }, 400);
   }

@@ -55,20 +55,11 @@ class CatalogStore {
     return Array.from(map.values());
   }
 
-  get mergedCategoriesById(): Map<string, MergedCategory> {
-    const map = new Map<string, MergedCategory>();
-    for (const cat of this.mergedCategories) {
-      map.set(cat.id, cat);
-    }
-    return map;
-  }
-
   get categoryCounts(): Map<string, number> {
     const counts = new Map<string, number>();
     const childToParentId = new Map<string, string>();
 
     for (const cat of this.mergedCategories) {
-      counts.set(cat.id, 0);
       for (const id of cat.ids) {
         childToParentId.set(id, cat.id);
       }
@@ -78,8 +69,8 @@ class CatalogStore {
       const catId = product.categoryId ?? UNCAT_ID;
       const groupId = childToParentId.get(catId);
 
-      if (groupId && counts.has(groupId)) {
-        counts.set(groupId, counts.get(groupId)! + 1);
+      if (groupId) {
+        counts.set(groupId, (counts.get(groupId) ?? 0) + 1);
       }
     }
 
@@ -88,19 +79,22 @@ class CatalogStore {
 
   get groupIdsMap(): Map<FilterGroupKey, Set<string>> {
     const map = new Map<FilterGroupKey, Set<string>>();
-    const keys = Object.keys(GROUP_KEYWORDS) as FilterGroupKey[];
 
-    for (const key of keys) {
-      const keywords = GROUP_KEYWORDS[key];
-      const root = this.categories.find((cat) =>
-        keywords.some((keyword) => cat.title.includes(keyword)),
-      );
-
-      const ids = new Set<string>();
-      if (root) {
-        this.collectAllChildIds(root.id, ids);
+    const getChildIds = (rootId: string, out = new Set<string>()) => {
+      out.add(rootId);
+      for (const child of this.categories) {
+        if (child.parentId === rootId && !out.has(child.id)) {
+          getChildIds(child.id, out);
+        }
       }
-      map.set(key, ids);
+      return out;
+    };
+
+    for (const [key, keywords] of Object.entries(GROUP_KEYWORDS) as [FilterGroupKey, string[]][]) {
+      const root = this.categories.find((cat) =>
+        keywords.some((kw) => cat.title.includes(kw))
+      );
+      map.set(key, root ? getChildIds(root.id) : new Set());
     }
 
     return map;
@@ -131,7 +125,7 @@ class CatalogStore {
   get filteredProducts(): Product[] {
     if (!this.selectedCategoryId) return this.products;
 
-    const group = this.mergedCategoriesById.get(this.selectedCategoryId);
+    const group = this.mergedCategories.find((c) => c.id === this.selectedCategoryId);
     if (!group) return this.products;
 
     const groupIds = new Set(group.ids);
@@ -183,15 +177,6 @@ class CatalogStore {
     return this.totalCount > 0 ? this.viewProducts.length : this.pageSize;
   }
 
-  private collectAllChildIds(rootId: string, collected: Set<string>): void {
-    collected.add(rootId);
-    for (const child of this.categories) {
-      if (child.parentId === rootId) {
-        this.collectAllChildIds(child.id, collected);
-      }
-    }
-  }
-
   private triggerTransition(ms = 400) {
     this.isTransitioning = true;
     if (this.#transitionTimer) clearTimeout(this.#transitionTimer);
@@ -207,13 +192,13 @@ class CatalogStore {
   private updateWithTransition(updateFn: () => void) {
     this.triggerTransition();
     updateFn();
-    this.page = CATALOG_DEFAULT.page;
   }
 
   setSort(key: SortKey) {
     if (this.sort === key) return;
     this.updateWithTransition(() => {
       this.sort = key;
+      this.page = CATALOG_DEFAULT.page;
     });
   }
 
@@ -221,12 +206,14 @@ class CatalogStore {
     if (this.selectedCategoryId === id) return;
     this.updateWithTransition(() => {
       this.selectedCategoryId = id;
+      this.page = CATALOG_DEFAULT.page;
     });
   }
 
   toggleCategory(id: string | null) {
     this.updateWithTransition(() => {
       this.selectedCategoryId = this.selectedCategoryId === id ? null : id;
+      this.page = CATALOG_DEFAULT.page;
     });
   }
 
@@ -239,6 +226,7 @@ class CatalogStore {
     this.updateWithTransition(() => {
       this.selectedCategoryId = null;
       this.sort = CATALOG_DEFAULT.sort;
+      this.page = CATALOG_DEFAULT.page;
     });
   }
 
