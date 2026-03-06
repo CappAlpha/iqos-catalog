@@ -13,9 +13,8 @@
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
       "eslint --fix",
-      "prettier --write"
-    ],
-    "*.{json,md,html,css}": "prettier --write"
+      "prettier --write \"src/**/*.{js,jsx,ts,tsx,css,scss}\""
+    ]
   },
   "simple-git-hooks": {
     "pre-commit": "npx lint-staged"
