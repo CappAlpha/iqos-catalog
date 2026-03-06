@@ -1,7 +1,7 @@
 import currency from "currency.js";
 
-import { UNCAT_ID, UNCAT_TITLE } from "../model/constants";
-import type { Category, FeedResult, Product } from "../model/types";
+import { UNCAT_TITLE, UNCAT_ID } from "../model/constants";
+import type { FeedResult, Category, Product } from "../model/types";
 
 const SELECTORS = {
   categories: "shop > categories > category",

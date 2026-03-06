@@ -1,6 +1,7 @@
 import { flow, makeAutoObservable, runInAction } from "mobx";
 
-import { clamp } from "../../../../shared/lib/math";
+import { clamp } from "@/shared/lib/math";
+
 import { fetchCatalog } from "../api/fetchCatalog";
 import { getComparator } from "../lib/store";
 import {
@@ -90,9 +91,12 @@ class CatalogStore {
       return out;
     };
 
-    for (const [key, keywords] of Object.entries(GROUP_KEYWORDS) as [FilterGroupKey, string[]][]) {
+    for (const [key, keywords] of Object.entries(GROUP_KEYWORDS) as [
+      FilterGroupKey,
+      string[],
+    ][]) {
       const root = this.categories.find((cat) =>
-        keywords.some((kw) => cat.title.includes(kw))
+        keywords.some((kw) => cat.title.includes(kw)),
       );
       map.set(key, root ? getChildIds(root.id) : new Set());
     }
@@ -125,7 +129,9 @@ class CatalogStore {
   get filteredProducts(): Product[] {
     if (!this.selectedCategoryId) return this.products;
 
-    const group = this.mergedCategories.find((c) => c.id === this.selectedCategoryId);
+    const group = this.mergedCategories.find(
+      (c) => c.id === this.selectedCategoryId,
+    );
     if (!group) return this.products;
 
     const groupIds = new Set(group.ids);
@@ -154,10 +160,7 @@ class CatalogStore {
   }
 
   get showSkeleton() {
-    return (
-      this.status === "loading" ||
-      this.isTransitioning
-    );
+    return this.status === "loading" || this.isTransitioning;
   }
 
   get isLoading() {
@@ -166,9 +169,7 @@ class CatalogStore {
 
   get isEmpty() {
     return (
-      this.status === "success" &&
-      !this.showSkeleton &&
-      this.totalCount === 0
+      this.status === "success" && !this.showSkeleton && this.totalCount === 0
     );
   }
 
@@ -236,7 +237,8 @@ class CatalogStore {
     this.products = [];
 
     try {
-      const data: Awaited<ReturnType<typeof fetchCatalog>> = yield fetchCatalog();
+      const data: Awaited<ReturnType<typeof fetchCatalog>> =
+        yield fetchCatalog();
       this.categories = data.categories;
       this.products = data.products;
       this.page = this.safePage;

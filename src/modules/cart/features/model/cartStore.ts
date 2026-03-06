@@ -1,6 +1,7 @@
 import { makeAutoObservable, autorun, runInAction } from "mobx";
 
-import type { Product } from "../../../catalog/features/model/types";
+import type { Product } from "@/modules/catalog/features/model/types";
+
 import { CART_STORAGE_KEY, ORDERS_STORAGE_KEY } from "./constants";
 import type { CartActionType, CartItem, Order } from "./types";
 
@@ -59,7 +60,9 @@ class CartStore {
     return (
       this.globalAction === "checkout" ||
       (this.items.length > 0 &&
-        this.items.every((i) => this.activeTransitions.get(i.product.id) === "remove"))
+        this.items.every(
+          (i) => this.activeTransitions.get(i.product.id) === "remove",
+        ))
     );
   }
 

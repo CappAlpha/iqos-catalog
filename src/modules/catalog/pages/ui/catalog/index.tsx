@@ -2,14 +2,14 @@ import cn from "classnames";
 import { observer } from "mobx-react-lite";
 import { useEffect, useRef } from "react";
 
-import { useTablet } from "../../../../../shared/hooks/useBreakpoint";
-import { useCatalogUrlSync } from "../../../features/lib/useCatalogUrlSync";
-import { catalogStore } from "../../../features/model/catalogStore";
-import { CatalogGrid } from "../../../features/ui/CatalogGrid";
-import { CatalogHeader } from "../../../features/ui/CatalogHeader";
-import { FiltersDesktop } from "../../../features/ui/FiltersDesktop";
-import { FiltersDesktopSkeleton } from "../../../features/ui/FiltersDesktop/FiltersDesktopSkeleton";
-import { Pagination } from "../../../features/ui/Pagination";
+import { useCatalogUrlSync } from "@/modules/catalog/features/lib/useCatalogUrlSync";
+import { catalogStore } from "@/modules/catalog/features/model/catalogStore";
+import { CatalogGrid } from "@/modules/catalog/features/ui/CatalogGrid";
+import { CatalogHeader } from "@/modules/catalog/features/ui/CatalogHeader";
+import { FiltersDesktop } from "@/modules/catalog/features/ui/FiltersDesktop";
+import { FiltersDesktopSkeleton } from "@/modules/catalog/features/ui/FiltersDesktop/FiltersDesktopSkeleton";
+import { Pagination } from "@/modules/catalog/features/ui/Pagination";
+import { useTablet } from "@/shared/hooks/useBreakpoint";
 
 import s from "./Catalog.module.scss";
 

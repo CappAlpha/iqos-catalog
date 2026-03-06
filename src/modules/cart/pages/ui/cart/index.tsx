@@ -1,10 +1,10 @@
 import cn from "classnames";
 import { observer } from "mobx-react-lite";
 
-import { Button } from "../../../../../shared/ui/Button";
-import { TransitionNavLink } from "../../../../../shared/ui/TransitionNavLink/TransitionNavLink.tsx";
-import { cartStore } from "../../../features/model/cartStore";
-import { CartItemCard } from "../../../features/ui/CartItemCard.ts";
+import { cartStore } from "@/modules/cart/features/model/cartStore.ts";
+import { CartItemCard } from "@/modules/cart/features/ui/CartItemCard.ts/CartItemCard.ts.tsx";
+import { Button } from "@/shared/ui/Button";
+import { TransitionNavLink } from "@/shared/ui/TransitionNavLink/TransitionNavLink.tsx";
 
 import s from "./Cart.module.scss";
 
@@ -31,9 +31,7 @@ export const Cart = observer(() => {
         >
           <h2>Ваша корзина пуста</h2>
           <p>Добавьте товары из каталога, чтобы оформить заказ.</p>
-          <Button>
-            <TransitionNavLink to="/">Перейти в каталог</TransitionNavLink>
-          </Button>
+          <TransitionNavLink to="/">Перейти в каталог</TransitionNavLink>
         </div>
       ) : (
         <div className={s.wrap}>
@@ -83,7 +81,13 @@ export const Cart = observer(() => {
           <h2 className={s.historyTitle}>История заказов</h2>
           <div className={s.historyList}>
             {orderHistory.map((order) => (
-              <div key={order.id} className={cn(s.historyCard, getItemAction(order.id) === "add" && s.historyCardIntro)}>
+              <div
+                key={order.id}
+                className={cn(
+                  s.historyCard,
+                  getItemAction(order.id) === "add" && s.historyCardIntro,
+                )}
+              >
                 <div className={s.historyHeader}>
                   <p className={s.orderTitle}>
                     <b>Заказ #{order.id}</b>

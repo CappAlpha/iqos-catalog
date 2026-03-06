@@ -1,7 +1,8 @@
 import cn from "classnames";
 import { observer } from "mobx-react-lite";
 
-import { cartStore } from "../../../modules/cart/features/model/cartStore";
+import { cartStore } from "@/modules/cart/features/model/cartStore";
+
 import { TransitionNavLink } from "../TransitionNavLink";
 
 import s from "./Header.module.scss";

@@ -1,7 +1,8 @@
 import { observer } from "mobx-react-lite";
 
-import { Select } from "../../../../../shared/ui/Select";
-import { SelectSkeleton } from "../../../../../shared/ui/Select/SelectSkeleton";
+import { Select } from "@/shared/ui/Select";
+import { SelectSkeleton } from "@/shared/ui/Select/SelectSkeleton";
+
 import { catalogStore } from "../../model/catalogStore";
 import { SORT_OPTIONS } from "../../model/constants";
 import type { SortKey } from "../../model/types";

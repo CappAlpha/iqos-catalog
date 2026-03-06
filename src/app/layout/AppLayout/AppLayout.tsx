@@ -1,6 +1,6 @@
 import { type ReactNode } from "react";
 
-import { Header } from "../../../shared/ui/Header";
+import { Header } from "@/shared/ui/Header";
 
 import s from "./AppLayout.module.scss";
 

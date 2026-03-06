@@ -1,7 +1,8 @@
 import cn from "classnames";
 import { observer } from "mobx-react-lite";
 
-import { Button } from "../../../../../shared/ui/Button";
+import { Button } from "@/shared/ui/Button";
+
 import { cartStore } from "../../model/cartStore";
 import type { CartItem } from "../../model/types";
 

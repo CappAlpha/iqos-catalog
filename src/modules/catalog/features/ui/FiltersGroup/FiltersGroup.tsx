@@ -1,6 +1,7 @@
 import cn from "classnames";
 
-import { Checkbox } from "../../../../../shared/ui/Checkbox";
+import { Checkbox } from "@/shared/ui/Checkbox";
+
 import type { FilterGroup } from "../../model/types";
 
 import s from "./FiltersGroup.module.scss";

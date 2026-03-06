@@ -1,4 +1,4 @@
-import type { Product } from "../../../catalog/features/model/types";
+import type { Product } from "@/modules/catalog/features/model/types";
 
 export type CartActionType = "add" | "inc" | "dec" | "remove";
 

@@ -2,8 +2,9 @@ import cn from "classnames";
 import { observer } from "mobx-react-lite";
 import { useRef, useState } from "react";
 
-import { useOutsideClick } from "../../../../../shared/hooks/useOutsideClick";
-import { Button } from "../../../../../shared/ui/Button";
+import { useOutsideClick } from "@/shared/hooks/useOutsideClick";
+import { Button } from "@/shared/ui/Button";
+
 import { catalogStore } from "../../model/catalogStore";
 import { FiltersGroup } from "../FiltersGroup";
 

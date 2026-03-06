@@ -1,6 +1,7 @@
 import { observer } from "mobx-react-lite";
 
-import { Button } from "../../../../../shared/ui/Button";
+import { Button } from "@/shared/ui/Button";
+
 import { catalogStore } from "../../model/catalogStore";
 import { FiltersGroup } from "../FiltersGroup";
 

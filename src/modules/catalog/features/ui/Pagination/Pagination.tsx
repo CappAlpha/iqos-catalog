@@ -1,6 +1,7 @@
 import cn from "classnames";
 
-import { useMobileS } from "../../../../../shared/hooks/useBreakpoint";
+import { useMobileS } from "@/shared/hooks/useBreakpoint";
+
 import { buildPagination } from "../../lib/pagination";
 
 import s from "./Pagination.module.scss";
