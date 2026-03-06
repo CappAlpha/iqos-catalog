@@ -12,7 +12,10 @@ import s from "./FiltersMobile.module.scss";
 export const FiltersMobile = observer(() => {
   const [isOpen, setIsOpen] = useState(false);
   const wrapRef = useRef<HTMLDivElement>(null);
-  useOutsideClick(() => setIsOpen(false), wrapRef);
+
+  useOutsideClick(() => {
+    if (isOpen) setIsOpen(false);
+  }, wrapRef);
 
   const {
     isLoading,
@@ -35,7 +38,7 @@ export const FiltersMobile = observer(() => {
   return (
     <>
       <Button
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={() => setIsOpen(true)}
         className={s.btn}
         loading={isLoading}
       >
@@ -43,7 +46,7 @@ export const FiltersMobile = observer(() => {
       </Button>
 
       <div className={cn(s.root, isOpen && s.open)}>
-        <div className={s.overlay} />
+        <div className={s.overlay} aria-hidden="true" />
         <div ref={wrapRef} className={s.wrap}>
           <h3 className={s.title}>Фильтры</h3>
 

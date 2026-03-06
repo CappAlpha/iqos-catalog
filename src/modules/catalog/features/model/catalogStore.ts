@@ -20,7 +20,7 @@ import type {
 } from "./types";
 
 class CatalogStore {
-  status: Status = "idle";
+  status: Status = "loading";
   error: string | null = null;
 
   categories: Category[] = [];
@@ -156,7 +156,6 @@ class CatalogStore {
   get showSkeleton() {
     return (
       this.status === "loading" ||
-      this.status === "idle" ||
       this.isTransitioning
     );
   }
@@ -169,7 +168,7 @@ class CatalogStore {
     return (
       this.status === "success" &&
       !this.showSkeleton &&
-      this.products.length === 0
+      this.totalCount === 0
     );
   }
 
@@ -211,10 +210,7 @@ class CatalogStore {
   }
 
   toggleCategory(id: string | null) {
-    this.updateWithTransition(() => {
-      this.selectedCategoryId = this.selectedCategoryId === id ? null : id;
-      this.page = CATALOG_DEFAULT.page;
-    });
+    this.setCategory(this.selectedCategoryId === id ? null : id);
   }
 
   setPage(n: number) {
@@ -240,7 +236,7 @@ class CatalogStore {
     this.products = [];
 
     try {
-      const data = yield fetchCatalog();
+      const data: Awaited<ReturnType<typeof fetchCatalog>> = yield fetchCatalog();
       this.categories = data.categories;
       this.products = data.products;
       this.page = this.safePage;

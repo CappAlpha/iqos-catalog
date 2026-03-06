@@ -1,4 +1,4 @@
-export type Status = "idle" | "loading" | "success" | "error";
+export type Status = "loading" | "success" | "error";
 
 export type SortKey = "nameAsc" | "nameDesc" | "priceAsc" | "priceDesc";
 

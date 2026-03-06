@@ -1,6 +1,6 @@
 import { useSyncExternalStore, useMemo } from "react";
 
-export const breakpoints = {
+const breakpoints = {
   mobile: 390,
   mobileS: 540,
   mobileM: 768,
@@ -10,7 +10,7 @@ export const breakpoints = {
   desktopL: 1600,
 } as const;
 
-export type Breakpoint = keyof typeof breakpoints;
+type Breakpoint = keyof typeof breakpoints;
 type BreakpointType = "max" | "min";
 
 export const useMedia = (query: string, defaultState: boolean = false) => {
@@ -19,11 +19,11 @@ export const useMedia = (query: string, defaultState: boolean = false) => {
   const [subscribe, getSnapshot] = useMemo(() => {
     return [
       (callback: () => void) => {
-        const matchMedia = window.matchMedia(query);
+        const matchMedia = globalThis.matchMedia(query);
         matchMedia.addEventListener("change", callback);
         return () => matchMedia.removeEventListener("change", callback);
       },
-      () => window.matchMedia(query).matches,
+      () => globalThis.matchMedia(query).matches,
     ];
   }, [query]);
 

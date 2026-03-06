@@ -29,16 +29,17 @@ class CartStore {
     });
   }
 
-  private syncStorage(event: StorageEvent) {
-    if (event.key !== CART_STORAGE_KEY && event.key !== ORDERS_STORAGE_KEY)
-      return;
+  private syncStorage({ key, newValue }: StorageEvent) {
+    if (key !== CART_STORAGE_KEY && key !== ORDERS_STORAGE_KEY) return;
 
     try {
+      const parsedData = newValue ? JSON.parse(newValue) : [];
+
       runInAction(() => {
-        if (event.key === CART_STORAGE_KEY) {
-          this.items = event.newValue ? JSON.parse(event.newValue) : [];
-        } else if (event.key === ORDERS_STORAGE_KEY) {
-          this.orderHistory = event.newValue ? JSON.parse(event.newValue) : [];
+        if (key === CART_STORAGE_KEY) {
+          this.items = parsedData;
+        } else {
+          this.orderHistory = parsedData;
         }
       });
     } catch (e) {
@@ -47,7 +48,7 @@ class CartStore {
   }
 
   getItemAction(productId: string): CartActionType | null {
-    return this.activeTransitions.get(productId) || null;
+    return this.activeTransitions.get(productId) ?? null;
   }
 
   get isCartUpdating() {
@@ -55,38 +56,30 @@ class CartStore {
   }
 
   get isCartClearing() {
-    if (this.globalAction === "checkout") return true;
-
-    if (
-      this.items.length > 0 &&
-      this.items.every(
-        (i) => this.activeTransitions.get(i.product.id) === "remove",
-      )
-    ) {
-      return true;
-    }
-
-    return false;
+    return (
+      this.globalAction === "checkout" ||
+      (this.items.length > 0 &&
+        this.items.every((i) => this.activeTransitions.get(i.product.id) === "remove"))
+    );
   }
 
   private updateItemWithTransition(
     productId: string,
     action: CartActionType,
-    updateFn: () => void,
+    updateFn?: () => void,
     delayAction = false,
     ms = 400,
   ) {
     this.activeTransitions.set(productId, action);
 
-    if (this.#transitionTimers.has(productId)) {
-      clearTimeout(this.#transitionTimers.get(productId));
-    }
+    const currentTimer = this.#transitionTimers.get(productId);
+    if (currentTimer) clearTimeout(currentTimer);
 
-    if (!delayAction) updateFn();
+    if (!delayAction && updateFn) updateFn();
 
     const timer = setTimeout(() => {
       runInAction(() => {
-        if (delayAction) updateFn();
+        if (delayAction && updateFn) updateFn();
         this.activeTransitions.delete(productId);
         this.#transitionTimers.delete(productId);
       });
@@ -170,7 +163,7 @@ class CartStore {
         this.clearCart();
         this.globalAction = null;
 
-        this.updateItemWithTransition(newOrderId, "add", () => { }, false, 600);
+        this.updateItemWithTransition(newOrderId, "add", undefined, false, 600);
       });
     }, 400);
   }
@@ -180,9 +173,12 @@ class CartStore {
       const savedCart = localStorage.getItem(CART_STORAGE_KEY);
       const savedOrders = localStorage.getItem(ORDERS_STORAGE_KEY);
 
+      const parsedCart = savedCart ? JSON.parse(savedCart) : null;
+      const parsedOrders = savedOrders ? JSON.parse(savedOrders) : null;
+
       runInAction(() => {
-        if (savedCart) this.items = JSON.parse(savedCart);
-        if (savedOrders) this.orderHistory = JSON.parse(savedOrders);
+        if (parsedCart) this.items = parsedCart;
+        if (parsedOrders) this.orderHistory = parsedOrders;
       });
     } catch (e) {
       console.error("Ошибка загрузки корзины из localStorage", e);
