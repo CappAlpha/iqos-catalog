@@ -3,6 +3,7 @@ import { observer } from "mobx-react-lite";
 
 import { cartStore } from "@/modules/cart/features/model/cartStore";
 import { Button } from "@/shared/ui/Button";
+import { CounterBtns } from "@/shared/ui/CounterBtns";
 
 import type { Product } from "../../model/types";
 
@@ -13,10 +14,19 @@ interface Props {
 }
 
 export const ProductCard = observer(({ product }: Readonly<Props>) => {
-  const { name, categoryTitle, price, pictureUrl } = product;
-  const { addToCart, getItemAction } = cartStore;
+  const { id, name, categoryTitle, price, pictureUrl } = product;
+  const { removeFromCart, items, setQuantity, addToCart, getItemAction } =
+    cartStore;
 
-  const isAddToCartLoading = getItemAction(product.id) === "add";
+  const itemInCart = items.find((i) => i.product.id === id);
+  const action = getItemAction(id);
+
+  const isAddToCartLoading = action === "add";
+  const isIncLoading = action === "inc";
+  const isDecLoading = action === "dec";
+  const isRemoveFromCart = action === "remove";
+  const isCountChanged = isIncLoading || isDecLoading;
+  const isItemInCart = !itemInCart;
 
   return (
     <div className={cn(s.root)}>
@@ -43,13 +53,27 @@ export const ProductCard = observer(({ product }: Readonly<Props>) => {
       <div className={s.bottom}>
         <div className={s.bottomWrap}>
           <b className={s.price}>{price} &#8381;</b>
-          <Button
-            className={s.button}
-            loading={isAddToCartLoading}
-            onClick={() => addToCart(product)}
-          >
-            Добавить
-          </Button>
+          {isItemInCart ? (
+            <Button
+              className={s.button}
+              loading={isAddToCartLoading}
+              onClick={() => addToCart(product)}
+            >
+              Добавить
+            </Button>
+          ) : (
+            <CounterBtns
+              id={id}
+              quantity={itemInCart.quantity ?? 0}
+              isDecLoading={isDecLoading || isRemoveFromCart}
+              isIncLoading={isIncLoading}
+              isCountChanged={isCountChanged}
+              setQuantity={setQuantity}
+              removeFromCart={removeFromCart}
+              canRemove
+              className={s.counter}
+            />
+          )}
         </div>
       </div>
     </div>

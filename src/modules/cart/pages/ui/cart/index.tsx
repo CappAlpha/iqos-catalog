@@ -2,7 +2,7 @@ import cn from "classnames";
 import { observer } from "mobx-react-lite";
 
 import { cartStore } from "@/modules/cart/features/model/cartStore.ts";
-import { CartItemCard } from "@/modules/cart/features/ui/CartItemCard.ts/CartItemCard.ts.tsx";
+import { CartItemCard } from "@/modules/cart/features/ui/CartItemCard";
 import { Button } from "@/shared/ui/Button";
 import { TransitionNavLink } from "@/shared/ui/TransitionNavLink/TransitionNavLink.tsx";
 

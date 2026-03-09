@@ -2,6 +2,7 @@ import cn from "classnames";
 import { observer } from "mobx-react-lite";
 
 import { Button } from "@/shared/ui/Button";
+import { CounterBtns } from "@/shared/ui/CounterBtns";
 
 import { cartStore } from "../../model/cartStore";
 import type { CartItem } from "../../model/types";
@@ -44,28 +45,15 @@ export const CartItemCard = observer(({ item }: Readonly<Props>) => {
         </div>
 
         <div className={s.controlsContainer}>
-          <div className={s.counter}>
-            <Button
-              className={s.counterBtn}
-              onClick={() => setQuantity(id, quantity - 1)}
-              disabled={quantity <= 1}
-              loading={isDecLoading}
-            >
-              &#8722;
-            </Button>
-
-            <span className={cn(s.quantity, isCountChanged && s.updatingText)}>
-              {quantity}
-            </span>
-
-            <Button
-              className={s.counterBtn}
-              onClick={() => setQuantity(id, quantity + 1)}
-              loading={isIncLoading}
-            >
-              &#43;
-            </Button>
-          </div>
+          <CounterBtns
+            id={id}
+            quantity={quantity}
+            isDecLoading={isDecLoading}
+            isIncLoading={isIncLoading}
+            isCountChanged={isCountChanged}
+            setQuantity={setQuantity}
+            className={s.counter}
+          />
 
           {price && (
             <b className={cn(s.price, isCountChanged && s.updatingText)}>

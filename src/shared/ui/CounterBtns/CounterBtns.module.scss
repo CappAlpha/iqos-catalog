@@ -1,0 +1,21 @@
+.root {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  background: var(--light-gray);
+  border-radius: 8px;
+  padding: 5px;
+}
+
+.counterBtn {
+  width: 30px;
+  height: 30px;
+  font-size: 20px;
+  user-select: none;
+}
+
+.quantity {
+  font-weight: 600;
+  min-width: 20px;
+  text-align: center;
+}
