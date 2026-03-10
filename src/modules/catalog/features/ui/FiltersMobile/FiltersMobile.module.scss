@@ -66,6 +66,8 @@
 }
 
 .resetBtn {
+  @include expandableArea;
+
   position: sticky;
   bottom: 0;
   background-color: var(--white) !important;

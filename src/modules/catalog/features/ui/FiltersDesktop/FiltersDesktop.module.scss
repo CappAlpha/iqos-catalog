@@ -27,6 +27,9 @@
 }
 
 .resetBtn {
+  @include expandableArea;
+  --clickable-area-expandable-ratio: 12px;
+
   align-self: center;
 }
 
