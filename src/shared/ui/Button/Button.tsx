@@ -40,11 +40,14 @@ export const Button = ({
     disabled && s.disabled,
   );
 
-  return href ? (
-    <a className={styles} href={href} target={targetBlank ? "_blank" : ""}>
-      {children}
-    </a>
-  ) : (
+  if (href)
+    return (
+      <a className={styles} href={href} target={targetBlank ? "_blank" : ""}>
+        {children}
+      </a>
+    );
+
+  return (
     <button className={styles} onClick={onClick} onMouseDown={onMouseDown}>
       {children}
     </button>
