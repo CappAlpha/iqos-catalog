@@ -4,7 +4,7 @@ import { Button } from "../Button";
 
 import s from "./CounterBtns.module.scss";
 
-export interface Props {
+interface Props {
   id: string;
   quantity: number;
   isDecLoading: boolean;

@@ -14,16 +14,3 @@ export function normalizePage(v: string | null): number {
   const n = Number.parseInt(v ?? "", 10);
   return Number.isFinite(n) && n >= 1 ? n : CATALOG_DEFAULT.page;
 }
-
-export function syncUrlParam(
-  params: URLSearchParams,
-  key: string,
-  value: string | null,
-  defaultValue?: string,
-) {
-  if (!value || value === defaultValue) {
-    params.delete(key);
-  } else {
-    params.set(key, value);
-  }
-}
