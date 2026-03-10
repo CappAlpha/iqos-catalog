@@ -15,18 +15,20 @@ interface Props {
 
 export const ProductCard = observer(({ product }: Readonly<Props>) => {
   const { id, name, categoryTitle, price, pictureUrl } = product;
-  const { removeFromCart, items, setQuantity, addToCart, getItemAction } =
+
+  const { removeFromCart, setQuantity, addToCart, getCartItem, getItemStatus } =
     cartStore;
 
-  const itemInCart = items.find((i) => i.product.id === id);
-  const action = getItemAction(id);
+  const itemInCart = getCartItem(id);
+  const isNotInCart = !itemInCart;
 
-  const isAddToCartLoading = action === "add";
-  const isIncLoading = action === "inc";
-  const isDecLoading = action === "dec";
-  const isRemoveFromCart = action === "remove";
-  const isCountChanged = isIncLoading || isDecLoading;
-  const isItemInCart = !itemInCart;
+  const {
+    isAddLoading,
+    isIncLoading,
+    isDecLoading,
+    isRemoveLoading,
+    isCountChanged,
+  } = getItemStatus(id);
 
   return (
     <div className={cn(s.root)}>
@@ -53,10 +55,10 @@ export const ProductCard = observer(({ product }: Readonly<Props>) => {
       <div className={s.bottom}>
         <div className={s.bottomWrap}>
           <b className={s.price}>{price} &#8381;</b>
-          {isItemInCart ? (
+          {isNotInCart ? (
             <Button
               className={s.button}
-              loading={isAddToCartLoading}
+              loading={isAddLoading}
               onClick={() => addToCart(product)}
             >
               Добавить
@@ -65,7 +67,7 @@ export const ProductCard = observer(({ product }: Readonly<Props>) => {
             <CounterBtns
               id={id}
               quantity={itemInCart.quantity ?? 0}
-              isDecLoading={isDecLoading || isRemoveFromCart}
+              isDecLoading={isDecLoading || isRemoveLoading}
               isIncLoading={isIncLoading}
               isCountChanged={isCountChanged}
               setQuantity={setQuantity}

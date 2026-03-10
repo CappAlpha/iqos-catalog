@@ -52,6 +52,21 @@ class CartStore {
     return this.activeTransitions.get(productId) ?? null;
   }
 
+  getCartItem(productId: string): CartItem | undefined {
+    return this.items.find((i) => i.product.id === productId);
+  }
+
+  getItemStatus(productId: string) {
+    const action = this.activeTransitions.get(productId);
+    return {
+      isAddLoading: action === "add",
+      isIncLoading: action === "inc",
+      isDecLoading: action === "dec",
+      isRemoveLoading: action === "remove",
+      isCountChanged: action === "inc" || action === "dec",
+    };
+  }
+
   get isCartUpdating() {
     return this.activeTransitions.size > 0 || this.globalAction !== null;
   }

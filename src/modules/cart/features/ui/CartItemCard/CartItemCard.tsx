@@ -18,15 +18,11 @@ export const CartItemCard = observer(({ item }: Readonly<Props>) => {
     product: { pictureUrl, name, categoryTitle, id, price },
     quantity,
   } = item;
-  const { removeFromCart, setQuantity, getItemAction } = cartStore;
 
-  const action = getItemAction(id);
+  const { removeFromCart, setQuantity, getItemStatus } = cartStore;
 
-  const isIncLoading = action === "inc";
-  const isDecLoading = action === "dec";
-  const isRemoveLoading = action === "remove";
-
-  const isCountChanged = isIncLoading || isDecLoading;
+  const { isIncLoading, isDecLoading, isRemoveLoading, isCountChanged } =
+    getItemStatus(id);
 
   return (
     <div className={cn(s.root, isRemoveLoading && s.cardRemoving)}>
