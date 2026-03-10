@@ -8,6 +8,7 @@
 }
 
 .counterBtn {
+  @include expandableArea;
   width: 30px;
   height: 30px;
   font-size: 24px;
