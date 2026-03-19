@@ -16,6 +16,7 @@ import type {
   FilterGroupKey,
   MergedCategory,
   Product,
+  ProductGroup,
   SortKey,
   Status,
 } from "./types";
@@ -126,24 +127,85 @@ class CatalogStore {
     });
   }
 
-  get filteredProducts(): Product[] {
-    if (!this.selectedCategoryId) return this.products;
+  get filteredGroups(): ProductGroup[] {
+    if (!this.selectedCategoryId) return this.allGroups;
 
     const group = this.mergedCategories.find(
       (c) => c.id === this.selectedCategoryId,
     );
-    if (!group) return this.products;
+    if (!group) return this.allGroups;
 
     const groupIds = new Set(group.ids);
-    return this.products.filter((p) => groupIds.has(p.categoryId ?? UNCAT_ID));
+    return this.allGroups.filter((g) =>
+      g.variants.some((v) => groupIds.has(v.categoryId ?? UNCAT_ID)),
+    );
   }
 
-  get sortedProducts(): Product[] {
-    return this.filteredProducts.slice().sort(getComparator(this.sort));
+  get sortedGroups(): ProductGroup[] {
+    return this.filteredGroups.slice().sort((a, b) => {
+      return getComparator(this.sort)(a.variants[0], b.variants[0]);
+    });
+  }
+
+  get allGroups(): ProductGroup[] {
+    const map = new Map<string, Omit<ProductGroup, "id">>();
+
+    for (const product of this.products) {
+      const nameLower = product.name.toLowerCase();
+      const isSize =
+        nameLower.includes("стик") || nameLower.includes("картридж");
+
+      const type: ProductGroup["type"] = isSize ? "size" : "color";
+      let groupId;
+      let baseName = product.name;
+      let variantLabel = "Стандарт";
+
+      if (isSize) {
+        groupId = product.id;
+        variantLabel = nameLower.includes("блок") ? "Блок" : "Пачка";
+        baseName = product.name.replace(/,?\s*(пачка|блок.*)/i, "").trim();
+      } else {
+        const commaIdx = product.name.lastIndexOf(",");
+        if (commaIdx !== -1) {
+          baseName = product.name.substring(0, commaIdx).trim();
+          variantLabel = product.name.substring(commaIdx + 1).trim();
+        }
+        groupId = baseName;
+      }
+
+      if (!map.has(groupId)) {
+        map.set(groupId, { baseName, type, variants: [] });
+      }
+      map.get(groupId)!.variants.push({ ...product, variantLabel });
+    }
+
+    return Array.from(map.values()).map((group) => {
+      if (group.type === "size") {
+        group.variants.sort((a, b) => (a.price || 0) - (b.price || 0));
+      }
+
+      const safeVariants = group.variants.map((v, i) => {
+        const hasDuplicate = group.variants.some(
+          (x) => x !== v && x.id === v.id,
+        );
+        return {
+          ...v,
+          originalId: v.id,
+          id: hasDuplicate ? `${v.id}_var${i}` : v.id,
+        };
+      });
+
+      return {
+        id: safeVariants[0].id,
+        baseName: group.baseName,
+        type: group.type,
+        variants: safeVariants,
+      };
+    });
   }
 
   get totalCount() {
-    return this.filteredProducts.length;
+    return this.filteredGroups.length;
   }
 
   get totalPages() {
@@ -154,9 +216,9 @@ class CatalogStore {
     return clamp(this.page, 1, this.totalPages);
   }
 
-  get viewProducts(): Product[] {
+  get viewGroups(): ProductGroup[] {
     const start = (this.safePage - 1) * this.pageSize;
-    return this.sortedProducts.slice(start, start + this.pageSize);
+    return this.sortedGroups.slice(start, start + this.pageSize);
   }
 
   get showSkeleton() {
@@ -173,8 +235,16 @@ class CatalogStore {
     );
   }
 
+  get isAnyFilterSelected() {
+    return (
+      this.selectedCategoryId !== null ||
+      this.sort !== CATALOG_DEFAULT.sort ||
+      this.page !== CATALOG_DEFAULT.page
+    );
+  }
+
   get skeletonCount() {
-    return this.totalCount > 0 ? this.viewProducts.length : this.pageSize;
+    return this.totalCount > 0 ? this.viewGroups.length : this.pageSize;
   }
 
   private triggerTransition(ms = 400) {

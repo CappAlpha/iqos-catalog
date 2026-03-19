@@ -24,6 +24,7 @@ export const FiltersMobile = observer(() => {
     selectedCategoryId,
     setCategory,
     resetFilters,
+    isAnyFilterSelected,
   } = catalogStore;
 
   const handleSetCategory = (id: string) => {
@@ -64,6 +65,7 @@ export const FiltersMobile = observer(() => {
             className={s.resetBtn}
             color="transparent"
             onClick={handleResetFilters}
+            disabled={!isAnyFilterSelected}
           >
             &#8635; Сбросить фильтры
           </Button>

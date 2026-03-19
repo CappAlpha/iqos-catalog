@@ -1,0 +1,18 @@
+.root {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.variantBtn {
+  flex: 1;
+  padding: 10px;
+
+  &.activeVariant {
+    background: var(--accent-color);
+    color: var(--dark-gray);
+    opacity: 1;
+  }
+}

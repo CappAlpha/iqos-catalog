@@ -55,6 +55,7 @@
 }
 
 .textWrap,
+.variants,
 .bottom {
   padding-inline: 20px;
 }
@@ -76,6 +77,20 @@
   font-size: 20px;
   font-weight: 700;
   line-height: 1.2;
+}
+
+.selectedColorName {
+  position: relative;
+}
+
+.selectedColorName,
+.selectedSkeleton,
+.selectedColorNameSkeleton {
+  color: var(--accent-color);
+  text-shadow: 0 0 0.2px var(--gray-border);
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.1;
 }
 
 .category {
@@ -105,6 +120,9 @@
 
 .imgWrapSkeleton,
 .titleSkeleton,
+.selectedSkeleton,
+.selectedColorNameSkeleton,
+.variantsSkeleton,
 .categorySkeleton,
 .priceSkeleton,
 .buttonSkeleton {
@@ -112,6 +130,9 @@
 }
 
 .titleSkeleton,
+.selectedSkeleton,
+.selectedColorNameSkeleton,
+.variantsSkeleton,
 .categorySkeleton,
 .priceSkeleton,
 .buttonSkeleton {
@@ -123,9 +144,28 @@
   height: 48px;
 }
 
+.selectedSkeleton {
+  position: absolute;
+  inset: 0;
+  height: 1.2em;
+  width: 70%;
+  border-radius: 6px;
+}
+
+.selectedColorNameSkeleton {
+  width: 60%;
+  height: 17.6px;
+}
+
 .categorySkeleton {
   width: 50%;
-  height: 15px;
+  height: 15.39px;
+}
+
+.variantsSkeleton {
+  width: 100%;
+  height: 38px;
+  margin-bottom: 15px;
 }
 
 .priceSkeleton {

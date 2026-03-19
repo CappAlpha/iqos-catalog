@@ -8,8 +8,13 @@ import { FiltersGroup } from "../FiltersGroup";
 import s from "./FiltersDesktop.module.scss";
 
 export const FiltersDesktop = observer(() => {
-  const { filterGroups, selectedCategoryId, toggleCategory, resetFilters } =
-    catalogStore;
+  const {
+    filterGroups,
+    selectedCategoryId,
+    toggleCategory,
+    resetFilters,
+    isAnyFilterSelected,
+  } = catalogStore;
 
   return (
     <div className={s.root}>
@@ -26,6 +31,7 @@ export const FiltersDesktop = observer(() => {
         noPadding
         color="transparent"
         onClick={resetFilters}
+        disabled={!isAnyFilterSelected}
       >
         &#8635; Сбросить фильтры
       </Button>

@@ -33,7 +33,7 @@ export const FiltersGroup = ({
                   key={category.id}
                   checked={selectedCategoryId === category.id}
                   onChange={() => toggleCategory(category.id)}
-                  label={`${category.title} (${category.count})`}
+                  label={`${category.title}`}
                 />
               ))}
             </div>

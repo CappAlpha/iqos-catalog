@@ -10,7 +10,6 @@ export interface FilterGroup {
   categories: Array<{
     id: string;
     title: string;
-    count: number;
   }>;
 }
 
@@ -36,6 +35,13 @@ export type Product = {
   url: string | null;
   available: boolean;
 };
+
+export interface ProductGroup {
+  id: string;
+  baseName: string;
+  type: "size" | "color";
+  variants: (Product & { variantLabel: string })[];
+}
 
 export type FeedResult = {
   categories: Category[];

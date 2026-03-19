@@ -7,10 +7,12 @@ export const ProductCardSkeleton = () => {
 
       <div className={s.textWrap}>
         <div className={s.titleSkeleton} />
+        <div className={s.selectedColorNameSkeleton} />
         <div className={s.categorySkeleton} />
       </div>
 
       <div className={s.bottom}>
+        <div className={s.variantsSkeleton} />
         <div className={s.bottomWrap}>
           <div className={s.priceSkeleton} />
           <div className={s.buttonSkeleton} />

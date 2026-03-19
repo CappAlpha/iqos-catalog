@@ -1,0 +1,105 @@
+.root {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0;
+  width: fit-content;
+
+  margin-bottom: 15px;
+  margin-right: -10px;
+
+  @include breakpoint(mobile-m) {
+    width: 100%;
+    flex-wrap: nowrap;
+    overflow-y: hidden;
+    overflow-x: auto;
+    margin-inline: -20px;
+    padding-inline: 20px;
+    min-height: 34px;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+}
+
+.colorBtn {
+  min-width: 28px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  transition: all 0.2s ease;
+  outline: solid 1px var(--gray-border);
+
+  margin-right: 10px;
+  margin-bottom: 10px;
+
+  @include breakpoint(mobile-m) {
+    min-width: 24px;
+    width: 24px;
+    height: 24px;
+    margin-bottom: 0;
+  }
+
+  &:hover {
+    @media (hover: hover) and (pointer: fine) {
+      cursor: pointer;
+      transform: scale(1.15);
+    }
+  }
+
+  &.activeColor {
+    transform: scale(1.3);
+  }
+
+  &.hiddenColor {
+    min-width: 0;
+    width: 0;
+    height: 0;
+    margin: 0;
+    border-width: 0;
+    opacity: 0;
+    transform: scale(0);
+    visibility: hidden;
+    outline: none;
+  }
+}
+
+.moreColorsBtn {
+  @include expandableArea;
+  position: absolute;
+  right: -34px;
+  top: -3px;
+
+  min-width: 32px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid var(--gray-border);
+  background: var(--white);
+  color: var(--gray);
+  font-size: 14px;
+  font-weight: 700;
+  padding: 16px;
+  margin-bottom: 10px;
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
+
+  @include breakpoint(mobile-m) {
+    min-width: 28px;
+    width: 28px;
+    height: 28px;
+    margin-bottom: 0;
+  }
+
+  &:hover {
+    @media (hover: hover) and (pointer: fine) {
+      cursor: pointer;
+      background: var(--light-gray);
+      color: var(--accent-color);
+    }
+  }
+}
