@@ -29,7 +29,6 @@ export const ProductCard = observer(({ group }: Readonly<Props>) => {
   const { removeFromCart, setQuantity, addToCart, getCartItem, getItemStatus } =
     cartStore;
   const itemInCart = getCartItem(id);
-  const isNotInCart = !itemInCart;
   const {
     isAddLoading,
     isIncLoading,
@@ -93,15 +92,7 @@ export const ProductCard = observer(({ group }: Readonly<Props>) => {
           <b className={cn(s.price, isPending && s.priceSkeleton)}>
             {price} &#8381;
           </b>
-          {isNotInCart ? (
-            <Button
-              className={s.button}
-              loading={isAddLoading}
-              onClick={() => addToCart(product)}
-            >
-              Добавить
-            </Button>
-          ) : (
+          {itemInCart ? (
             <CounterBtns
               id={id}
               quantity={itemInCart.quantity ?? 0}
@@ -113,6 +104,14 @@ export const ProductCard = observer(({ group }: Readonly<Props>) => {
               canRemove
               className={s.counter}
             />
+          ) : (
+            <Button
+              className={s.button}
+              loading={isAddLoading}
+              onClick={() => addToCart(product)}
+            >
+              Добавить
+            </Button>
           )}
         </div>
       </div>
