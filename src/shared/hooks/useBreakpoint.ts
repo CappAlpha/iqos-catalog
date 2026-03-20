@@ -1,6 +1,6 @@
 import { useSyncExternalStore, useMemo } from "react";
 
-const breakpoints = {
+export const breakpoints = {
   mobile: 390,
   mobileS: 540,
   mobileM: 768,

@@ -83,7 +83,7 @@ class CatalogM {
     return map;
   }
 
-  get sidebarFilters(): FilterGroup[] {
+  get categoryFilters(): FilterGroup[] {
     const counts = new Map<string, number>();
     const childToParentId = new Map<string, string>();
 

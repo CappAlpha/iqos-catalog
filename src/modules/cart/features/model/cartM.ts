@@ -118,10 +118,10 @@ class CartM {
   }
 
   get totalPrice() {
-    return this.items.reduce((sum, item) => {
-      const price = item.product.price ?? 0;
-      return sum + price * item.quantity;
-    }, 0);
+    return this.items.reduce(
+      (sum, item) => sum + (item.product.price ?? 0) * item.quantity,
+      0,
+    );
   }
 
   get isEmpty() {

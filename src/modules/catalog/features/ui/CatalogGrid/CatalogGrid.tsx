@@ -40,8 +40,12 @@ export const CatalogGrid = observer(() => {
 
   return (
     <div className={s.grid}>
-      {pagedProductGroups.map((productGroup) => (
-        <ProductCard key={productGroup.id} productGroup={productGroup} />
+      {pagedProductGroups.map((productGroup, i) => (
+        <ProductCard
+          key={productGroup.id}
+          productGroup={productGroup}
+          loading={i <= skeletonCount / 2 ? "eager" : "lazy"}
+        />
       ))}
     </div>
   );
