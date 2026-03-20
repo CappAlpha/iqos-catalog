@@ -1,8 +1,7 @@
 import cn from "classnames";
 import { observer } from "mobx-react-lite";
-import { useEffect } from "react";
 
-import { cartM } from "@/modules/cart/features/model/cartM.ts";
+import { cartM } from "@/modules/cart/features/model/cartM";
 import { CartItemCard } from "@/modules/cart/features/ui/CartItemCard";
 import { Button } from "@/shared/ui/Button";
 import { TransitionNavLink } from "@/shared/ui/TransitionNavLink";
@@ -11,7 +10,6 @@ import s from "./Cart.module.scss";
 
 export const Cart = observer(() => {
   const {
-    initStore,
     items,
     totalPrice,
     totalItems,
@@ -23,10 +21,6 @@ export const Cart = observer(() => {
     isCartClearing,
     clearCart,
   } = cartM;
-
-  useEffect(() => {
-    initStore();
-  }, []);
 
   return (
     <div className={s.root}>

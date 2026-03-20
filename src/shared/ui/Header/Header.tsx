@@ -1,5 +1,6 @@
 import cn from "classnames";
 import { observer } from "mobx-react-lite";
+import { useEffect } from "react";
 
 import { cartM } from "@/modules/cart/features/model/cartM";
 
@@ -8,7 +9,11 @@ import { TransitionNavLink } from "../TransitionNavLink";
 import s from "./Header.module.scss";
 
 export const Header = observer(() => {
-  const { isCartUpdating, totalItems, isEmpty } = cartM;
+  const { initStore, isCartUpdating, totalItems, isEmpty } = cartM;
+
+  useEffect(() => {
+    initStore();
+  }, []);
 
   return (
     <header className={s.header}>

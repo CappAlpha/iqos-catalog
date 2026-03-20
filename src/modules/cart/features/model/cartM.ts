@@ -55,8 +55,12 @@ class CartM {
     }
   }
 
-  getCartItem(productId: string): CartItem | undefined {
+  private findItem(productId: string) {
     return this.items.find((i) => i.product.id === productId);
+  }
+
+  getCartItem(productId: string): CartItem | undefined {
+    return this.findItem(productId);
   }
 
   getItemStatus(productId: string) {
@@ -75,12 +79,12 @@ class CartM {
   }
 
   get isCartClearing() {
+    if (this.globalAction === "checkout") return true;
     return (
-      this.globalAction === "checkout" ||
-      (this.items.length > 0 &&
-        this.items.every(
-          (i) => this.activeTransitions.get(i.product.id) === "remove",
-        ))
+      !this.isEmpty &&
+      this.items.every(
+        (i) => this.activeTransitions.get(i.product.id) === "remove",
+      )
     );
   }
 
@@ -133,21 +137,21 @@ class CartM {
   }
 
   private returnItemToCart(productId: string, itemToRestore: CartItem) {
-    if (!this.items.some((i) => i.product.id === productId)) {
-      this.updateItemWithTransition(
-        productId,
-        "add",
-        () => {
-          this.items.push(itemToRestore);
-        },
-        false,
-        600,
-      );
-    }
+    if (this.findItem(productId)) return;
+
+    this.updateItemWithTransition(
+      productId,
+      "add",
+      () => {
+        this.items.push(itemToRestore);
+      },
+      false,
+      600,
+    );
   }
 
   removeFromCart(productId: string) {
-    const itemToRestore = this.items.find((i) => i.product.id === productId);
+    const itemToRestore = this.findItem(productId);
 
     if (!itemToRestore) return;
 
@@ -162,11 +166,7 @@ class CartM {
           "success",
           itemToRestore.product.name,
           "Вернуть",
-          () => {
-            runInAction(() => {
-              this.returnItemToCart(productId, itemToRestore);
-            });
-          },
+          () => this.returnItemToCart(productId, itemToRestore),
         );
       },
       true,
@@ -176,7 +176,7 @@ class CartM {
   setQuantity(productId: string, quantity: number) {
     if (quantity < 1) return;
 
-    const item = this.items.find((i) => i.product.id === productId);
+    const item = this.findItem(productId);
     if (!item) return;
 
     const action: CartActionType = quantity > item.quantity ? "inc" : "dec";
