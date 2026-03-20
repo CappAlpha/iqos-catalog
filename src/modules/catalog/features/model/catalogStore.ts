@@ -57,28 +57,6 @@ class CatalogStore {
     return Array.from(map.values());
   }
 
-  get categoryCounts(): Map<string, number> {
-    const counts = new Map<string, number>();
-    const childToParentId = new Map<string, string>();
-
-    for (const cat of this.mergedCategories) {
-      for (const id of cat.ids) {
-        childToParentId.set(id, cat.id);
-      }
-    }
-
-    for (const product of this.products) {
-      const catId = product.categoryId ?? UNCAT_ID;
-      const groupId = childToParentId.get(catId);
-
-      if (groupId) {
-        counts.set(groupId, (counts.get(groupId) ?? 0) + 1);
-      }
-    }
-
-    return counts;
-  }
-
   get groupIdsMap(): Map<FilterGroupKey, Set<string>> {
     const map = new Map<FilterGroupKey, Set<string>>();
 
@@ -106,9 +84,25 @@ class CatalogStore {
   }
 
   get filterGroups(): FilterGroup[] {
-    const counts = this.categoryCounts;
-    const groupIdsMap = this.groupIdsMap;
+    const counts = new Map<string, number>();
+    const childToParentId = new Map<string, string>();
 
+    for (const cat of this.mergedCategories) {
+      for (const id of cat.ids) {
+        childToParentId.set(id, cat.id);
+      }
+    }
+
+    for (const product of this.products) {
+      const catId = product.categoryId ?? UNCAT_ID;
+      const groupId = childToParentId.get(catId);
+
+      if (groupId) {
+        counts.set(groupId, (counts.get(groupId) ?? 0) + 1);
+      }
+    }
+
+    const groupIdsMap = this.groupIdsMap;
     const keys = Object.keys(GROUP_KEYWORDS) as FilterGroupKey[];
 
     return keys.map((key) => {

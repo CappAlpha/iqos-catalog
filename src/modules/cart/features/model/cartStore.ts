@@ -48,10 +48,6 @@ class CartStore {
     }
   }
 
-  getItemAction(productId: string): CartActionType | null {
-    return this.activeTransitions.get(productId) ?? null;
-  }
-
   getCartItem(productId: string): CartItem | undefined {
     return this.items.find((i) => i.product.id === productId);
   }

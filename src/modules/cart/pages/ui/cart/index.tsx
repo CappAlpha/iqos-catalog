@@ -17,7 +17,7 @@ export const Cart = observer(() => {
     checkout,
     orderHistory,
     isCartUpdating,
-    getItemAction,
+    getItemStatus,
     isCartClearing,
   } = cartStore;
 
@@ -89,7 +89,7 @@ export const Cart = observer(() => {
                 key={order.id}
                 className={cn(
                   s.historyCard,
-                  getItemAction(order.id) === "add" && s.historyCardIntro,
+                  getItemStatus(order.id).isAddLoading && s.historyCardIntro,
                 )}
               >
                 <div className={s.historyHeader}>
