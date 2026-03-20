@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import { useSearchParams, useLocation } from "react-router";
 
-import { catalogStore } from "../model/catalogStore";
+import { catalogM } from "../model/catalogM";
 import { normalizeSort, normalizePage } from "./catalogPage";
 
 export const useCatalogUrlSync = () => {
@@ -9,7 +9,7 @@ export const useCatalogUrlSync = () => {
   const location = useLocation();
   const isInternalNav = useRef(false);
 
-  const { selectedCategoryId, sort, page, status } = catalogStore;
+  const { selectedCategoryId, sort, page, status } = catalogM;
   const defaultSort = normalizeSort(null);
 
   // Store -> URL
@@ -65,16 +65,16 @@ export const useCatalogUrlSync = () => {
     const urlSort = normalizeSort(currentParams.get("sort"));
     const urlPage = normalizePage(currentParams.get("page"));
 
-    if ((catalogStore.selectedCategoryId ?? "") !== urlCat) {
-      catalogStore.setCategory(urlCat === "" ? null : urlCat);
+    if ((catalogM.selectedCategoryId ?? "") !== urlCat) {
+      catalogM.setCategory(urlCat === "" ? null : urlCat);
     }
 
-    if (catalogStore.sort !== urlSort) {
-      catalogStore.setSort(urlSort);
+    if (catalogM.sort !== urlSort) {
+      catalogM.setSort(urlSort);
     }
 
-    if (catalogStore.page !== urlPage) {
-      catalogStore.setPage(urlPage);
+    if (catalogM.page !== urlPage) {
+      catalogM.setPage(urlPage);
     }
   }, [location.search]);
 };

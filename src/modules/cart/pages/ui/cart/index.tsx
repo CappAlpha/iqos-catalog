@@ -2,7 +2,7 @@ import cn from "classnames";
 import { observer } from "mobx-react-lite";
 import { useEffect } from "react";
 
-import { cartStore } from "@/modules/cart/features/model/cartStore.ts";
+import { cartM } from "@/modules/cart/features/model/cartM.ts";
 import { CartItemCard } from "@/modules/cart/features/ui/CartItemCard";
 import { Button } from "@/shared/ui/Button";
 import { TransitionNavLink } from "@/shared/ui/TransitionNavLink";
@@ -22,7 +22,7 @@ export const Cart = observer(() => {
     getItemStatus,
     isCartClearing,
     clearCart,
-  } = cartStore;
+  } = cartM;
 
   useEffect(() => {
     initStore();

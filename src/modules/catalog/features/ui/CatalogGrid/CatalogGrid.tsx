@@ -2,7 +2,7 @@ import { observer } from "mobx-react-lite";
 
 import { Button } from "@/shared/ui/Button";
 
-import { catalogStore } from "../../model/catalogStore";
+import { catalogM } from "../../model/catalogM";
 import { ProductCard } from "../ProductCard";
 import { CatalogGridSkeleton } from "./CatalogGridSkeleton";
 
@@ -16,7 +16,7 @@ export const CatalogGrid = observer(() => {
     viewGroups,
     fetchData,
     skeletonCount,
-  } = catalogStore;
+  } = catalogM;
 
   if (error)
     return (

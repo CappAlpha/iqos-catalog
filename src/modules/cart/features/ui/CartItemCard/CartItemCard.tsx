@@ -4,7 +4,7 @@ import { observer } from "mobx-react-lite";
 import { Button } from "@/shared/ui/Button";
 import { CounterBtns } from "@/shared/ui/CounterBtns";
 
-import { cartStore } from "../../model/cartStore";
+import { cartM } from "../../model/cartM";
 import type { CartItem } from "../../model/types";
 
 import s from "./CartItemCard.module.scss";
@@ -19,7 +19,7 @@ export const CartItemCard = observer(({ item }: Readonly<Props>) => {
     quantity,
   } = item;
 
-  const { removeFromCart, setQuantity, getItemStatus } = cartStore;
+  const { removeFromCart, setQuantity, getItemStatus } = cartM;
 
   const {
     isIncLoading,

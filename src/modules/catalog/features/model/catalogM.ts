@@ -21,7 +21,7 @@ import type {
   Status,
 } from "./types";
 
-class CatalogStore {
+class CatalogM {
   status: Status = "loading";
   error: string | null = null;
 
@@ -170,7 +170,7 @@ class CatalogStore {
       if (!map.has(groupId)) {
         map.set(groupId, { baseName, type, variants: [] });
       }
-      map.get(groupId)!.variants.push({ ...product, variantLabel });
+      map.get(groupId)?.variants.push({ ...product, variantLabel });
     }
 
     return Array.from(map.values()).map((group) => {
@@ -291,7 +291,7 @@ class CatalogStore {
     });
   }
 
-  fetchData = flow(function* (this: CatalogStore) {
+  fetchData = flow(function* (this: CatalogM) {
     if (this.#transitionTimer) clearTimeout(this.#transitionTimer);
     this.isTransitioning = false;
 
@@ -315,4 +315,4 @@ class CatalogStore {
   });
 }
 
-export const catalogStore = new CatalogStore();
+export const catalogM = new CatalogM();

@@ -5,7 +5,7 @@ import { useRef, useState } from "react";
 import { useOutsideClick } from "@/shared/hooks/useOutsideClick";
 import { Button } from "@/shared/ui/Button";
 
-import { catalogStore } from "../../model/catalogStore";
+import { catalogM } from "../../model/catalogM";
 import { FiltersGroup } from "../FiltersGroup";
 
 import s from "./FiltersMobile.module.scss";
@@ -25,7 +25,7 @@ export const FiltersMobile = observer(() => {
     setCategory,
     resetFilters,
     isAnyFilterSelected,
-  } = catalogStore;
+  } = catalogM;
 
   const handleSetCategory = (id: string) => {
     setCategory(id);

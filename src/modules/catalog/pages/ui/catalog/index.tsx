@@ -3,7 +3,7 @@ import { observer } from "mobx-react-lite";
 import { useEffect, useRef } from "react";
 
 import { useCatalogUrlSync } from "@/modules/catalog/features/lib/useCatalogUrlSync";
-import { catalogStore } from "@/modules/catalog/features/model/catalogStore";
+import { catalogM } from "@/modules/catalog/features/model/catalogM";
 import { CatalogGrid } from "@/modules/catalog/features/ui/CatalogGrid";
 import { CatalogHeader } from "@/modules/catalog/features/ui/CatalogHeader";
 import { FiltersDesktop } from "@/modules/catalog/features/ui/FiltersDesktop";
@@ -27,7 +27,7 @@ export const Catalog = observer(function Catalog() {
     fetchData,
     setPage,
     isTransitioning,
-  } = catalogStore;
+  } = catalogM;
 
   useEffect(() => {
     fetchData();

@@ -2,7 +2,7 @@ import cn from "classnames";
 import { observer } from "mobx-react-lite";
 import { useState } from "react";
 
-import { cartStore } from "@/modules/cart/features/model/cartStore";
+import { cartM } from "@/modules/cart/features/model/cartM";
 import { Button } from "@/shared/ui/Button";
 import { CounterBtns } from "@/shared/ui/CounterBtns";
 
@@ -27,7 +27,7 @@ export const ProductCard = observer(({ group }: Readonly<Props>) => {
   const { id, price, pictureUrl, categoryTitle } = product;
 
   const { removeFromCart, setQuantity, addToCart, getCartItem, getItemStatus } =
-    cartStore;
+    cartM;
   const itemInCart = getCartItem(id);
   const {
     isAddLoading,

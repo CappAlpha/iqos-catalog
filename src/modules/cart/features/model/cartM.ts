@@ -7,7 +7,7 @@ import { customToastTemplate } from "@/shared/lib/customToastTemplate";
 import { CART_STORAGE_KEY, ORDERS_STORAGE_KEY } from "./constants";
 import type { CartActionType, CartItem, Order } from "./types";
 
-class CartStore {
+class CartM {
   items: CartItem[] = [];
   orderHistory: Order[] = [];
   isInitialized = false;
@@ -225,4 +225,4 @@ class CartStore {
   }
 }
 
-export const cartStore = new CartStore();
+export const cartM = new CartM();

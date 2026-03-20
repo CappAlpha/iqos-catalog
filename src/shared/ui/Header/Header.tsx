@@ -1,14 +1,14 @@
 import cn from "classnames";
 import { observer } from "mobx-react-lite";
 
-import { cartStore } from "@/modules/cart/features/model/cartStore";
+import { cartM } from "@/modules/cart/features/model/cartM";
 
 import { TransitionNavLink } from "../TransitionNavLink";
 
 import s from "./Header.module.scss";
 
 export const Header = observer(() => {
-  const { isCartUpdating, totalItems, isEmpty } = cartStore;
+  const { isCartUpdating, totalItems, isEmpty } = cartM;
 
   return (
     <header className={s.header}>

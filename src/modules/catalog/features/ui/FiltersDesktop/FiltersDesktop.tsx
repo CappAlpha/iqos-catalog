@@ -2,7 +2,7 @@ import { observer } from "mobx-react-lite";
 
 import { Button } from "@/shared/ui/Button";
 
-import { catalogStore } from "../../model/catalogStore";
+import { catalogM } from "../../model/catalogM";
 import { FiltersGroup } from "../FiltersGroup";
 
 import s from "./FiltersDesktop.module.scss";
@@ -14,7 +14,7 @@ export const FiltersDesktop = observer(() => {
     toggleCategory,
     resetFilters,
     isAnyFilterSelected,
-  } = catalogStore;
+  } = catalogM;
 
   return (
     <div className={s.root}>
