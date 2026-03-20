@@ -13,7 +13,7 @@ export const CatalogGrid = observer(() => {
     error,
     showSkeleton,
     totalCount,
-    viewGroups,
+    pagedProductGroups,
     fetchData,
     skeletonCount,
   } = catalogM;
@@ -40,8 +40,8 @@ export const CatalogGrid = observer(() => {
 
   return (
     <div className={s.grid}>
-      {viewGroups.map((group) => (
-        <ProductCard key={group.id} group={group} />
+      {pagedProductGroups.map((productGroup) => (
+        <ProductCard key={productGroup.id} productGroup={productGroup} />
       ))}
     </div>
   );

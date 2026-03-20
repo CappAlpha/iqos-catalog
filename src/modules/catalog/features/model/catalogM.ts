@@ -40,7 +40,7 @@ class CatalogM {
     makeAutoObservable(this, {}, { autoBind: true });
   }
 
-  get mergedCategories(): MergedCategory[] {
+  get groupedCategories(): MergedCategory[] {
     const map = new Map<string, MergedCategory>();
 
     for (const cat of this.categories) {
@@ -83,11 +83,11 @@ class CatalogM {
     return map;
   }
 
-  get filterGroups(): FilterGroup[] {
+  get sidebarFilters(): FilterGroup[] {
     const counts = new Map<string, number>();
     const childToParentId = new Map<string, string>();
 
-    for (const cat of this.mergedCategories) {
+    for (const cat of this.groupedCategories) {
       for (const id of cat.ids) {
         childToParentId.set(id, cat.id);
       }
@@ -108,7 +108,7 @@ class CatalogM {
     return keys.map((key) => {
       const groupIds = groupIdsMap.get(key) ?? new Set();
 
-      const categories = this.mergedCategories
+      const categories = this.groupedCategories
         .filter((cat) => cat.ids.some((id) => groupIds.has(id)))
         .map((cat) => ({
           id: cat.id,
@@ -121,51 +121,12 @@ class CatalogM {
     });
   }
 
-  get filteredGroups(): ProductGroup[] {
-    if (!this.selectedCategoryId) return this.allGroups;
-
-    const group = this.mergedCategories.find(
-      (c) => c.id === this.selectedCategoryId,
-    );
-    if (!group) return this.allGroups;
-
-    const groupIds = new Set(group.ids);
-    return this.allGroups.filter((g) =>
-      g.variants.some((v) => groupIds.has(v.categoryId ?? UNCAT_ID)),
-    );
-  }
-
-  get sortedGroups(): ProductGroup[] {
-    return this.filteredGroups.slice().sort((a, b) => {
-      return getComparator(this.sort)(a.variants[0], b.variants[0]);
-    });
-  }
-
-  get allGroups(): ProductGroup[] {
+  get baseProductGroups(): ProductGroup[] {
     const map = new Map<string, Omit<ProductGroup, "id">>();
 
     for (const product of this.products) {
-      const nameLower = product.name.toLowerCase();
-      const isSize =
-        nameLower.includes("стик") || nameLower.includes("картридж");
-
-      const type: ProductGroup["type"] = isSize ? "size" : "color";
-      let groupId;
-      let baseName = product.name;
-      let variantLabel = "Стандарт";
-
-      if (isSize) {
-        groupId = product.id;
-        variantLabel = nameLower.includes("блок") ? "Блок" : "Пачка";
-        baseName = product.name.replace(/,?\s*(пачка|блок.*)/i, "").trim();
-      } else {
-        const commaIdx = product.name.lastIndexOf(",");
-        if (commaIdx !== -1) {
-          baseName = product.name.substring(0, commaIdx).trim();
-          variantLabel = product.name.substring(commaIdx + 1).trim();
-        }
-        groupId = baseName;
-      }
+      const { groupId, baseName, type, variantLabel } =
+        this.parseProductData(product);
 
       if (!map.has(groupId)) {
         map.set(groupId, { baseName, type, variants: [] });
@@ -178,10 +139,8 @@ class CatalogM {
         group.variants.sort((a, b) => (a.price || 0) - (b.price || 0));
       }
 
-      const safeVariants = group.variants.map((v, i) => {
-        const hasDuplicate = group.variants.some(
-          (x) => x !== v && x.id === v.id,
-        );
+      const safeVariants = group.variants.map((v, i, arr) => {
+        const hasDuplicate = arr.some((x) => x !== v && x.id === v.id);
         return {
           ...v,
           originalId: v.id,
@@ -198,8 +157,64 @@ class CatalogM {
     });
   }
 
+  private parseProductData(product: Product) {
+    const nameLower = product.name.toLowerCase();
+    const isSize = nameLower.includes("стик") || nameLower.includes("картридж");
+
+    if (isSize) {
+      return {
+        type: "size" as const,
+        groupId: product.id,
+        variantLabel: nameLower.includes("блок") ? "Блок" : "Пачка",
+        baseName: product.name.replace(/,?\s*(пачка|блок.*)/i, "").trim(),
+      };
+    }
+
+    const commaIdx = product.name.lastIndexOf(",");
+    const baseName =
+      commaIdx !== -1
+        ? product.name.substring(0, commaIdx).trim()
+        : product.name;
+    const variantLabel =
+      commaIdx !== -1
+        ? product.name.substring(commaIdx + 1).trim()
+        : "Стандарт";
+
+    return {
+      type: "color" as const,
+      groupId: baseName,
+      variantLabel,
+      baseName,
+    };
+  }
+
+  get filteredProductGroups(): ProductGroup[] {
+    if (!this.selectedCategoryId) return this.baseProductGroups;
+
+    const group = this.groupedCategories.find(
+      (c) => c.id === this.selectedCategoryId,
+    );
+    if (!group) return this.baseProductGroups;
+
+    const groupIds = new Set(group.ids);
+    return this.baseProductGroups.filter((g) =>
+      g.variants.some((v) => groupIds.has(v.categoryId ?? UNCAT_ID)),
+    );
+  }
+
+  get sortedProductGroups(): ProductGroup[] {
+    return this.filteredProductGroups.slice().sort((a, b) => {
+      return getComparator(this.sort)(a.variants[0], b.variants[0]);
+    });
+  }
+
+  get pagedProductGroups(): ProductGroup[] {
+    const start = (this.safePage - 1) * this.pageSize;
+    return this.sortedProductGroups.slice(start, start + this.pageSize);
+  }
+
   get totalCount() {
-    return this.filteredGroups.length;
+    return this.filteredProductGroups.length;
   }
 
   get totalPages() {
@@ -208,11 +223,6 @@ class CatalogM {
 
   get safePage() {
     return clamp(this.page, 1, this.totalPages);
-  }
-
-  get viewGroups(): ProductGroup[] {
-    const start = (this.safePage - 1) * this.pageSize;
-    return this.sortedGroups.slice(start, start + this.pageSize);
   }
 
   get showSkeleton() {
@@ -238,7 +248,7 @@ class CatalogM {
   }
 
   get skeletonCount() {
-    return this.totalCount > 0 ? this.viewGroups.length : this.pageSize;
+    return this.totalCount > 0 ? this.pagedProductGroups.length : this.pageSize;
   }
 
   private triggerTransition(ms = 400) {

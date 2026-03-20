@@ -14,17 +14,17 @@ import { VariantsSizes } from "./VariantSizes";
 import s from "./ProductCard.module.scss";
 
 interface Props {
-  group: ProductGroup;
+  productGroup: ProductGroup;
 }
 
-export const ProductCard = observer(({ group }: Readonly<Props>) => {
+export const ProductCard = observer(({ productGroup }: Readonly<Props>) => {
   const { selectedIdx, isPending, handleSelect } = useVariantTransition(
-    group.variants,
+    productGroup.variants,
   );
   const [isColorsExpanded, setIsColorsExpanded] = useState(false);
 
-  const product = group.variants[selectedIdx];
-  const { id, price, pictureUrl, categoryTitle } = product;
+  const selectedProduct = productGroup.variants[selectedIdx];
+  const { id, price, pictureUrl, categoryTitle } = selectedProduct;
 
   const { removeFromCart, setQuantity, addToCart, getCartItem, getItemStatus } =
     cartM;
@@ -37,7 +37,7 @@ export const ProductCard = observer(({ group }: Readonly<Props>) => {
     isCountChanged,
   } = getItemStatus(id);
 
-  const isColorType = group.type === "color";
+  const isColorType = productGroup.type === "color";
 
   return (
     <div className={cn(s.root)}>
@@ -47,7 +47,7 @@ export const ProductCard = observer(({ group }: Readonly<Props>) => {
           <img
             className={s.img}
             src={pictureUrl}
-            alt={group.baseName}
+            alt={productGroup.baseName}
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           />
         ) : (
@@ -58,21 +58,21 @@ export const ProductCard = observer(({ group }: Readonly<Props>) => {
       </div>
 
       <div className={s.textWrap}>
-        <h5 className={s.title}>{group.baseName}</h5>
-        {isColorType && group.variants.length > 1 && (
+        <h5 className={s.title}>{productGroup.baseName}</h5>
+        {isColorType && productGroup.variants.length > 1 && (
           <h6 className={s.selectedColorName}>
             <span className={cn(isPending && s.selectedSkeleton)} />
-            {product.variantLabel}
+            {selectedProduct.variantLabel}
           </h6>
         )}
         {categoryTitle && <p className={s.category}>{categoryTitle}</p>}
       </div>
 
       <div className={s.bottom}>
-        {group.variants.length > 1 &&
+        {productGroup.variants.length > 1 &&
           (isColorType ? (
             <VariantsColors
-              variants={group.variants}
+              variants={productGroup.variants}
               selectedIdx={selectedIdx}
               isPending={isPending}
               onSelect={handleSelect}
@@ -81,7 +81,7 @@ export const ProductCard = observer(({ group }: Readonly<Props>) => {
             />
           ) : (
             <VariantsSizes
-              variants={group.variants}
+              variants={productGroup.variants}
               selectedIdx={selectedIdx}
               isPending={isPending}
               onSelect={handleSelect}
@@ -102,13 +102,15 @@ export const ProductCard = observer(({ group }: Readonly<Props>) => {
               setQuantity={setQuantity}
               removeFromCart={removeFromCart}
               canRemove
+              disabled={isPending}
               className={s.counter}
             />
           ) : (
             <Button
               className={s.button}
               loading={isAddLoading}
-              onClick={() => addToCart(product)}
+              onClick={() => addToCart(selectedProduct)}
+              disabled={isPending}
             >
               Добавить
             </Button>
