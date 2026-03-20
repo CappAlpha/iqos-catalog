@@ -13,15 +13,13 @@ class CartStore {
   isInitialized = false;
 
   activeTransitions = new Map<string, CartActionType>();
-  #cartItemsTimers = new Map<string, ReturnType<typeof setTimeout>>();
+  readonly #cartItemsTimers = new Map<string, ReturnType<typeof setTimeout>>();
 
   globalAction: "checkout" | null = null;
   #cartTimer: ReturnType<typeof setTimeout> | null = null;
 
   constructor() {
     makeAutoObservable(this, {}, { autoBind: true });
-
-    this.initStore();
 
     autorun(() => {
       if (!this.isInitialized) return;
@@ -37,7 +35,7 @@ class CartStore {
     });
   }
 
-  private async initStore() {
+  async initStore() {
     try {
       const [cart, orders] = await Promise.all([
         Preferences.get({ key: CART_STORAGE_KEY }),

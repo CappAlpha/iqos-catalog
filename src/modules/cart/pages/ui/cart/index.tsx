@@ -1,5 +1,6 @@
 import cn from "classnames";
 import { observer } from "mobx-react-lite";
+import { useEffect } from "react";
 
 import { cartStore } from "@/modules/cart/features/model/cartStore.ts";
 import { CartItemCard } from "@/modules/cart/features/ui/CartItemCard";
@@ -10,6 +11,7 @@ import s from "./Cart.module.scss";
 
 export const Cart = observer(() => {
   const {
+    initStore,
     items,
     totalPrice,
     totalItems,
@@ -21,6 +23,10 @@ export const Cart = observer(() => {
     isCartClearing,
     clearCart,
   } = cartStore;
+
+  useEffect(() => {
+    initStore();
+  }, []);
 
   return (
     <div className={s.root}>
