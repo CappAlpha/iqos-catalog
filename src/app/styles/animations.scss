@@ -37,3 +37,17 @@
     background-position: -200% 0;
   }
 }
+
+@keyframes focusIn {
+  0% {
+    -webkit-filter: blur(6px);
+    filter: blur(6px);
+    opacity: 0;
+  }
+
+  100% {
+    -webkit-filter: blur(0px);
+    filter: blur(0px);
+    opacity: 1;
+  }
+}

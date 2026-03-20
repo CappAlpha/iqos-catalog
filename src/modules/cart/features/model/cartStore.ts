@@ -1,6 +1,8 @@
+import { Preferences } from "@capacitor/preferences";
 import { makeAutoObservable, autorun, runInAction } from "mobx";
 
 import type { Product } from "@/modules/catalog/features/model/types";
+import { customToastTemplate } from "@/shared/lib/customToastTemplate";
 
 import { CART_STORAGE_KEY, ORDERS_STORAGE_KEY } from "./constants";
 import type { CartActionType, CartItem, Order } from "./types";
@@ -8,43 +10,50 @@ import type { CartActionType, CartItem, Order } from "./types";
 class CartStore {
   items: CartItem[] = [];
   orderHistory: Order[] = [];
+  isInitialized = false;
 
   activeTransitions = new Map<string, CartActionType>();
-  #transitionTimers = new Map<string, ReturnType<typeof setTimeout>>();
+  #cartItemsTimers = new Map<string, ReturnType<typeof setTimeout>>();
 
   globalAction: "checkout" | null = null;
-  #globalTimer: ReturnType<typeof setTimeout> | null = null;
+  #cartTimer: ReturnType<typeof setTimeout> | null = null;
 
   constructor() {
     makeAutoObservable(this, {}, { autoBind: true });
 
-    this.loadFromStorage();
-    globalThis.window.addEventListener("storage", this.syncStorage);
+    this.initStore();
 
     autorun(() => {
-      localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(this.items));
-      localStorage.setItem(
-        ORDERS_STORAGE_KEY,
-        JSON.stringify(this.orderHistory),
-      );
+      if (!this.isInitialized) return;
+
+      Preferences.set({
+        key: CART_STORAGE_KEY,
+        value: JSON.stringify(this.items),
+      });
+      Preferences.set({
+        key: ORDERS_STORAGE_KEY,
+        value: JSON.stringify(this.orderHistory),
+      });
     });
   }
 
-  private syncStorage({ key, newValue }: StorageEvent) {
-    if (key !== CART_STORAGE_KEY && key !== ORDERS_STORAGE_KEY) return;
-
+  private async initStore() {
     try {
-      const parsedData = newValue ? JSON.parse(newValue) : [];
+      const [cart, orders] = await Promise.all([
+        Preferences.get({ key: CART_STORAGE_KEY }),
+        Preferences.get({ key: ORDERS_STORAGE_KEY }),
+      ]);
 
       runInAction(() => {
-        if (key === CART_STORAGE_KEY) {
-          this.items = parsedData;
-        } else {
-          this.orderHistory = parsedData;
-        }
+        if (cart.value) this.items = JSON.parse(cart.value);
+        if (orders.value) this.orderHistory = JSON.parse(orders.value);
       });
     } catch (e) {
-      console.error("Ошибка синхронизации localStorage", e);
+      console.error("Ошибка загрузки хранилища корзины", e);
+    } finally {
+      runInAction(() => {
+        this.isInitialized = true;
+      });
     }
   }
 
@@ -86,7 +95,7 @@ class CartStore {
   ) {
     this.activeTransitions.set(productId, action);
 
-    const currentTimer = this.#transitionTimers.get(productId);
+    const currentTimer = this.#cartItemsTimers.get(productId);
     if (currentTimer) clearTimeout(currentTimer);
 
     if (!delayAction && updateFn) updateFn();
@@ -95,11 +104,11 @@ class CartStore {
       runInAction(() => {
         if (delayAction && updateFn) updateFn();
         this.activeTransitions.delete(productId);
-        this.#transitionTimers.delete(productId);
+        this.#cartItemsTimers.delete(productId);
       });
     }, ms);
 
-    this.#transitionTimers.set(productId, timer);
+    this.#cartItemsTimers.set(productId, timer);
   }
 
   get totalItems() {
@@ -118,22 +127,49 @@ class CartStore {
   }
 
   addToCart(product: Product) {
+    customToastTemplate("Товар добавлен в корзину", "success", product.name);
+
     this.updateItemWithTransition(product.id, "add", () => {
-      const existingItem = this.items.find((i) => i.product.id === product.id);
-      if (existingItem) {
-        existingItem.quantity += 1;
-      } else {
-        this.items.push({ product, quantity: 1 });
-      }
+      this.items.push({ product, quantity: 1 });
     });
   }
 
+  private returnItemToCart(productId: string, itemToRestore: CartItem) {
+    if (!this.items.some((i) => i.product.id === productId)) {
+      this.updateItemWithTransition(
+        productId,
+        "add",
+        () => {
+          this.items.push(itemToRestore);
+        },
+        false,
+        600,
+      );
+    }
+  }
+
   removeFromCart(productId: string) {
+    const itemToRestore = this.items.find((i) => i.product.id === productId);
+
+    if (!itemToRestore) return;
+
     this.updateItemWithTransition(
       productId,
       "remove",
       () => {
         this.items = this.items.filter((i) => i.product.id !== productId);
+
+        customToastTemplate(
+          "Товар убран из корзины",
+          "success",
+          itemToRestore.product.name,
+          "Вернуть",
+          () => {
+            runInAction(() => {
+              this.returnItemToCart(productId, itemToRestore);
+            });
+          },
+        );
       },
       true,
     );
@@ -160,9 +196,9 @@ class CartStore {
     if (this.isEmpty) return;
 
     this.globalAction = "checkout";
-    if (this.#globalTimer) clearTimeout(this.#globalTimer);
+    if (this.#cartTimer) clearTimeout(this.#cartTimer);
 
-    this.#globalTimer = setTimeout(() => {
+    this.#cartTimer = setTimeout(() => {
       runInAction(() => {
         const newOrderId = crypto.randomUUID();
 
@@ -177,26 +213,17 @@ class CartStore {
         this.clearCart();
         this.globalAction = null;
 
-        this.updateItemWithTransition(newOrderId, "add", undefined, false, 600);
+        this.updateItemWithTransition(
+          newOrderId,
+          "add",
+          () => {
+            customToastTemplate("Заказ успешно оформлен", "success");
+          },
+          false,
+          600,
+        );
       });
     }, 400);
-  }
-
-  private loadFromStorage() {
-    try {
-      const savedCart = localStorage.getItem(CART_STORAGE_KEY);
-      const savedOrders = localStorage.getItem(ORDERS_STORAGE_KEY);
-
-      const parsedCart = savedCart ? JSON.parse(savedCart) : null;
-      const parsedOrders = savedOrders ? JSON.parse(savedOrders) : null;
-
-      runInAction(() => {
-        if (parsedCart) this.items = parsedCart;
-        if (parsedOrders) this.orderHistory = parsedOrders;
-      });
-    } catch (e) {
-      console.error("Ошибка загрузки корзины из localStorage", e);
-    }
   }
 }
 

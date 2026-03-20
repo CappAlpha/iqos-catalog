@@ -6,7 +6,7 @@ import type { ProductGroup } from "../../../model/types";
 
 import s from "./VariantSizes.module.scss";
 
-export interface Props {
+interface Props {
   variants: ProductGroup["variants"];
   selectedIdx: number;
   isPending: boolean;

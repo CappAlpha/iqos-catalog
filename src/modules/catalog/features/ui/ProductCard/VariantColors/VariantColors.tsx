@@ -10,7 +10,7 @@ import s from "./VariantColors.module.scss";
 
 const MAX_VISIBLE_COLORS = 4;
 
-export interface Props {
+interface Props {
   variants: ProductGroup["variants"];
   selectedIdx: number;
   isPending: boolean;

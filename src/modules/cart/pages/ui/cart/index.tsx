@@ -19,16 +19,26 @@ export const Cart = observer(() => {
     isCartUpdating,
     getItemStatus,
     isCartClearing,
+    clearCart,
   } = cartStore;
 
   return (
     <div className={s.root}>
-      <h1 className={s.title}>Корзина</h1>
+      <div className={s.topWrap}>
+        <h1 className={s.title}>Корзина</h1>
+        {!isEmpty && (
+          <Button
+            className={s.clearBtn}
+            onClick={clearCart}
+            loading={isCartClearing}
+          >
+            Очистить корзину
+          </Button>
+        )}
+      </div>
 
-      {isEmpty || isCartClearing ? (
-        <div
-          className={cn(s.emptyState, isCartClearing && s.emptyStateSkeleton)}
-        >
+      {isEmpty ? (
+        <div className={s.emptyState}>
           <h2>Ваша корзина пуста</h2>
           <p>Добавьте товары из каталога, чтобы оформить заказ.</p>
           <Button noPadding>
@@ -38,7 +48,7 @@ export const Cart = observer(() => {
           </Button>
         </div>
       ) : (
-        <div className={s.wrap}>
+        <div className={cn(s.wrap, isCartClearing && s.emptyStateSkeleton)}>
           <div className={s.itemsList}>
             {items.map((item) => (
               <CartItemCard key={item.product.id} item={item} />

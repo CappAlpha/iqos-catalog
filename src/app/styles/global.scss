@@ -105,3 +105,8 @@ body[data-no-scroll="true"] {
 ::view-transition-new(root) {
   animation: showOpacity 0.5s ease-out forwards;
 }
+
+[data-rich-colors="true"][data-sonner-toast][data-styled="true"]
+  [data-description] {
+  text-wrap: balance;
+}

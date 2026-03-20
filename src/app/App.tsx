@@ -1,4 +1,5 @@
 import { BrowserRouter } from "react-router";
+import { Toaster } from "sonner";
 
 import "@/app/styles/_reset.scss";
 import "@/app/styles/colors.scss";
@@ -12,6 +13,7 @@ function App() {
     <BrowserRouter>
       <AppLayout>
         <AppRoutes />
+        <Toaster position="top-center" richColors />
       </AppLayout>
     </BrowserRouter>
   );

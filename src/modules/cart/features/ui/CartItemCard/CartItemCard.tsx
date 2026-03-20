@@ -21,11 +21,22 @@ export const CartItemCard = observer(({ item }: Readonly<Props>) => {
 
   const { removeFromCart, setQuantity, getItemStatus } = cartStore;
 
-  const { isIncLoading, isDecLoading, isRemoveLoading, isCountChanged } =
-    getItemStatus(id);
+  const {
+    isIncLoading,
+    isDecLoading,
+    isAddLoading,
+    isRemoveLoading,
+    isCountChanged,
+  } = getItemStatus(id);
 
   return (
-    <div className={cn(s.root, isRemoveLoading && s.cardRemoving)}>
+    <div
+      className={cn(
+        s.root,
+        isAddLoading && s.cardAdding,
+        isRemoveLoading && s.cardRemoving,
+      )}
+    >
       <div className={s.imgWrap}>
         {pictureUrl ? (
           <img className={s.img} src={pictureUrl} alt={name} />

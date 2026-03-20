@@ -2,10 +2,26 @@
   @include wrapPage;
 }
 
+.topWrap {
+  width: calc(100% - 380px);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 10px;
+  margin-bottom: 30px;
+
+  @include breakpoint(desktop-s) {
+    width: calc(100% - 330px);
+  }
+
+  @include breakpoint(tablet) {
+    width: 100%;
+  }
+}
+
 .title {
   @include title;
-
-  margin-bottom: 30px;
 }
 
 .emptyState,
@@ -14,8 +30,7 @@
   margin-bottom: 40px;
 }
 
-.emptyState,
-.emptyStateSkeleton {
+.emptyState {
   text-align: center;
   padding: 60px 20px;
   background: var(--white);
@@ -37,17 +52,25 @@
   padding: 12px 18px;
 }
 
+.wrap,
 .emptyStateSkeleton {
-  @include skeleton;
-}
-
-.wrap {
+  position: relative;
   display: flex;
   gap: 30px;
   align-items: flex-start;
 
   @include breakpoint(tablet) {
     flex-direction: column;
+  }
+}
+
+.emptyStateSkeleton {
+  @include skeleton;
+  border-radius: 6px;
+  outline: solid 1px var(--gray-border);
+
+  &::before {
+    z-index: 5;
   }
 }
 
@@ -141,20 +164,6 @@
 
 .historyCardIntro {
   animation: 0.6s focusIn ease-in-out;
-}
-
-@keyframes focusIn {
-  0% {
-    -webkit-filter: blur(6px);
-    filter: blur(6px);
-    opacity: 0;
-  }
-
-  100% {
-    -webkit-filter: blur(0px);
-    filter: blur(0px);
-    opacity: 1;
-  }
 }
 
 .historyHeader {
