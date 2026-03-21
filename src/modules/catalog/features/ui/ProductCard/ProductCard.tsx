@@ -100,9 +100,11 @@ export const ProductCard = observer(
             ))}
 
           <div className={s.bottomWrap}>
-            <b className={cn(s.price, isPending && s.priceSkeleton)}>
-              {formatPrice(price)}
-            </b>
+            {price !== null && (
+              <b className={cn(s.price, isPending && s.priceSkeleton)}>
+                {formatPrice(price)}
+              </b>
+            )}
             {itemInCart ? (
               <CounterBtns
                 id={id}

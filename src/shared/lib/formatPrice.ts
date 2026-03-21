@@ -7,6 +7,6 @@ const RUB = (value: number) =>
     precision: 0,
   });
 
-export const formatPrice = (price: number | null, quantity?: number) => {
+export const formatPrice = (price: number, quantity?: number) => {
   return RUB((price ?? 0) * (quantity ?? 1)).format() + " ₽";
 };
