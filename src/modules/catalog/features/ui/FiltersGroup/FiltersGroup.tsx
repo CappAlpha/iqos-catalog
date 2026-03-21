@@ -28,12 +28,12 @@ export const FiltersGroup = ({
           <div key={key} className={cn(s.root, className)}>
             <h4 className={s.title}>{title}</h4>
             <div className={s.categories}>
-              {categories.map((category) => (
+              {categories.map(({ id, title }) => (
                 <Checkbox
-                  key={category.id}
-                  checked={selectedCategoryId === category.id}
-                  onChange={() => toggleCategory(category.id)}
-                  label={`${category.title}`}
+                  key={id}
+                  checked={selectedCategoryId === id}
+                  onChange={() => toggleCategory(id)}
+                  label={`${title}`}
                 />
               ))}
             </div>

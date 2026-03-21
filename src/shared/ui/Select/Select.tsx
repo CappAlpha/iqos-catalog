@@ -73,16 +73,16 @@ export const Select = ({
       </div>
 
       <div className={cn(s.options, isOpen && s.open)} role="listbox">
-        {options.map((option) => (
+        {options.map(({ id, label }) => (
           <div
-            key={option.id}
-            className={cn(s.option, option.id === value && s.selected)}
-            onClick={(e) => handleSelect(option.id, e)}
+            key={id}
+            className={cn(s.option, id === value && s.selected)}
+            onClick={(e) => handleSelect(id, e)}
             role="option"
-            aria-selected={option.id === value}
+            aria-selected={id === value}
             tabIndex={0}
           >
-            {option.label}
+            {label}
           </div>
         ))}
       </div>

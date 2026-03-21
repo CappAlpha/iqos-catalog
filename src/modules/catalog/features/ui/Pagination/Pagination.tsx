@@ -32,8 +32,8 @@ export const Pagination = ({ page, totalPages, onChange }: Props) => {
           )}
         </li>
 
-        {items.map((it, i) => {
-          if (it.type === "dots") {
+        {items.map((item, i) => {
+          if (item.type === "dots") {
             return (
               <li key={`dots-${i}`} className={s.dots} aria-hidden="true">
                 …
@@ -41,20 +41,20 @@ export const Pagination = ({ page, totalPages, onChange }: Props) => {
             );
           }
 
-          const isActive = it.value === page;
+          const isActive = item.value === page;
           return (
-            <li key={`page-${it.value}`}>
+            <li key={`page-${item.value}`}>
               <button
                 className={cn(s.btn, isActive && s.active)}
-                onClick={() => onChange(it.value)}
+                onClick={() => onChange(item.value)}
                 aria-current={isActive ? "page" : undefined}
                 aria-label={
                   isActive
-                    ? `Страница ${it.value}, текущая`
-                    : `Идти на страницу ${it.value}`
+                    ? `Страница ${item.value}, текущая`
+                    : `Идти на страницу ${item.value}`
                 }
               >
-                {it.value}
+                {item.value}
               </button>
             </li>
           );

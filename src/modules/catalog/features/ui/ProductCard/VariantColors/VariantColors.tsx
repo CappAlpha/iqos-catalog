@@ -32,21 +32,21 @@ export const VariantsColors = ({
 
   return (
     <div className={s.root}>
-      {variants.map((variant, idx) => {
+      {variants.map(({ id, variantLabel }, idx) => {
         const isHidden = hasMore && !isExpanded && idx >= MAX_VISIBLE_COLORS;
 
         return (
           <button
-            key={variant.id}
+            key={id}
             className={cn(
               s.colorBtn,
               selectedIdx === idx && s.activeColor,
               isHidden && s.hiddenColor,
             )}
-            style={{ background: getColorHex(variant.variantLabel) }}
+            style={{ background: getColorHex(variantLabel) }}
             onClick={() => onSelect(idx)}
             disabled={isPending}
-            aria-label={`Выбрать цвет: ${variant.variantLabel}`}
+            aria-label={`Выбрать цвет: ${variantLabel}`}
           />
         );
       })}

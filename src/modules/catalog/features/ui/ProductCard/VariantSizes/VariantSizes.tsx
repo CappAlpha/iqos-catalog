@@ -20,14 +20,14 @@ export const VariantsSizes = ({
   onSelect,
 }: Props) => (
   <div className={s.root}>
-    {variants.map((variant, idx) => (
+    {variants.map(({ id, variantLabel }, idx) => (
       <Button
-        key={variant.id}
+        key={id}
         className={cn(s.variantBtn, selectedIdx === idx && s.activeVariant)}
         onClick={() => onSelect(idx)}
         disabled={selectedIdx === idx || isPending}
       >
-        {variant.variantLabel}
+        {variantLabel}
       </Button>
     ))}
   </div>
