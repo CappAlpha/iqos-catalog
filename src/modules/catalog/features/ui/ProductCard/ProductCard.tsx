@@ -3,7 +3,6 @@ import { observer } from "mobx-react-lite";
 import { useState } from "react";
 
 import { cartM } from "@/modules/cart/features/model/cartM";
-import { breakpoints } from "@/shared/hooks/useBreakpoint";
 import { Button } from "@/shared/ui/Button";
 import { CounterBtns } from "@/shared/ui/CounterBtns";
 
@@ -51,12 +50,12 @@ export const ProductCard = observer(
       <div className={cn(s.root)}>
         <div className={s.imgWrap}>
           {isPending && <div className={s.imgWrapSkeleton} />}
-          {!isPending && pictureUrl ? (
+          {pictureUrl ? (
             <img
+              key={pictureUrl}
               className={s.img}
               src={pictureUrl}
               alt={productGroup.baseName}
-              sizes={`(max-width: ${breakpoints.mobileS}) 90dvw, 372px`}
               loading={loading}
             />
           ) : (
