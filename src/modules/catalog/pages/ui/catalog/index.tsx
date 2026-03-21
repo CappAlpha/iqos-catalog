@@ -11,9 +11,9 @@ import { FiltersDesktopSkeleton } from "@/modules/catalog/features/ui/FiltersDes
 import { Pagination } from "@/modules/catalog/features/ui/Pagination";
 import { useTablet } from "@/shared/hooks/useBreakpoint";
 
-import s from "./Catalog.module.scss";
+import s from "./CatalogPage.module.scss";
 
-export const Catalog = observer(function Catalog() {
+export const CatalogPage = observer(() => {
   const isTablet = useTablet();
   const topRef = useRef<HTMLDivElement | null>(null);
 

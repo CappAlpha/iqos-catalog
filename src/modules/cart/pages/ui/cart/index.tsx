@@ -2,26 +2,15 @@ import cn from "classnames";
 import { observer } from "mobx-react-lite";
 
 import { cartM } from "@/modules/cart/features/model/cartM";
-import { CartItemCard } from "@/modules/cart/features/ui/CartItemCard";
+import { CartBlock } from "@/modules/cart/features/ui/CartBlock";
 import { formatPrice } from "@/shared/lib/formatPrice";
 import { Button } from "@/shared/ui/Button";
-import { TransitionNavLink } from "@/shared/ui/TransitionNavLink";
 
-import s from "./Cart.module.scss";
+import s from "./CartPage.module.scss";
 
-export const Cart = observer(() => {
-  const {
-    items,
-    totalPrice,
-    totalItems,
-    isEmpty,
-    checkout,
-    orderHistory,
-    isCartUpdating,
-    getItemStatus,
-    isCartClearing,
-    clearCart,
-  } = cartM;
+export const CartPage = observer(() => {
+  const { isEmpty, orderHistory, getItemStatus, isCartClearing, clearCart } =
+    cartM;
 
   return (
     <div className={s.root}>
@@ -38,57 +27,9 @@ export const Cart = observer(() => {
         )}
       </div>
 
-      {isEmpty ? (
-        <div className={s.emptyState}>
-          <h2>Ваша корзина пуста</h2>
-          <p>Добавьте товары из каталога, чтобы оформить заказ.</p>
-          <Button noPadding>
-            <TransitionNavLink to="/" className={s.link}>
-              Перейти в каталог
-            </TransitionNavLink>
-          </Button>
-        </div>
-      ) : (
-        <div className={cn(s.wrap, isCartClearing && s.emptyStateSkeleton)}>
-          <div className={s.itemsList}>
-            {items.map((item) => (
-              <CartItemCard key={item.product.id} item={item} />
-            ))}
-          </div>
+      <CartBlock />
 
-          <aside className={s.sidebar}>
-            <div className={s.summaryBox}>
-              <h3 className={s.summaryTitle}>Сумма заказа</h3>
-              <div className={s.summaryRow}>
-                <p>
-                  Товары (
-                  <span className={cn(isCartUpdating && s.updatingText)}>
-                    {totalItems}
-                  </span>{" "}
-                  шт.)
-                </p>
-                <p>
-                  <span className={cn(isCartUpdating && s.updatingText)}>
-                    {formatPrice(totalPrice)}
-                  </span>{" "}
-                </p>
-              </div>
-              <div className={s.summaryTotal}>
-                <p>Итого</p>
-                <p>
-                  <span className={cn(isCartUpdating && s.updatingText)}>
-                    {formatPrice(totalPrice)}
-                  </span>{" "}
-                </p>
-              </div>
-              <Button className={s.checkoutBtn} onClick={checkout}>
-                Оформить заказ
-              </Button>
-            </div>
-          </aside>
-        </div>
-      )}
-
+      {/* TODO: decompose? */}
       {orderHistory.length > 0 && (
         <div className={s.historySection}>
           <h2 className={s.historyTitle}>История заказов</h2>

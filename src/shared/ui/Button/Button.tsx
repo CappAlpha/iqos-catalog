@@ -1,6 +1,8 @@
 import cn from "classnames";
 import { type MouseEvent, type ReactNode } from "react";
 
+import { TransitionNavLink } from "../TransitionNavLink";
+
 import s from "./Button.module.scss";
 
 interface ButtonProps {
@@ -14,6 +16,7 @@ interface ButtonProps {
   disabled?: boolean;
   loading?: boolean;
   href?: string;
+  to?: string;
   targetBlank?: boolean;
 }
 
@@ -27,7 +30,8 @@ export const Button = ({
   className,
   disabled,
   loading,
-  href = "",
+  href,
+  to,
   targetBlank = false,
 }: ButtonProps) => {
   const styles = cn(
@@ -40,12 +44,21 @@ export const Button = ({
     disabled && s.disabled,
   );
 
-  if (href)
+  if (href) {
     return (
       <a className={styles} href={href} target={targetBlank ? "_blank" : ""}>
         {children}
       </a>
     );
+  }
+
+  if (to) {
+    return (
+      <TransitionNavLink className={styles} to={to}>
+        Перейти в каталог
+      </TransitionNavLink>
+    );
+  }
 
   return (
     <button className={styles} onClick={onClick} onMouseDown={onMouseDown}>
