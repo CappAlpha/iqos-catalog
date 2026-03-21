@@ -191,6 +191,10 @@
   text-wrap: balance;
   font-weight: 700;
   font-size: 18px;
+
+  span {
+    text-wrap: nowrap;
+  }
 }
 
 .sidebar span.updatingText {

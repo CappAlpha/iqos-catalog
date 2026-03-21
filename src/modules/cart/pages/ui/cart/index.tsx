@@ -3,6 +3,7 @@ import { observer } from "mobx-react-lite";
 
 import { cartM } from "@/modules/cart/features/model/cartM";
 import { CartItemCard } from "@/modules/cart/features/ui/CartItemCard";
+import { formatPrice } from "@/shared/lib/formatPrice";
 import { Button } from "@/shared/ui/Button";
 import { TransitionNavLink } from "@/shared/ui/TransitionNavLink";
 
@@ -68,18 +69,16 @@ export const Cart = observer(() => {
                 </p>
                 <p>
                   <span className={cn(isCartUpdating && s.updatingText)}>
-                    {totalPrice}
+                    {formatPrice(totalPrice)}
                   </span>{" "}
-                  &#8381;
                 </p>
               </div>
               <div className={s.summaryTotal}>
                 <p>Итого</p>
                 <p>
                   <span className={cn(isCartUpdating && s.updatingText)}>
-                    {totalPrice}
+                    {formatPrice(totalPrice)}
                   </span>{" "}
-                  &#8381;
                 </p>
               </div>
               <Button className={s.checkoutBtn} onClick={checkout}>
@@ -112,7 +111,9 @@ export const Cart = observer(() => {
                 </div>
                 <div className={s.historyTotal}>
                   <p>
-                    <b>Сумма: {order.totalPrice} &#8381;</b>
+                    <b>
+                      Сумма: <span>{formatPrice(order.totalPrice)}</span>
+                    </b>
                   </p>
                 </div>
               </div>

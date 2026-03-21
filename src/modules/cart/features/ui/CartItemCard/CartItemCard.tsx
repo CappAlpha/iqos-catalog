@@ -1,6 +1,7 @@
 import cn from "classnames";
 import { observer } from "mobx-react-lite";
 
+import { formatPrice } from "@/shared/lib/formatPrice";
 import { Button } from "@/shared/ui/Button";
 import { CounterBtns } from "@/shared/ui/CounterBtns";
 
@@ -39,7 +40,7 @@ export const CartItemCard = observer(({ item }: Readonly<Props>) => {
     >
       <div className={s.imgWrap}>
         {pictureUrl ? (
-          <img className={s.img} src={pictureUrl} alt={name} />
+          <img className={s.img} src={pictureUrl} alt={name} loading="lazy" />
         ) : (
           <div className={s.placeholder}>Нет фото</div>
         )}
@@ -62,9 +63,9 @@ export const CartItemCard = observer(({ item }: Readonly<Props>) => {
             className={s.counter}
           />
 
-          {price && (
+          {price != null && (
             <b className={cn(s.price, isCountChanged && s.updatingText)}>
-              {price * quantity} &#8381;
+              {formatPrice(price, quantity)}
             </b>
           )}
 

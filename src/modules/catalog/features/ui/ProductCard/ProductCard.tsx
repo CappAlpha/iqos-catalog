@@ -3,6 +3,7 @@ import { observer } from "mobx-react-lite";
 import { useState } from "react";
 
 import { cartM } from "@/modules/cart/features/model/cartM";
+import { formatPrice } from "@/shared/lib/formatPrice";
 import { Button } from "@/shared/ui/Button";
 import { CounterBtns } from "@/shared/ui/CounterBtns";
 
@@ -35,7 +36,9 @@ export const ProductCard = observer(
       getCartItem,
       getItemStatus,
     } = cartM;
+
     const itemInCart = getCartItem(id);
+
     const {
       isAddLoading,
       isIncLoading,
@@ -98,7 +101,7 @@ export const ProductCard = observer(
 
           <div className={s.bottomWrap}>
             <b className={cn(s.price, isPending && s.priceSkeleton)}>
-              {price} &#8381;
+              {formatPrice(price)}
             </b>
             {itemInCart ? (
               <CounterBtns
