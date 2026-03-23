@@ -1,3 +1,4 @@
+import type { MouseEvent } from "react";
 import { flushSync } from "react-dom";
 import { NavLink, useNavigate, type NavLinkProps } from "react-router";
 
@@ -9,7 +10,7 @@ export const TransitionNavLink = ({
 }: NavLinkProps) => {
   const navigate = useNavigate();
 
-  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+  const handleClick = (e: MouseEvent<HTMLAnchorElement>) => {
     if (onClick) onClick(e);
     e.preventDefault();
 

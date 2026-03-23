@@ -39,6 +39,7 @@
 
 .select {
   position: relative;
+  width: 100%;
   padding: 10px 36px 10px 12px;
   background: transparent;
   border: 1px solid var(--gray-border);
@@ -77,6 +78,7 @@
 }
 
 .options {
+  pointer-events: none;
   position: absolute;
   top: 98%;
   left: 0;
@@ -95,6 +97,7 @@
   transition: all 0.3s ease-in-out;
 
   &.open {
+    pointer-events: auto;
     opacity: 1;
     visibility: visible;
     transform: translateY(0);

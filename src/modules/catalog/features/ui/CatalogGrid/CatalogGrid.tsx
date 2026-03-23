@@ -12,7 +12,7 @@ export const CatalogGrid = observer(() => {
   const {
     error,
     showSkeleton,
-    totalCount,
+    isEmpty,
     pagedProductGroups,
     fetchData,
     skeletonCount,
@@ -23,7 +23,7 @@ export const CatalogGrid = observer(() => {
       <div className={s.errorWrap}>
         <div className={s.errorTitle}>Не удалось загрузить каталог</div>
         <div className={s.errorText}>{error}</div>
-        <Button className={s.reloadBtn} onClick={() => fetchData()}>
+        <Button className={s.reloadBtn} onClick={fetchData}>
           Повторить
         </Button>
       </div>
@@ -31,7 +31,7 @@ export const CatalogGrid = observer(() => {
 
   if (showSkeleton) return <CatalogGridSkeleton count={skeletonCount} />;
 
-  if (totalCount === 0)
+  if (isEmpty)
     return (
       <div className={s.errorWrap}>
         Ничего не найдено по выбранному фильтру.
@@ -44,7 +44,7 @@ export const CatalogGrid = observer(() => {
         <ProductCard
           key={productGroup.id}
           productGroup={productGroup}
-          loading={i <= skeletonCount / 2 ? "eager" : "lazy"}
+          loading={i < 4 ? "eager" : "lazy"}
         />
       ))}
     </div>

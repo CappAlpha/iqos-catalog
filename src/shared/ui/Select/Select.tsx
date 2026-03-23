@@ -1,54 +1,52 @@
 import cn from "classnames";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, type MouseEvent } from "react";
 
 import { useOutsideClick } from "../../hooks/useOutsideClick";
 
 import s from "./Select.module.scss";
 
-interface Option {
-  id: string;
+interface Option<T> {
+  id: T;
   label: string;
 }
 
-interface CustomSelectProps {
-  value: string;
-  options: Option[];
-  onChange: (value: string, event?: React.MouseEvent) => void;
+interface CustomSelectProps<T> {
+  value: T;
+  options: Option<T>[];
+  onChange: (value: T, event?: MouseEvent) => void;
   disabled?: boolean;
   className?: string;
 }
 
-export const Select = ({
+export const Select = <T extends string | number>({
   value,
   options,
   onChange,
   disabled = false,
   className,
-}: CustomSelectProps) => {
+}: CustomSelectProps<T>) => {
   const [isOpen, setIsOpen] = useState(false);
   const selectRef = useRef<HTMLDivElement>(null);
+
   useOutsideClick(() => setIsOpen(false), selectRef);
 
   const selectedOption = options.find((o) => o.id === value);
 
   useEffect(() => {
-    const handleEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        setIsOpen(false);
-      }
-    };
-
+    if (!isOpen) return;
+    const handleEscape = (e: KeyboardEvent) =>
+      e.key === "Escape" && setIsOpen(false);
     document.addEventListener("keydown", handleEscape);
     return () => document.removeEventListener("keydown", handleEscape);
-  }, []);
+  }, [isOpen]);
 
-  const handleToggle = (e: React.MouseEvent) => {
+  const handleToggle = (e: MouseEvent) => {
     if (disabled) return;
     e.stopPropagation();
     setIsOpen((prev) => !prev);
   };
 
-  const handleSelect = (optionId: string, e: React.MouseEvent) => {
+  const handleSelect = (optionId: T, e: MouseEvent) => {
     e.stopPropagation();
     onChange(optionId, e);
     setIsOpen(false);
@@ -58,32 +56,27 @@ export const Select = ({
     <div
       ref={selectRef}
       className={cn(s.root, disabled && s.disabled, className)}
-      role="listbox"
-      aria-expanded={isOpen}
-      aria-haspopup="listbox"
     >
-      <div
+      <button
+        type="button"
         className={cn(s.select, isOpen && s.open)}
         onClick={handleToggle}
-        role="button"
-        aria-label="Выберите опцию"
+        disabled={disabled}
+        role="listbox"
       >
         <span className={s.value}>{selectedOption?.label}</span>
         <div className={s.chevron} />
-      </div>
+      </button>
 
       <div className={cn(s.options, isOpen && s.open)} role="listbox">
         {options.map(({ id, label }) => (
-          <div
+          <option
             key={id}
             className={cn(s.option, id === value && s.selected)}
             onClick={(e) => handleSelect(id, e)}
-            role="option"
-            aria-selected={id === value}
-            tabIndex={0}
           >
             {label}
-          </div>
+          </option>
         ))}
       </div>
     </div>

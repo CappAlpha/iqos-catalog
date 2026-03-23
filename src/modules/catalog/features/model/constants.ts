@@ -12,7 +12,7 @@ export const CATALOG_DEFAULT = {
   pageSize: 12,
 };
 
-export const SORT_OPTIONS = [
+export const SORT_OPTIONS: { id: SortKey; label: string }[] = [
   { id: "nameAsc", label: "Название (A→Я)" },
   { id: "nameDesc", label: "Название (Я→A)" },
   { id: "priceAsc", label: "Сначала дешевле" },

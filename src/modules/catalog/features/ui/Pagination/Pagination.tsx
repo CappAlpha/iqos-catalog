@@ -19,8 +19,8 @@ export const Pagination = ({ page, totalPages, onChange }: Props) => {
   return (
     <nav className={s.root} aria-label="Pagination">
       <ul className={s.wrap}>
-        <li>
-          {!isMobileS && (
+        {!isMobileS && (
+          <li>
             <button
               className={s.btn}
               onClick={() => onChange(page - 1)}
@@ -29,8 +29,8 @@ export const Pagination = ({ page, totalPages, onChange }: Props) => {
             >
               ←
             </button>
-          )}
-        </li>
+          </li>
+        )}
 
         {items.map((item, i) => {
           if (item.type === "dots") {
@@ -47,12 +47,8 @@ export const Pagination = ({ page, totalPages, onChange }: Props) => {
               <button
                 className={cn(s.btn, isActive && s.active)}
                 onClick={() => onChange(item.value)}
+                aria-label={`Страница ${item.value}`}
                 aria-current={isActive ? "page" : undefined}
-                aria-label={
-                  isActive
-                    ? `Страница ${item.value}, текущая`
-                    : `Идти на страницу ${item.value}`
-                }
               >
                 {item.value}
               </button>
@@ -60,8 +56,8 @@ export const Pagination = ({ page, totalPages, onChange }: Props) => {
           );
         })}
 
-        <li>
-          {!isMobileS && (
+        {!isMobileS && (
+          <li>
             <button
               className={s.btn}
               onClick={() => onChange(page + 1)}
@@ -70,8 +66,8 @@ export const Pagination = ({ page, totalPages, onChange }: Props) => {
             >
               →
             </button>
-          )}
-        </li>
+          </li>
+        )}
       </ul>
     </nav>
   );

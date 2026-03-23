@@ -5,7 +5,6 @@ import { SelectSkeleton } from "@/shared/ui/Select/SelectSkeleton";
 
 import { catalogM } from "../../model/catalogM";
 import { SORT_OPTIONS } from "../../model/constants";
-import type { SortKey } from "../../model/types";
 import { FiltersMobile } from "../FiltersMobile";
 
 import s from "./CatalogHeader.module.scss";
@@ -24,14 +23,11 @@ export const CatalogHeader = observer(({ isTablet }: Props) => {
       {!error && (
         <div className={s.wrap}>
           {isTablet && <FiltersMobile />}
+
           {isLoading ? (
             <SelectSkeleton />
           ) : (
-            <Select
-              value={sort}
-              options={SORT_OPTIONS}
-              onChange={(id) => setSort(id as SortKey)}
-            />
+            <Select value={sort} options={SORT_OPTIONS} onChange={setSort} />
           )}
         </div>
       )}
