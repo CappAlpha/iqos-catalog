@@ -3,8 +3,8 @@ import { observer } from "mobx-react-lite";
 
 import { formatPrice } from "@/shared/lib/formatPrice";
 
-import { cartM } from "../../../model/cartM";
-import type { Order } from "../../../model/types";
+import { cartM } from "../../model/cartM";
+import type { Order } from "../../model/types";
 
 import s from "./HistoryCard.module.scss";
 

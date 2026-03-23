@@ -5,7 +5,7 @@ import { formatPrice } from "@/shared/lib/formatPrice";
 import { Button } from "@/shared/ui/Button";
 
 import { cartM } from "../../model/cartM";
-import { CartList } from "./CartList";
+import { CartList } from "../CartList";
 
 import s from "./CartBlock.module.scss";
 

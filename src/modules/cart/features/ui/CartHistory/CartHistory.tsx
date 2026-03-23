@@ -1,7 +1,7 @@
 import { observer } from "mobx-react-lite";
 
 import { cartM } from "../../model/cartM";
-import { HistoryCard } from "./HistoryCard";
+import { HistoryCard } from "../HistoryCard";
 
 import s from "./CartHistory.module.scss";
 

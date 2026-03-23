@@ -1,7 +1,7 @@
 import { observer } from "mobx-react-lite";
 
-import { cartM } from "../../../model/cartM";
-import { CartItemCard } from "../../CartItemCard";
+import { cartM } from "../../model/cartM";
+import { CartItemCard } from "../CartItemCard";
 
 import s from "./CartList.module.scss";
 
