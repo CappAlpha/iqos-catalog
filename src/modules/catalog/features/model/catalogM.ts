@@ -62,24 +62,21 @@ class CatalogM {
 
     const getChildIds = (rootId: string, out = new Set<string>()) => {
       out.add(rootId);
-      for (const child of this.categories) {
-        if (child.parentId === rootId && !out.has(child.id)) {
+      this.categories.forEach((child) => {
+        if (child.parentId === rootId && !out.has(child.id))
           getChildIds(child.id, out);
-        }
-      }
+      });
       return out;
     };
 
-    for (const [key, keywords] of Object.entries(GROUP_KEYWORDS) as [
-      FilterGroupKey,
-      string[],
-    ][]) {
-      const root = this.categories.find((cat) =>
-        keywords.some((kw) => cat.title.includes(kw)),
-      );
-      map.set(key, root ? getChildIds(root.id) : new Set());
-    }
-
+    (Object.entries(GROUP_KEYWORDS) as [FilterGroupKey, string[]][]).forEach(
+      ([key, keywords]) => {
+        const root = this.categories.find((cat) =>
+          keywords.some((keyword) => cat.title.includes(keyword)),
+        );
+        map.set(key, root ? getChildIds(root.id) : new Set());
+      },
+    );
     return map;
   }
 
@@ -97,49 +94,47 @@ class CatalogM {
     });
 
     return (Object.keys(GROUP_KEYWORDS) as FilterGroupKey[]).map((key) => {
-      const groupIds = this.groupIdsMap.get(key) ?? new Set();
+      const groupIds = this.groupIdsMap.get(key);
 
-      const categories = this.groupedCategories
-        .filter((cat) => cat.ids.some((id) => groupIds.has(id)))
-        .map((cat) => ({
-          id: cat.id,
-          title: cat.title,
-          count: counts.get(cat.id) ?? 0,
-        }))
-        .filter((cat) => cat.count > 0);
-
-      return { key, title: GROUP_TITLES[key], categories };
+      return {
+        key,
+        title: GROUP_TITLES[key],
+        categories: this.groupedCategories
+          .filter((cat) => cat.ids.some((id) => groupIds?.has(id)))
+          .map((cat) => ({
+            id: cat.id,
+            title: cat.title,
+            count: counts.get(cat.id) ?? 0,
+          }))
+          .filter((cat) => cat.count > 0),
+      };
     });
   }
 
   get baseProductGroups(): ProductGroup[] {
     const groups = new Map<string, Omit<ProductGroup, "id">>();
 
-    for (const product of this.products) {
+    this.products.forEach((product) => {
       const { groupId, baseName, type, variantLabel } =
         this.parseProductData(product);
-
       if (!groups.has(groupId))
         groups.set(groupId, { baseName, type, variants: [] });
-      groups.get(groupId)?.variants.push({ ...product, variantLabel });
-    }
+      groups.get(groupId)!.variants.push({ ...product, variantLabel });
+    });
 
     return Array.from(groups.values()).map((group) => {
       if (group.type === "size") {
         group.variants.sort((a, b) => (a.price || 0) - (b.price || 0));
       }
 
-      const variants = group.variants.map((v, i, arr) => ({
+      const variants = group.variants.map((v, i) => ({
         ...v,
         originalId: v.id,
-        id:
-          arr.filter((x) => x.id === v.id).length > 1
-            ? `${v.id}_var${i}`
-            : v.id,
+        id: `${v.id}_${i}`,
       }));
 
       return {
-        id: variants[0].id,
+        id: variants[0].originalId,
         baseName: group.baseName,
         type: group.type,
         variants,

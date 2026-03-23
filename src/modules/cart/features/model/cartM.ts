@@ -37,21 +37,19 @@ class CartM {
 
   async initStore() {
     try {
-      const [cart, orders] = await Promise.all([
+      const [{ value: cart }, { value: orders }] = await Promise.all([
         Preferences.get({ key: CART_STORAGE_KEY }),
         Preferences.get({ key: ORDERS_STORAGE_KEY }),
       ]);
 
       runInAction(() => {
-        if (cart.value) this.items = JSON.parse(cart.value);
-        if (orders.value) this.orderHistory = JSON.parse(orders.value);
-      });
-    } catch (e) {
-      console.error("Ошибка загрузки хранилища корзины", e);
-    } finally {
-      runInAction(() => {
+        this.items = cart ? JSON.parse(cart) : [];
+        this.orderHistory = orders ? JSON.parse(orders) : [];
         this.isInitialized = true;
       });
+    } catch (e) {
+      console.error("Ошибка загрузки хранилища", e);
+      runInAction(() => (this.isInitialized = true));
     }
   }
 
@@ -132,24 +130,21 @@ class CartM {
     });
   }
 
-  private returnItemToCart(productId: string, itemToRestore: CartItem) {
+  private returnItemToCart(productId: string, item: CartItem) {
     if (this.getCartItem(productId)) return;
 
     this.updateItemWithTransition(
       productId,
       "add",
-      () => {
-        this.items.push(itemToRestore);
-      },
+      () => this.items.push(item),
       false,
       600,
     );
   }
 
   removeFromCart(productId: string) {
-    const itemToRestore = this.getCartItem(productId);
-
-    if (!itemToRestore) return;
+    const item = this.getCartItem(productId);
+    if (!item) return;
 
     this.updateItemWithTransition(
       productId,
@@ -158,11 +153,11 @@ class CartM {
         this.items = this.items.filter((i) => i.product.id !== productId);
 
         customToastTemplate(
-          "Товар убран из корзины",
+          "Товар убран",
           "success",
-          itemToRestore.product.name,
+          item.product.name,
           "Вернуть",
-          () => this.returnItemToCart(productId, itemToRestore),
+          () => this.returnItemToCart(productId, item),
         );
       },
       true,
