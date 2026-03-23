@@ -71,7 +71,7 @@
 
 .closeIconBtn {
   @include expandableArea;
-  --clickable-area-expandable-ratio: 24px;
+  --clickable-area-expandable-ratio: 16px;
 
   display: flex;
   align-items: center;
