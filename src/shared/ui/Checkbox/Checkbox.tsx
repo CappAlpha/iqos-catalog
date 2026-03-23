@@ -5,7 +5,7 @@ import s from "./Checkbox.module.scss";
 
 interface CheckboxProps {
   checked: boolean;
-  onChange: (next: boolean, event: ChangeEvent<HTMLInputElement>) => void;
+  onChange: (checked: boolean, event: ChangeEvent<HTMLInputElement>) => void;
 
   label?: ReactNode;
   id?: string;
@@ -29,12 +29,12 @@ export const Checkbox = ({
     <label className={styles}>
       <input
         className={s.input}
-        type="checkbox"
         id={id}
         name={name}
         checked={checked}
         disabled={disabled}
         onChange={(e) => onChange(e.target.checked, e)}
+        type="checkbox"
       />
       <span className={s.box} aria-hidden="true" />
       {label && <span className={s.label}>{label}</span>}

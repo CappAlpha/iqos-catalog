@@ -15,12 +15,18 @@ import { TransitionNavLink } from "../TransitionNavLink";
 
 import s from "./Header.module.scss";
 
+const NAV_LINKS = [
+  { to: "/", text: "Каталог", Icon: CatalogIcon },
+  { to: "/bluetooth", text: "Bluetooth", Icon: BluetoothIcon },
+  { to: "/cart", text: "Корзина", Icon: CartIcon, isCart: true },
+];
+
 export const Header = observer(() => {
   const { initStore, isCartUpdating, totalItems, isEmpty } = cartM;
 
   useEffect(() => {
     initStore();
-  }, []);
+  }, [initStore]);
 
   return (
     <header className={s.header}>
@@ -31,48 +37,30 @@ export const Header = observer(() => {
         </TransitionNavLink>
 
         <nav className={s.nav}>
-          <TransitionNavLink
-            to="/"
-            className={({ isActive, isPending }) =>
-              cn(s.navLink, { [s.active]: isActive, [s.pending]: isPending })
-            }
-          >
-            <CatalogIcon className={s.icon} />
-            <span className={s.text}>Каталог</span>
-          </TransitionNavLink>
-
-          <TransitionNavLink
-            to="/bluetooth"
-            className={({ isActive, isPending }) =>
-              cn(s.navLink, { [s.active]: isActive, [s.pending]: isPending })
-            }
-          >
-            <BluetoothIcon className={s.icon} />
-            <span className={s.text}>Bluetooth</span>
-          </TransitionNavLink>
-
-          <TransitionNavLink
-            to="/cart"
-            className={({ isActive, isPending }) =>
-              cn(s.navLink, { [s.active]: isActive, [s.pending]: isPending })
-            }
-          >
-            <div className={s.cartIconWrap}>
-              <CartIcon className={s.icon} />
-              {!isEmpty && (
-                <b
-                  className={cn(
-                    s.badge,
-                    totalItems === 1 && s.cartInitial,
-                    totalItems > 1 && isCartUpdating && s.updatingBadge,
-                  )}
-                >
-                  {totalItems}
-                </b>
-              )}
-            </div>
-            <span className={s.text}>Корзина</span>
-          </TransitionNavLink>
+          {NAV_LINKS.map(({ to, text, Icon, isCart }) => (
+            <TransitionNavLink
+              key={to}
+              to={to}
+              className={({ isActive, isPending }) =>
+                cn(s.navLink, { [s.active]: isActive, [s.pending]: isPending })
+              }
+            >
+              <div className={cn(isCart && s.cartIconWrap)}>
+                <Icon className={s.icon} />
+                {isCart && !isEmpty && (
+                  <b
+                    className={cn(s.badge, {
+                      [s.cartInitial]: totalItems === 1,
+                      [s.updatingBadge]: totalItems > 1 && isCartUpdating,
+                    })}
+                  >
+                    {totalItems}
+                  </b>
+                )}
+              </div>
+              <span className={s.text}>{text}</span>
+            </TransitionNavLink>
+          ))}
         </nav>
       </div>
     </header>

@@ -29,22 +29,6 @@
     }
   }
 
-  &.size {
-    &_s {
-      padding: 10px 16px;
-
-      svg {
-        min-width: 30px;
-        width: 30px;
-      }
-    }
-
-    &_l {
-      padding: 16px 18px;
-      font-size: 16px;
-    }
-  }
-
   &.color {
     &_transparent {
       background: transparent;

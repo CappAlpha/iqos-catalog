@@ -29,17 +29,19 @@ export const CounterBtns = ({
   canRemove,
   className,
 }: Props) => {
-  const handleDesc = () => {
-    if (canRemove && removeFromCart && quantity === 1)
-      return removeFromCart(id);
-    return setQuantity(id, quantity - 1);
+  const handleDec = () => {
+    if (canRemove && quantity === 1) {
+      removeFromCart?.(id);
+    } else {
+      setQuantity(id, quantity - 1);
+    }
   };
 
   return (
     <div className={cn(s.root, className)}>
       <Button
         className={s.counterBtn}
-        onClick={handleDesc}
+        onClick={handleDec}
         disabled={disabled || (!canRemove && quantity <= 1)}
         loading={isDecLoading}
       >
@@ -53,8 +55,8 @@ export const CounterBtns = ({
       <Button
         className={s.counterBtn}
         onClick={() => setQuantity(id, quantity + 1)}
-        loading={isIncLoading}
         disabled={disabled}
+        loading={isIncLoading}
       >
         &#43;
       </Button>

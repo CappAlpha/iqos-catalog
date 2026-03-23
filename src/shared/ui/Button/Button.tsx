@@ -7,7 +7,6 @@ import s from "./Button.module.scss";
 
 interface ButtonProps {
   color?: "grey" | "transparent" | "outline";
-  size?: "m" | "s" | "l";
   noPadding?: boolean;
   onClick?: (event: MouseEvent<HTMLButtonElement>) => void;
   onMouseDown?: (event: MouseEvent<HTMLButtonElement>) => void;
@@ -22,7 +21,6 @@ interface ButtonProps {
 
 export const Button = ({
   color,
-  size = "m",
   noPadding = false,
   onClick,
   onMouseDown,
@@ -37,7 +35,6 @@ export const Button = ({
   const styles = cn(
     s.root,
     color && s[`color_${color}`],
-    size && s[`size_${size}`],
     noPadding && s.noPadding,
     className,
     loading && s.loading,
@@ -46,7 +43,12 @@ export const Button = ({
 
   if (href) {
     return (
-      <a className={styles} href={href} target={targetBlank ? "_blank" : ""}>
+      <a
+        className={styles}
+        href={href}
+        target={targetBlank ? "_blank" : undefined}
+        rel={targetBlank ? "noopener noreferrer" : undefined}
+      >
         {children}
       </a>
     );
@@ -55,13 +57,18 @@ export const Button = ({
   if (to) {
     return (
       <TransitionNavLink className={styles} to={to}>
-        Перейти в каталог
+        {children}
       </TransitionNavLink>
     );
   }
 
   return (
-    <button className={styles} onClick={onClick} onMouseDown={onMouseDown}>
+    <button
+      className={styles}
+      onClick={onClick}
+      onMouseDown={onMouseDown}
+      disabled={disabled || loading}
+    >
       {children}
     </button>
   );

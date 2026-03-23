@@ -31,7 +31,7 @@ export const CatalogPage = observer(() => {
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [fetchData]);
 
   const onPageChange = (nextPage: number) => {
     setPage(nextPage);
