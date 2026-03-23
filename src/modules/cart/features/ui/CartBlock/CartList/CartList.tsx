@@ -1,13 +1,13 @@
-import type { CartItem } from "../../../model/types";
+import { observer } from "mobx-react-lite";
+
+import { cartM } from "../../../model/cartM";
 import { CartItemCard } from "../../CartItemCard";
 
 import s from "./CartList.module.scss";
 
-export interface Props {
-  items: CartItem[];
-}
+export const CartList = observer(() => {
+  const { items } = cartM;
 
-export const CartList = ({ items }: Props) => {
   return (
     <div className={s.root}>
       {items.map((item) => (
@@ -15,4 +15,4 @@ export const CartList = ({ items }: Props) => {
       ))}
     </div>
   );
-};
+});

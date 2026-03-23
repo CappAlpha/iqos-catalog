@@ -11,7 +11,6 @@ import s from "./CartBlock.module.scss";
 
 export const CartBlock = observer(() => {
   const {
-    items,
     totalPrice,
     totalItems,
     isEmpty,
@@ -32,7 +31,7 @@ export const CartBlock = observer(() => {
         </div>
       ) : (
         <div className={cn(s.wrap, isCartClearing && s.emptyStateSkeleton)}>
-          <CartList items={items} />
+          <CartList />
 
           {/* TODO: decompose? */}
           <aside className={s.sidebar}>

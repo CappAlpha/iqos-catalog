@@ -1,0 +1,46 @@
+.root,
+.cardIntro {
+  background: var(--white);
+  border-radius: 10px;
+  padding: 15px 20px;
+  outline: solid 1px var(--gray-border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 5px;
+}
+
+.cardIntro {
+  animation: 0.6s focusIn ease-in-out;
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.title {
+  display: -moz-box;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.date {
+  color: var(--gray);
+  font-size: 14px;
+}
+
+.total {
+  text-align: end;
+  text-wrap: balance;
+  font-weight: 700;
+  font-size: 18px;
+
+  span {
+    text-wrap: nowrap;
+  }
+}

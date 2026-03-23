@@ -1,16 +1,14 @@
-import cn from "classnames";
 import { observer } from "mobx-react-lite";
 
 import { cartM } from "@/modules/cart/features/model/cartM";
 import { CartBlock } from "@/modules/cart/features/ui/CartBlock";
-import { formatPrice } from "@/shared/lib/formatPrice";
+import { CartHistory } from "@/modules/cart/features/ui/CartHistory";
 import { Button } from "@/shared/ui/Button";
 
 import s from "./CartPage.module.scss";
 
 export const CartPage = observer(() => {
-  const { isEmpty, orderHistory, getItemStatus, isCartClearing, clearCart } =
-    cartM;
+  const { isEmpty, isCartClearing, clearCart } = cartM;
 
   return (
     <div className={s.root}>
@@ -29,39 +27,7 @@ export const CartPage = observer(() => {
 
       <CartBlock />
 
-      {/* TODO: decompose? */}
-      {orderHistory.length > 0 && (
-        <div className={s.historySection}>
-          <h2 className={s.historyTitle}>История заказов</h2>
-          <div className={s.historyList}>
-            {orderHistory.map((order) => (
-              <div
-                key={order.id}
-                className={cn(
-                  s.historyCard,
-                  getItemStatus(order.id).isAddLoading && s.historyCardIntro,
-                )}
-              >
-                <div className={s.historyHeader}>
-                  <p className={s.orderTitle}>
-                    <b>Заказ #{order.id}</b>
-                  </p>
-                  <p className={s.orderDate}>
-                    {new Date(order.date).toLocaleDateString()}
-                  </p>
-                </div>
-                <div className={s.historyTotal}>
-                  <p>
-                    <b>
-                      Сумма: <span>{formatPrice(order.totalPrice)}</span>
-                    </b>
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
+      <CartHistory />
     </div>
   );
 });
