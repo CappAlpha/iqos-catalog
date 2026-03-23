@@ -87,26 +87,17 @@ class CatalogM {
     const counts = new Map<string, number>();
     const childToParentId = new Map<string, string>();
 
-    for (const cat of this.groupedCategories) {
-      for (const id of cat.ids) {
-        childToParentId.set(id, cat.id);
-      }
-    }
+    this.groupedCategories.forEach((cat) =>
+      cat.ids.forEach((id) => childToParentId.set(id, cat.id)),
+    );
 
-    for (const product of this.products) {
-      const catId = product.categoryId ?? UNCAT_ID;
-      const groupId = childToParentId.get(catId);
+    this.products.forEach((product) => {
+      const groupId = childToParentId.get(product.categoryId ?? UNCAT_ID);
+      if (groupId) counts.set(groupId, (counts.get(groupId) ?? 0) + 1);
+    });
 
-      if (groupId) {
-        counts.set(groupId, (counts.get(groupId) ?? 0) + 1);
-      }
-    }
-
-    const groupIdsMap = this.groupIdsMap;
-    const keys = Object.keys(GROUP_KEYWORDS) as FilterGroupKey[];
-
-    return keys.map((key) => {
-      const groupIds = groupIdsMap.get(key) ?? new Set();
+    return (Object.keys(GROUP_KEYWORDS) as FilterGroupKey[]).map((key) => {
+      const groupIds = this.groupIdsMap.get(key) ?? new Set();
 
       const categories = this.groupedCategories
         .filter((cat) => cat.ids.some((id) => groupIds.has(id)))
@@ -122,68 +113,62 @@ class CatalogM {
   }
 
   get baseProductGroups(): ProductGroup[] {
-    const map = new Map<string, Omit<ProductGroup, "id">>();
+    const groups = new Map<string, Omit<ProductGroup, "id">>();
 
     for (const product of this.products) {
       const { groupId, baseName, type, variantLabel } =
         this.parseProductData(product);
 
-      if (!map.has(groupId)) {
-        map.set(groupId, { baseName, type, variants: [] });
-      }
-      map.get(groupId)?.variants.push({ ...product, variantLabel });
+      if (!groups.has(groupId))
+        groups.set(groupId, { baseName, type, variants: [] });
+      groups.get(groupId)?.variants.push({ ...product, variantLabel });
     }
 
-    return Array.from(map.values()).map((group) => {
+    return Array.from(groups.values()).map((group) => {
       if (group.type === "size") {
         group.variants.sort((a, b) => (a.price || 0) - (b.price || 0));
       }
 
-      const safeVariants = group.variants.map((v, i, arr) => {
-        const hasDuplicate = arr.some((x) => x !== v && x.id === v.id);
-        return {
-          ...v,
-          originalId: v.id,
-          id: hasDuplicate ? `${v.id}_var${i}` : v.id,
-        };
-      });
+      const variants = group.variants.map((v, i, arr) => ({
+        ...v,
+        originalId: v.id,
+        id:
+          arr.filter((x) => x.id === v.id).length > 1
+            ? `${v.id}_var${i}`
+            : v.id,
+      }));
 
       return {
-        id: safeVariants[0].id,
+        id: variants[0].id,
         baseName: group.baseName,
         type: group.type,
-        variants: safeVariants,
+        variants,
       };
     });
   }
 
   private parseProductData(product: Product) {
-    const nameLower = product.name.toLowerCase();
-    const isSize = nameLower.includes("стик") || nameLower.includes("картридж");
+    const name = product.name;
+    const lower = name.toLowerCase();
 
-    if (isSize) {
+    if (lower.includes("стик") || lower.includes("картридж")) {
       return {
         type: "size" as const,
         groupId: product.id,
-        variantLabel: nameLower.includes("блок") ? "Блок" : "Пачка",
-        baseName: product.name.replace(/,?\s*(пачка|блок.*)/i, "").trim(),
+        variantLabel: lower.includes("блок") ? "Блок" : "Пачка",
+        baseName: name.replace(/,?\s*(пачка|блок.*)/i, "").trim(),
       };
     }
 
-    const commaIdx = product.name.lastIndexOf(",");
+    const commaIdx = name.lastIndexOf(",");
     const baseName =
-      commaIdx !== -1
-        ? product.name.substring(0, commaIdx).trim()
-        : product.name;
-    const variantLabel =
-      commaIdx !== -1
-        ? product.name.substring(commaIdx + 1).trim()
-        : "Стандарт";
+      commaIdx !== -1 ? name.substring(0, commaIdx).trim() : name;
 
     return {
       type: "color" as const,
       groupId: baseName,
-      variantLabel,
+      variantLabel:
+        commaIdx !== -1 ? name.substring(commaIdx + 1).trim() : "Стандарт",
       baseName,
     };
   }
@@ -203,9 +188,11 @@ class CatalogM {
   }
 
   get sortedProductGroups(): ProductGroup[] {
-    return this.filteredProductGroups.slice().sort((a, b) => {
-      return getComparator(this.sort)(a.variants[0], b.variants[0]);
-    });
+    const compare = getComparator(this.sort);
+
+    return [...this.filteredProductGroups].sort((a, b) =>
+      compare(a.variants[0], b.variants[0]),
+    );
   }
 
   get pagedProductGroups(): ProductGroup[] {

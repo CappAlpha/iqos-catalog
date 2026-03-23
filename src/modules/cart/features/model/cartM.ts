@@ -55,12 +55,8 @@ class CartM {
     }
   }
 
-  private findItem(productId: string) {
-    return this.items.find((i) => i.product.id === productId);
-  }
-
   getCartItem(productId: string): CartItem | undefined {
-    return this.findItem(productId);
+    return this.items.find((i) => i.product.id === productId);
   }
 
   getItemStatus(productId: string) {
@@ -137,7 +133,7 @@ class CartM {
   }
 
   private returnItemToCart(productId: string, itemToRestore: CartItem) {
-    if (this.findItem(productId)) return;
+    if (this.getCartItem(productId)) return;
 
     this.updateItemWithTransition(
       productId,
@@ -151,7 +147,7 @@ class CartM {
   }
 
   removeFromCart(productId: string) {
-    const itemToRestore = this.findItem(productId);
+    const itemToRestore = this.getCartItem(productId);
 
     if (!itemToRestore) return;
 
@@ -174,13 +170,10 @@ class CartM {
   }
 
   setQuantity(productId: string, quantity: number) {
-    if (quantity < 1) return;
+    const item = this.getCartItem(productId);
+    if (!item || quantity < 1) return;
 
-    const item = this.findItem(productId);
-    if (!item) return;
-
-    const action: CartActionType = quantity > item.quantity ? "inc" : "dec";
-
+    const action = quantity > item.quantity ? "inc" : "dec";
     this.updateItemWithTransition(productId, action, () => {
       item.quantity = quantity;
     });
@@ -193,26 +186,29 @@ class CartM {
   checkout() {
     if (this.isEmpty) return;
 
+    if (this.#cartTimer) {
+      clearTimeout(this.#cartTimer);
+      this.globalAction = null;
+    }
+
     this.globalAction = "checkout";
-    if (this.#cartTimer) clearTimeout(this.#cartTimer);
 
     this.#cartTimer = setTimeout(() => {
       runInAction(() => {
-        const newOrderId = crypto.randomUUID();
+        const id = crypto.randomUUID();
 
-        const newOrder: Order = {
-          id: newOrderId,
+        this.orderHistory.unshift({
+          id,
           date: new Date().toISOString(),
           items: [...this.items],
           totalPrice: this.totalPrice,
-        };
+        });
 
-        this.orderHistory.unshift(newOrder);
         this.clearCart();
         this.globalAction = null;
 
         this.updateItemWithTransition(
-          newOrderId,
+          id,
           "add",
           () => {
             customToastTemplate("Заказ успешно оформлен", "success");

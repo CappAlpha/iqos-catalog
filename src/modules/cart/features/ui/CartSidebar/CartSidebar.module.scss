@@ -1,0 +1,62 @@
+.sidebar {
+  width: 350px;
+  position: sticky;
+  top: 90px;
+
+  @include breakpoint(desktop-s) {
+    width: 300px;
+  }
+
+  @include breakpoint(tablet) {
+    width: 100%;
+    position: static;
+  }
+}
+
+.summaryBox {
+  background: var(--white);
+  border-radius: 15px;
+  padding: 25px;
+  outline: dotted 1px var(--gray-border);
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+
+  &:hover {
+    @media (hover: hover) and (pointer: fine) {
+      outline-color: var(--accent-color);
+    }
+  }
+}
+
+.summaryTitle {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.summaryRow {
+  display: flex;
+  justify-content: space-between;
+  color: var(--gray);
+  font-size: 16px;
+}
+
+.summaryTotal {
+  display: flex;
+  justify-content: space-between;
+  font-size: 22px;
+  font-weight: 700;
+  margin-top: 10px;
+  padding-top: 15px;
+  border-top: 1px solid var(--gray-border);
+}
+
+.checkoutBtn {
+  width: 100%;
+  padding: 15px;
+}
+
+.sidebar span.updatingText {
+  @include skeleton;
+  border-radius: 6px;
+}
