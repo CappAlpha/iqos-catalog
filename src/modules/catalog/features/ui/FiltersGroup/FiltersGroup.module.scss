@@ -2,17 +2,13 @@
   font-size: 18px;
   font-weight: 700;
   margin-bottom: 10px;
-
-  @include breakpoint(mobile-m) {
-    font-size: 14px;
-  }
 }
 
 .categories {
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 15px;
   padding-bottom: 20px;
   animation: fromZeroWidth 0.3s ease-in-out;
 

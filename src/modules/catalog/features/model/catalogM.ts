@@ -240,11 +240,7 @@ class CatalogM {
   }
 
   get isAnyFilterSelected() {
-    return (
-      this.selectedCategoryId !== null ||
-      this.sort !== CATALOG_DEFAULT.sort ||
-      this.page !== CATALOG_DEFAULT.page
-    );
+    return this.selectedCategoryId !== null;
   }
 
   get skeletonCount() {

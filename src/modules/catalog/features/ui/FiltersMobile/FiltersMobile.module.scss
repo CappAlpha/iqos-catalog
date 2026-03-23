@@ -1,88 +1,119 @@
 .root {
   position: fixed;
   inset: 0;
-  z-index: -1000;
-  opacity: 0;
-  visibility: hidden;
+  z-index: 1000;
   pointer-events: none;
-  transition:
-    opacity 0.4s ease-in-out,
-    visibility 0.4s ease-in-out,
-    z-index 0s linear 0.4s;
-  padding: 0;
+  display: flex;
+  justify-content: flex-end;
 }
 
 .overlay {
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, 0.5);
-  z-index: 1001;
+  background: var(--opacity-colors-black-40);
+  opacity: 0;
+  transition: opacity 0.3s ease;
 }
 
-.open {
-  opacity: 1;
-  visibility: visible;
-  pointer-events: auto;
-  z-index: 1000;
-  transition:
-    opacity 0.4s ease-in-out,
-    visibility 0s;
-}
-
-.wrap {
-  position: relative;
+.drawer {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  z-index: 1002;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  padding: 20px 20px 0 20px;
-  width: 65dvw;
-  height: 65dvh;
-  overflow-y: auto;
+  width: 400px;
+  height: 100dvh;
+  border-radius: 20px 0 0 0;
+  transform: translateX(100%);
   background: var(--white);
-  border-radius: 15px;
+  transition: transform 0.3s ease-in-out;
 
-  @include scrollbar;
-
-  @include breakpoint(mobile-m) {
-    width: 70dvw;
-    border-radius: 6px;
+  @media (max-width: 768px) {
+    top: auto;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100dvw;
+    height: 85dvh;
+    border-radius: 20px 20px 0 0;
+    transform: translateY(100%);
   }
 }
 
-.title {
-  font-size: 18px;
-  margin-bottom: 15px;
+.open {
+  pointer-events: auto;
+
+  .overlay {
+    opacity: 1;
+  }
+
+  .drawer {
+    transform: translateX(0);
+
+    @media (max-width: 768px) {
+      transform: translateY(0);
+    }
+  }
 }
 
-.filters {
+.header {
   display: flex;
-  flex-wrap: wrap;
   justify-content: space-between;
-  gap: 20px;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--light-gray);
 }
 
-.resetBtn {
+.title {
+  font-size: 24px;
+}
+
+.closeIconBtn {
   @include expandableArea;
+  --clickable-area-expandable-ratio: 24px;
 
-  position: sticky;
-  bottom: 0;
-  background-color: var(--white) !important;
-  border-radius: 0;
-  width: 100%;
-  height: fit-content;
-  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  margin: -8px;
+  font-size: 24px;
 }
 
-.closeBtn {
-  position: fixed;
-  right: 20px;
-  top: 20px;
-  z-index: 1003;
-  font-size: 35px;
-  line-height: 1;
-  color: var(--white) !important;
+.body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  overflow-y: auto;
+  padding: 24px;
+}
+
+.footer {
+  display: flex;
+  gap: 12px;
+  padding: 16px 24px;
+  border-top: 1px solid var(--light-gray);
+  background: var(--white);
+}
+
+.resetBtn,
+.applyBtn {
+  flex: 1;
+}
+
+.btn {
+  position: relative;
+}
+
+.activeBadge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 10px;
+  height: 10px;
+  background-color: var(--additional-red);
+  border-radius: 50%;
+  border: 2px solid var(--white);
 }

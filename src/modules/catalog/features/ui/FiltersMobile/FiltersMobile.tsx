@@ -1,6 +1,6 @@
 import cn from "classnames";
 import { observer } from "mobx-react-lite";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { useOutsideClick } from "@/shared/hooks/useOutsideClick";
 import { Button } from "@/shared/ui/Button";
@@ -18,6 +18,17 @@ export const FiltersMobile = observer(() => {
     if (isOpen) setIsOpen(false);
   }, wrapRef);
 
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isOpen]);
+
   const {
     isLoading,
     categoryFilters,
@@ -29,12 +40,10 @@ export const FiltersMobile = observer(() => {
 
   const handleSetCategory = (id: string) => {
     setCategory(id);
-    setIsOpen(false);
   };
 
   const handleResetFilters = () => {
     resetFilters();
-    setIsOpen(false);
   };
 
   return (
@@ -45,14 +54,25 @@ export const FiltersMobile = observer(() => {
         loading={isLoading}
       >
         Фильтры
+        {isAnyFilterSelected && <span className={s.activeBadge} />}
       </Button>
 
       <div className={cn(s.root, isOpen && s.open)}>
         <div className={s.overlay} aria-hidden="true" />
-        <div ref={wrapRef} className={s.wrap}>
-          <h3 className={s.title}>Фильтры</h3>
 
-          <div className={s.filters}>
+        <div ref={wrapRef} className={s.drawer}>
+          <div className={s.header}>
+            <h3 className={s.title}>Фильтры</h3>
+            <Button
+              className={s.closeIconBtn}
+              onClick={() => setIsOpen(false)}
+              color="transparent"
+            >
+              &#10006;
+            </Button>
+          </div>
+
+          <div className={s.body}>
             <FiltersGroup
               className={s.filtersGroup}
               filterGroups={categoryFilters}
@@ -61,24 +81,20 @@ export const FiltersMobile = observer(() => {
             />
           </div>
 
-          <Button
-            className={s.resetBtn}
-            color="transparent"
-            onClick={handleResetFilters}
-            disabled={!isAnyFilterSelected}
-          >
-            &#8635; Сбросить фильтры
-          </Button>
+          <div className={s.footer}>
+            <Button
+              className={s.resetBtn}
+              color="outline"
+              onClick={handleResetFilters}
+              disabled={!isAnyFilterSelected}
+            >
+              Сбросить
+            </Button>
+            <Button className={s.applyBtn} onClick={() => setIsOpen(false)}>
+              Готово
+            </Button>
+          </div>
         </div>
-
-        <Button
-          className={s.closeBtn}
-          noPadding
-          color="transparent"
-          onClick={() => setIsOpen(false)}
-        >
-          &#10006;
-        </Button>
       </div>
     </>
   );
