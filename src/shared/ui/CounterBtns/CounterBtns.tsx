@@ -11,9 +11,7 @@ interface Props {
   isIncLoading: boolean;
   isCountChanged: boolean;
   setQuantity: (id: string, quantity: number) => void;
-  removeFromCart?: (id: string) => void;
   disabled?: boolean;
-  canRemove?: boolean;
   className?: string;
 }
 
@@ -24,25 +22,15 @@ export const CounterBtns = ({
   isIncLoading,
   setQuantity,
   isCountChanged,
-  removeFromCart,
   disabled,
-  canRemove,
   className,
 }: Props) => {
-  const handleDec = () => {
-    if (canRemove && quantity === 1) {
-      removeFromCart?.(id);
-    } else {
-      setQuantity(id, quantity - 1);
-    }
-  };
-
   return (
     <div className={cn(s.root, className)}>
       <Button
         className={s.counterBtn}
-        onClick={handleDec}
-        disabled={disabled || (!canRemove && quantity <= 1)}
+        onClick={() => setQuantity(id, quantity - 1)}
+        disabled={disabled}
         loading={isDecLoading}
       >
         &#8722;

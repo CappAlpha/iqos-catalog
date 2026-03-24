@@ -29,13 +29,7 @@ export const ProductCard = observer(
     const selectedProduct = productGroup.variants[selectedIdx];
     const { id, price, pictureUrl, categoryTitle } = selectedProduct;
 
-    const {
-      removeFromCart,
-      setQuantity,
-      addToCart,
-      getCartItem,
-      getItemStatus,
-    } = cartM;
+    const { setQuantity, addToCart, getCartItem, getItemStatus } = cartM;
 
     const itemInCart = getCartItem(id);
 
@@ -113,8 +107,6 @@ export const ProductCard = observer(
                 isIncLoading={isIncLoading}
                 isCountChanged={isCountChanged}
                 setQuantity={setQuantity}
-                removeFromCart={removeFromCart}
-                canRemove
                 disabled={isPending}
                 className={s.counter}
               />

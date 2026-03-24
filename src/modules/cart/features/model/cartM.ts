@@ -35,6 +35,31 @@ class CartM {
     });
   }
 
+  private updateItemWithTransition(
+    productId: string,
+    action: CartActionType,
+    updateFn?: () => void,
+    delayAction = false,
+    ms = 400,
+  ) {
+    this.activeTransitions.set(productId, action);
+
+    const currentTimer = this.#cartItemsTimers.get(productId);
+    if (currentTimer) clearTimeout(currentTimer);
+
+    if (!delayAction && updateFn) updateFn();
+
+    const timer = setTimeout(() => {
+      runInAction(() => {
+        if (delayAction && updateFn) updateFn();
+        this.activeTransitions.delete(productId);
+        this.#cartItemsTimers.delete(productId);
+      });
+    }, ms);
+
+    this.#cartItemsTimers.set(productId, timer);
+  }
+
   async initStore() {
     try {
       const [{ value: cart }, { value: orders }] = await Promise.all([
@@ -82,31 +107,6 @@ class CartM {
     );
   }
 
-  private updateItemWithTransition(
-    productId: string,
-    action: CartActionType,
-    updateFn?: () => void,
-    delayAction = false,
-    ms = 400,
-  ) {
-    this.activeTransitions.set(productId, action);
-
-    const currentTimer = this.#cartItemsTimers.get(productId);
-    if (currentTimer) clearTimeout(currentTimer);
-
-    if (!delayAction && updateFn) updateFn();
-
-    const timer = setTimeout(() => {
-      runInAction(() => {
-        if (delayAction && updateFn) updateFn();
-        this.activeTransitions.delete(productId);
-        this.#cartItemsTimers.delete(productId);
-      });
-    }, ms);
-
-    this.#cartItemsTimers.set(productId, timer);
-  }
-
   get totalItems() {
     return this.items.reduce((sum, item) => sum + item.quantity, 0);
   }
@@ -123,11 +123,11 @@ class CartM {
   }
 
   addToCart(product: Product) {
-    customToastTemplate("Товар добавлен в корзину", "success", product.name);
-
     this.updateItemWithTransition(product.id, "add", () => {
       this.items.push({ product, quantity: 1 });
     });
+
+    customToastTemplate("Товар добавлен в корзину", "success", product.name);
   }
 
   private returnItemToCart(productId: string, item: CartItem) {
@@ -157,7 +157,7 @@ class CartM {
           "success",
           item.product.name,
           "Вернуть",
-          () => this.returnItemToCart(productId, item),
+          () => runInAction(() => this.returnItemToCart(productId, item)),
         );
       },
       true,
@@ -165,8 +165,13 @@ class CartM {
   }
 
   setQuantity(productId: string, quantity: number) {
+    if (quantity < 1) {
+      this.removeFromCart(productId);
+      return;
+    }
+
     const item = this.getCartItem(productId);
-    if (!item || quantity < 1) return;
+    if (!item) return;
 
     const action = quantity > item.quantity ? "inc" : "dec";
     this.updateItemWithTransition(productId, action, () => {

@@ -143,27 +143,25 @@ class CatalogM {
   }
 
   private parseProductData(product: Product) {
-    const name = product.name;
-    const lower = name.toLowerCase();
+    const lowerName = product.name.toLowerCase();
+    const isSizeVariant =
+      lowerName.includes("стик") || lowerName.includes("картридж");
 
-    if (lower.includes("стик") || lower.includes("картридж")) {
+    if (isSizeVariant) {
       return {
         type: "size" as const,
         groupId: product.id,
-        variantLabel: lower.includes("блок") ? "Блок" : "Пачка",
-        baseName: name.replace(/,?\s*(пачка|блок.*)/i, "").trim(),
+        variantLabel: lowerName.includes("блок") ? "Блок" : "Пачка",
+        baseName: product.name.replace(/,?\s*(пачка|блок.*)/i, "").trim(),
       };
     }
 
-    const commaIdx = name.lastIndexOf(",");
-    const baseName =
-      commaIdx !== -1 ? name.substring(0, commaIdx).trim() : name;
+    const [baseName, variantLabel = "Стандарт"] = product.name.split(/\s*,\s*/);
 
     return {
       type: "color" as const,
       groupId: baseName,
-      variantLabel:
-        commaIdx !== -1 ? name.substring(commaIdx + 1).trim() : "Стандарт",
+      variantLabel,
       baseName,
     };
   }
