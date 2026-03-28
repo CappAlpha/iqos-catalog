@@ -5,8 +5,11 @@ const range = (start: number, end: number) => {
   return Array.from({ length }, (_, i) => start + i);
 };
 
-const toPage = (value: number) => ({ type: "page" as const, value });
-const toDots = (side: "left" | "right") => ({ type: "dots" as const, side });
+const toPage = (value: number): PaginationItem => ({ type: "page", value });
+const toDots = (side: "left" | "right"): PaginationItem => ({
+  type: "dots",
+  side,
+});
 
 export const buildPagination = (
   current: number,
@@ -14,9 +17,7 @@ export const buildPagination = (
 ): PaginationItem[] => {
   if (total <= 1) return [];
 
-  if (total <= 7) {
-    return range(1, total).map((page) => toPage(page));
-  }
+  if (total <= 7) return range(1, total).map(toPage);
 
   const left = Math.max(current - 1, 2);
   const right = Math.min(current + 1, total - 1);

@@ -3,7 +3,7 @@ import { flow, makeAutoObservable, runInAction } from "mobx";
 import { clamp } from "@/shared/lib/math";
 
 import { fetchCatalog } from "../api/fetchCatalog";
-import { getComparator } from "../lib/store";
+import { getComparator } from "../lib/comparators";
 import {
   CATALOG_DEFAULT,
   UNCAT_ID,

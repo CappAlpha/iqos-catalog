@@ -1,4 +1,6 @@
 .root {
+  opacity: 0;
+  transition: opacity 0.3s ease;
   position: fixed;
   inset: 0;
   z-index: 1000;
@@ -42,6 +44,7 @@
 }
 
 .open {
+  opacity: 1;
   pointer-events: auto;
 
   .overlay {

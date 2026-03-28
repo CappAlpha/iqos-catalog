@@ -5,11 +5,13 @@ const collator = new Intl.Collator("ru", {
   numeric: true,
 });
 const compareText = (a: string, b: string) => collator.compare(a, b);
-const compareNumbers = (a: number | null, b: number | null) => {
+
+const compareNumbers = (a: number | null, b: number | null, isDesc = false) => {
   if (a === b) return 0;
   if (a === null) return 1;
   if (b === null) return -1;
-  return a - b;
+
+  return isDesc ? b - a : a - b;
 };
 
 const COMPARATORS: Record<SortKey, (a: Product, b: Product) => number> = {
@@ -18,9 +20,7 @@ const COMPARATORS: Record<SortKey, (a: Product, b: Product) => number> = {
   priceAsc: (a, b) =>
     compareNumbers(a.price, b.price) || compareText(a.name, b.name),
   priceDesc: (a, b) =>
-    -compareNumbers(a.price, b.price) || compareText(a.name, b.name),
+    compareNumbers(a.price, b.price, true) || compareText(a.name, b.name),
 };
 
-export const getComparator = (key: SortKey) => {
-  return COMPARATORS[key] ?? (() => 0);
-};
+export const getComparator = (key: SortKey) => COMPARATORS[key] ?? (() => 0);

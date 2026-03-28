@@ -1,8 +1,9 @@
 import cn from "classnames";
 import { observer } from "mobx-react-lite";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 
 import { useOutsideClick } from "@/shared/hooks/useOutsideClick";
+import { useScrollBlock } from "@/shared/hooks/useScrollBlock";
 import { Button } from "@/shared/ui/Button";
 
 import { catalogM } from "../../model/catalogM";
@@ -14,20 +15,11 @@ export const FiltersMobile = observer(() => {
   const [isOpen, setIsOpen] = useState(false);
   const wrapRef = useRef<HTMLDivElement>(null);
 
+  useScrollBlock(isOpen);
+
   useOutsideClick(() => {
     if (isOpen) setIsOpen(false);
   }, wrapRef);
-
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [isOpen]);
 
   const {
     isLoading,

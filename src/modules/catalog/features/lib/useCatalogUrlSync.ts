@@ -9,49 +9,47 @@ export const useCatalogUrlSync = () => {
   const location = useLocation();
   const isInternalNav = useRef(false);
 
-  const { selectedCategoryId, sort, page, status } = catalogM;
-  const defaultSort = normalizeSort(null);
+  const {
+    selectedCategoryId,
+    sort,
+    page,
+    status,
+    setCategory,
+    setSort,
+    setPage,
+  } = catalogM;
 
   // Store -> URL
   useEffect(() => {
     if (status !== "success") return;
 
-    const currentUrlCat = searchParams.get("cat") ?? "";
-    const currentUrlSort = searchParams.get("sort");
-    const currentUrlPage = searchParams.get("page");
+    const nextParams = new URLSearchParams(searchParams);
+    const defaultSort = normalizeSort(null);
 
-    const targetCat = selectedCategoryId ?? "";
-    const targetSort = sort === defaultSort ? null : sort;
-    const targetPage = page <= 1 ? null : String(page);
+    const updates = [
+      { key: "cat", val: selectedCategoryId },
+      { key: "sort", val: sort === defaultSort ? null : sort },
+      { key: "page", val: page > 1 ? String(page) : null },
+    ];
 
-    if (
-      currentUrlCat !== targetCat ||
-      (currentUrlSort || null) !== (targetSort || null) ||
-      (currentUrlPage || null) !== (targetPage || null)
-    ) {
-      const nextParams = new URLSearchParams(searchParams);
+    let hasChanged = false;
+    updates.forEach(({ key, val }) => {
+      const current = nextParams.get(key);
+      if (val !== current) {
+        if (val) {
+          nextParams.set(key, val);
+        } else {
+          nextParams.delete(key);
+        }
+        hasChanged = true;
+      }
+    });
 
-      if (targetCat) nextParams.set("cat", targetCat);
-      else nextParams.delete("cat");
-
-      if (targetSort) nextParams.set("sort", targetSort);
-      else nextParams.delete("sort");
-
-      if (targetPage) nextParams.set("page", targetPage);
-      else nextParams.delete("page");
-
+    if (hasChanged) {
       isInternalNav.current = true;
       setSearchParams(nextParams, { replace: true });
     }
-  }, [
-    selectedCategoryId,
-    sort,
-    page,
-    status,
-    defaultSort,
-    searchParams,
-    setSearchParams,
-  ]);
+  }, [selectedCategoryId, sort, page, status, searchParams, setSearchParams]);
 
   // URL -> Store
   useEffect(() => {
@@ -60,21 +58,24 @@ export const useCatalogUrlSync = () => {
       return;
     }
 
-    const currentParams = new URLSearchParams(location.search);
-    const urlCat = currentParams.get("cat") ?? "";
-    const urlSort = normalizeSort(currentParams.get("sort"));
-    const urlPage = normalizePage(currentParams.get("page"));
+    const params = new URLSearchParams(location.search);
 
-    if ((catalogM.selectedCategoryId ?? "") !== urlCat) {
-      catalogM.setCategory(urlCat === "" ? null : urlCat);
-    }
+    // TODO: normalize too?
+    const urlCat = params.get("cat") ?? null;
+    const urlSort = normalizeSort(params.get("sort"));
+    const urlPage = normalizePage(params.get("page"));
 
-    if (catalogM.sort !== urlSort) {
-      catalogM.setSort(urlSort);
-    }
-
-    if (catalogM.page !== urlPage) {
-      catalogM.setPage(urlPage);
-    }
-  }, [location.search]);
+    if (selectedCategoryId !== urlCat) setCategory(urlCat);
+    if (sort !== urlSort) setSort(urlSort);
+    if (page !== urlPage) setPage(urlPage);
+  }, [
+    page,
+    selectedCategoryId,
+    sort,
+    location,
+    setCategory,
+    setSort,
+    setPage,
+    location.search,
+  ]);
 };
