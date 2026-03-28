@@ -8,20 +8,14 @@ const SELECTORS = {
   offers: "shop > offers > offer",
 } as const;
 
-const getText = (text: Element | null): string | null => {
-  const v = text?.textContent?.trim() ?? "";
-  return v.length ? v : null;
-};
+const getText = (text: Element | null) => text?.textContent?.trim() || null;
 
-const getAttr = (el: Element, name: string): string | null => {
-  const v = el.getAttribute(name)?.trim() ?? "";
-  return v.length ? v : null;
-};
+const getAttr = (el: Element, name: string) =>
+  el.getAttribute(name)?.trim() || null;
 
-const getNum = (el: Element | null): number | null => {
+const getNum = (el: Element | null) => {
   const v = getText(el);
-  if (!v) return null;
-  return currency(v).value;
+  return v ? currency(v).value : null;
 };
 
 export const parseXmlCatalog = (xmlText: string): FeedResult => {
@@ -34,74 +28,60 @@ export const parseXmlCatalog = (xmlText: string): FeedResult => {
   const categories: Category[] = [];
   const catTitleById = new Map<string, string>();
 
-  for (const category of Array.from(
-    doc.querySelectorAll(SELECTORS.categories),
-  )) {
+  for (const category of doc.querySelectorAll(SELECTORS.categories)) {
     const id = getAttr(category, "id");
     const title = getText(category);
+
     if (!id || !title) {
       console.error("Некорректная категория:", category);
       continue;
     }
 
-    const parentId = getAttr(category, "parentId");
-    const cat: Category = { id, title, parentId };
-
-    categories.push(cat);
+    categories.push({ id, title, parentId: getAttr(category, "parentId") });
     catTitleById.set(id, title);
   }
 
   const products: Product[] = [];
   let hasNoCategory = false;
 
-  for (const offer of Array.from(doc.querySelectorAll(SELECTORS.offers))) {
+  for (const offer of doc.querySelectorAll(SELECTORS.offers)) {
     const id = getAttr(offer, "id");
     const name = getText(offer.querySelector("name"));
+
     if (!id || !name) {
       console.error("Некорректный товар:", offer);
       continue;
     }
 
-    const available =
-      (getAttr(offer, "available") ?? "true").toLowerCase() === "true";
+    let categoryId = getText(offer.querySelector("categoryId"));
+    let categoryTitle: string | null;
 
-    const categoryId = getText(offer.querySelector("categoryId"));
-    if (!categoryId) hasNoCategory = true;
-
-    const titleFromMap = categoryId ? catTitleById.get(categoryId) : undefined;
+    if (categoryId) {
+      categoryTitle = catTitleById.get(categoryId) ?? null;
+    } else {
+      hasNoCategory = true;
+      categoryId = UNCAT_ID;
+      categoryTitle = UNCAT_TITLE;
+    }
 
     products.push({
       id,
-      available,
+      available:
+        (getAttr(offer, "available") ?? "true").toLowerCase() === "true",
       name,
-
+      description: getText(offer.querySelector("description")),
       price: getNum(offer.querySelector("price")),
       currencyId: getText(offer.querySelector("currencyId")),
-
-      categoryId: categoryId ?? null,
-      categoryTitle: titleFromMap ?? (categoryId ? null : UNCAT_TITLE),
-
+      categoryId,
+      categoryTitle,
       pictureUrl: getText(offer.querySelector("picture")),
       url: getText(offer.querySelector("url")),
     });
   }
 
-  const hasRootCategoryAlready = categories.some(
-    (category) => category.id === UNCAT_ID,
-  );
+  if (hasNoCategory && !catTitleById.has(UNCAT_ID)) {
+    categories.push({ id: UNCAT_ID, title: UNCAT_TITLE, parentId: null });
+  }
 
-  const finalCategories =
-    hasNoCategory && !hasRootCategoryAlready
-      ? [...categories, { id: UNCAT_ID, title: UNCAT_TITLE, parentId: null }]
-      : categories;
-
-  const normalizedProducts = hasNoCategory
-    ? products.map((product) =>
-        product.categoryId
-          ? product
-          : { ...product, categoryId: UNCAT_ID, categoryTitle: UNCAT_TITLE },
-      )
-    : products;
-
-  return { categories: finalCategories, products: normalizedProducts };
+  return { categories, products };
 };
