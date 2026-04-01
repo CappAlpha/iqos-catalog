@@ -21,14 +21,14 @@ class CartM {
   constructor() {
     makeAutoObservable(this, {}, { autoBind: true });
 
-    autorun(() => {
+    autorun(async () => {
       if (!this.isInitialized) return;
 
-      Preferences.set({
+      await Preferences.set({
         key: CART_STORAGE_KEY,
         value: JSON.stringify(this.items),
       });
-      Preferences.set({
+      await Preferences.set({
         key: ORDERS_STORAGE_KEY,
         value: JSON.stringify(this.orderHistory),
       });
@@ -60,7 +60,7 @@ class CartM {
     this.#cartItemsTimers.set(productId, timer);
   }
 
-  async initStore() {
+  initStore = async () => {
     try {
       const [{ value: cart }, { value: orders }] = await Promise.all([
         Preferences.get({ key: CART_STORAGE_KEY }),
@@ -68,21 +68,21 @@ class CartM {
       ]);
 
       runInAction(() => {
-        this.items = cart ? JSON.parse(cart) : [];
-        this.orderHistory = orders ? JSON.parse(orders) : [];
+        this.items = cart ? (JSON.parse(cart) as CartItem[]) : [];
+        this.orderHistory = orders ? (JSON.parse(orders) as Order[]) : [];
         this.isInitialized = true;
       });
     } catch (e) {
       console.error("Ошибка загрузки хранилища", e);
       runInAction(() => (this.isInitialized = true));
     }
-  }
+  };
 
-  getCartItem(productId: string): CartItem | undefined {
+  getCartItem = (productId: string) => {
     return this.items.find((i) => i.product.id === productId);
-  }
+  };
 
-  getItemStatus(productId: string) {
+  getItemStatus = (productId: string) => {
     const action = this.activeTransitions.get(productId);
     return {
       isAddLoading: action === "add",
@@ -91,7 +91,7 @@ class CartM {
       isRemoveLoading: action === "remove",
       isCountChanged: action === "inc" || action === "dec",
     };
-  }
+  };
 
   get isCartUpdating() {
     return this.activeTransitions.size > 0 || this.globalAction !== null;
@@ -122,13 +122,13 @@ class CartM {
     return this.items.length === 0;
   }
 
-  addToCart(product: Product) {
+  addToCart = (product: Product) => {
     this.updateItemWithTransition(product.id, "add", () => {
       this.items.push({ product, quantity: 1 });
     });
 
     customToastTemplate("Товар добавлен в корзину", "success", product.name);
-  }
+  };
 
   private returnItemToCart(productId: string, item: CartItem) {
     if (this.getCartItem(productId)) return;
@@ -142,7 +142,7 @@ class CartM {
     );
   }
 
-  removeFromCart(productId: string) {
+  removeFromCart = (productId: string) => {
     const item = this.getCartItem(productId);
     if (!item) return;
 
@@ -162,9 +162,9 @@ class CartM {
       },
       true,
     );
-  }
+  };
 
-  setQuantity(productId: string, quantity: number) {
+  setQuantity = (productId: string, quantity: number) => {
     if (quantity < 1) {
       this.removeFromCart(productId);
       return;
@@ -177,13 +177,13 @@ class CartM {
     this.updateItemWithTransition(productId, action, () => {
       item.quantity = quantity;
     });
-  }
+  };
 
-  clearCart() {
+  clearCart = () => {
     this.items = [];
-  }
+  };
 
-  checkout() {
+  checkout = () => {
     if (this.isEmpty) return;
 
     if (this.#cartTimer) {
@@ -218,7 +218,7 @@ class CartM {
         );
       });
     }, 400);
-  }
+  };
 }
 
 export const cartM = new CartM();

@@ -1,5 +1,5 @@
 import cn from "classnames";
-import { type MouseEvent, type ReactNode } from "react";
+import { type ReactNode } from "react";
 
 import { TransitionNavLink } from "../TransitionNavLink";
 
@@ -8,8 +8,10 @@ import s from "./Button.module.scss";
 interface ButtonProps {
   color?: "grey" | "transparent" | "outline";
   noPadding?: boolean;
-  onClick?: (event: MouseEvent<HTMLButtonElement>) => void;
-  onMouseDown?: (event: MouseEvent<HTMLButtonElement>) => void;
+  onClick?: (event?: React.MouseEvent<HTMLButtonElement> | MouseEvent) => void;
+  onMouseDown?: (
+    event?: React.MouseEvent<HTMLButtonElement> | MouseEvent,
+  ) => void;
   children?: ReactNode;
   className?: string;
   disabled?: boolean;

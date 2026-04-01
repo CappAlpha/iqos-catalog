@@ -25,7 +25,7 @@ export const Header = observer(() => {
   const { initStore, isCartUpdating, totalItems, isEmpty } = cartM;
 
   useEffect(() => {
-    initStore();
+    void initStore();
   }, [initStore]);
 
   return (

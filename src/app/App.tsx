@@ -13,7 +13,7 @@ function App() {
     <BrowserRouter>
       <AppLayout>
         <AppRoutes />
-        <Toaster position="top-center" richColors />
+        <Toaster position="top-center" richColors className="toast-root" />
       </AppLayout>
     </BrowserRouter>
   );

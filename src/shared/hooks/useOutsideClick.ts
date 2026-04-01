@@ -1,13 +1,19 @@
 import { useEffect, type RefObject } from "react";
 
 export const useOutsideClick = (
-  onClickOutside: () => void,
+  onClickOutside: (e?: MouseEvent) => void,
   ref: RefObject<HTMLDivElement | null>,
 ) => {
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (ref.current && !ref.current.contains(event.target as Node)) {
-        onClickOutside();
+    const handleClickOutside = (e: MouseEvent) => {
+      const target = e.target as Element;
+
+      if (target.closest(".toast-container")) {
+        return;
+      }
+
+      if (ref.current && !ref.current.contains(target)) {
+        onClickOutside(e);
       }
     };
 

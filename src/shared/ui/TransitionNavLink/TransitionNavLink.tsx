@@ -10,18 +10,18 @@ export const TransitionNavLink = ({
 }: NavLinkProps) => {
   const navigate = useNavigate();
 
-  const handleClick = (e: MouseEvent<HTMLAnchorElement>) => {
+  const handleClick = async (e: MouseEvent<HTMLAnchorElement>) => {
     if (onClick) onClick(e);
     e.preventDefault();
 
     if (!document.startViewTransition) {
-      navigate(to);
+      await navigate(to);
       return;
     }
 
-    document.startViewTransition(() => {
-      flushSync(() => {
-        navigate(to);
+    document.startViewTransition(async () => {
+      await flushSync(async () => {
+        await navigate(to);
       });
     });
   };

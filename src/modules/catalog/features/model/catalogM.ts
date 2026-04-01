@@ -1,4 +1,4 @@
-import { flow, makeAutoObservable, runInAction } from "mobx";
+import { makeAutoObservable, runInAction } from "mobx";
 
 import { clamp } from "@/shared/lib/math";
 
@@ -244,61 +244,66 @@ class CatalogM {
     updateFn();
   }
 
-  setSort(key: SortKey) {
+  setSort = (key: SortKey) => {
     if (this.sort === key) return;
     this.updateWithTransition(() => {
       this.sort = key;
       this.page = CATALOG_DEFAULT.page;
     });
-  }
+  };
 
-  setCategory(id: string | null) {
+  setCategory = (id: string | null) => {
     if (this.selectedCategoryId === id) return;
     this.updateWithTransition(() => {
       this.selectedCategoryId = id;
       this.page = CATALOG_DEFAULT.page;
     });
-  }
+  };
 
-  toggleCategory(id: string | null) {
+  toggleCategory = (id: string | null) => {
     this.setCategory(this.selectedCategoryId === id ? null : id);
-  }
+  };
 
-  setPage(n: number) {
+  setPage = (n: number) => {
     this.triggerTransition();
     this.page = n;
-  }
+  };
 
-  resetFilters() {
+  resetFilters = () => {
     this.updateWithTransition(() => {
       this.selectedCategoryId = null;
       this.sort = CATALOG_DEFAULT.sort;
       this.page = CATALOG_DEFAULT.page;
     });
-  }
+  };
 
-  fetchData = flow(function* (this: CatalogM) {
+  fetchData = async () => {
     if (this.#transitionTimer) clearTimeout(this.#transitionTimer);
-    this.isTransitioning = false;
 
-    this.status = "loading";
-    this.error = null;
-    this.categories = [];
-    this.products = [];
+    runInAction(() => {
+      this.isTransitioning = false;
+      this.status = "loading";
+      this.error = null;
+      this.categories = [];
+      this.products = [];
+    });
 
     try {
-      const data: Awaited<ReturnType<typeof fetchCatalog>> =
-        yield fetchCatalog();
-      this.categories = data.categories;
-      this.products = data.products;
-      this.page = this.safePage;
+      const data = await fetchCatalog();
 
-      this.status = "success";
+      runInAction(() => {
+        this.categories = data.categories;
+        this.products = data.products;
+        this.page = this.safePage;
+        this.status = "success";
+      });
     } catch (e) {
-      this.status = "error";
-      this.error = e instanceof Error ? e.message : "Ошибка загрузки";
+      runInAction(() => {
+        this.status = "error";
+        this.error = e instanceof Error ? e.message : "Ошибка загрузки";
+      });
     }
-  });
+  };
 }
 
 export const catalogM = new CatalogM();

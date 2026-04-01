@@ -22,15 +22,15 @@ export const CatalogPage = observer(() => {
   const {
     error,
     isLoading,
+    fetchData,
     totalPages,
     safePage,
-    fetchData,
     setPage,
     isTransitioning,
   } = catalogM;
 
   useEffect(() => {
-    fetchData();
+    void fetchData();
   }, [fetchData]);
 
   const onPageChange = (nextPage: number) => {
