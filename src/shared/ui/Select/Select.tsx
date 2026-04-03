@@ -1,5 +1,8 @@
 import cn from "classnames";
-import { useState, useRef, useEffect, type MouseEvent } from "react";
+import { useState, useRef, type MouseEvent } from "react";
+
+import { useMobileM } from "@/shared/hooks/useBreakpoint";
+import { useOnButtonDown } from "@/shared/hooks/useOnButtonDown";
 
 import { useOutsideClick } from "../../hooks/useOutsideClick";
 
@@ -28,17 +31,12 @@ export const Select = <T extends string | number>({
   const [isOpen, setIsOpen] = useState(false);
   const selectRef = useRef<HTMLDivElement>(null);
 
-  useOutsideClick(() => setIsOpen(false), selectRef);
-
   const selectedOption = options.find((o) => o.id === value);
 
-  useEffect(() => {
-    if (!isOpen) return;
-    const handleEscape = (e: KeyboardEvent) =>
-      e.key === "Escape" && setIsOpen(false);
-    document.addEventListener("keydown", handleEscape);
-    return () => document.removeEventListener("keydown", handleEscape);
-  }, [isOpen]);
+  useOutsideClick(() => setIsOpen(false), selectRef);
+
+  const isMobileM = useMobileM();
+  useOnButtonDown("Escape", () => setIsOpen(false), isMobileM || !isOpen);
 
   const handleToggle = (e: MouseEvent) => {
     if (disabled) return;

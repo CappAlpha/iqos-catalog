@@ -3,7 +3,6 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0;
   width: fit-content;
 
   margin-bottom: 15px;
@@ -55,15 +54,7 @@
   }
 
   &.hiddenColor {
-    min-width: 0;
-    width: 0;
-    height: 0;
-    margin: 0;
-    border-width: 0;
-    opacity: 0;
-    transform: scale(0);
-    visibility: hidden;
-    outline: none;
+    display: none;
   }
 }
 

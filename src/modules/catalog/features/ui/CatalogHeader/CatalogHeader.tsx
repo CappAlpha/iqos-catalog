@@ -1,5 +1,6 @@
 import { observer } from "mobx-react-lite";
 
+import { useTablet } from "@/shared/hooks/useBreakpoint";
 import { Select } from "@/shared/ui/Select";
 import { SelectSkeleton } from "@/shared/ui/Select/SelectSkeleton";
 
@@ -9,12 +10,9 @@ import { FiltersMobile } from "../FiltersMobile";
 
 import s from "./CatalogHeader.module.scss";
 
-interface Props {
-  isTablet: boolean;
-}
-
-export const CatalogHeader = observer(({ isTablet }: Props) => {
+export const CatalogHeader = observer(() => {
   const { error, isLoading, sort, setSort } = catalogM;
+  const isTablet = useTablet();
 
   return (
     <div className={s.root}>

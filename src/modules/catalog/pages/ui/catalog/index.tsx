@@ -14,10 +14,7 @@ import { useTablet } from "@/shared/hooks/useBreakpoint";
 import s from "./CatalogPage.module.scss";
 
 export const CatalogPage = observer(() => {
-  const isTablet = useTablet();
   const topRef = useRef<HTMLDivElement | null>(null);
-
-  useCatalogUrlSync();
 
   const {
     error,
@@ -29,6 +26,10 @@ export const CatalogPage = observer(() => {
     isTransitioning,
   } = catalogM;
 
+  const isTablet = useTablet();
+
+  useCatalogUrlSync();
+
   useEffect(() => {
     void fetchData();
   }, [fetchData]);
@@ -38,14 +39,13 @@ export const CatalogPage = observer(() => {
     topRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
-  const showSidebar = !isTablet && !error;
-
   return (
     <div className={s.root} ref={topRef}>
-      <CatalogHeader isTablet={isTablet} />
+      <CatalogHeader />
 
       <div className={cn(s.wrap, error && s.wrapError)}>
-        {showSidebar &&
+        {!isTablet &&
+          !error &&
           (isLoading ? (
             <FiltersDesktopSkeleton arrays={3} count={5} />
           ) : (

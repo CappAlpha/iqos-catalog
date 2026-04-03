@@ -10,6 +10,7 @@
 
   &:hover {
     @media (hover: hover) and (pointer: fine) {
+      cursor: pointer;
       outline-color: var(--accent-color);
       box-shadow: 0 0 10px 0.1px var(--accent-color);
 

@@ -2,7 +2,7 @@ import cn from "classnames";
 
 import { Button } from "@/shared/ui/Button";
 
-import type { ProductGroup } from "../../../model/types";
+import type { ProductGroup } from "../../model/types";
 
 import s from "./VariantSizes.module.scss";
 
@@ -19,7 +19,7 @@ export const VariantsSizes = ({
   isPending,
   onSelect,
 }: Props) => (
-  <div className={s.root}>
+  <div className={s.root} onClick={(e) => e.stopPropagation()}>
     {variants.map(({ id, variantLabel }, idx) => (
       <Button
         key={id}

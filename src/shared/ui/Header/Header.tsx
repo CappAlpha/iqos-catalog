@@ -10,12 +10,20 @@ import {
   LogoLil,
 } from "@/assets/icons";
 import { cartM } from "@/modules/cart/features/model/cartM";
+import type { IconType } from "@/shared/types/types";
 
 import { TransitionNavLink } from "../TransitionNavLink";
 
 import s from "./Header.module.scss";
 
-const NAV_LINKS = [
+interface NavLinkItem {
+  to: string;
+  text: string;
+  Icon: IconType;
+  isCart?: boolean;
+}
+
+const NAV_LINKS: NavLinkItem[] = [
   { to: "/", text: "Каталог", Icon: CatalogIcon },
   { to: "/bluetooth", text: "Bluetooth", Icon: BluetoothIcon },
   { to: "/cart", text: "Корзина", Icon: CartIcon, isCart: true },

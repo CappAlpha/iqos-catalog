@@ -18,6 +18,12 @@ const getNum = (el: Element | null) => {
   return v ? currency(v).value : null;
 };
 
+const decodeHtml = (html: string) => {
+  const txt = document.createElement("textarea");
+  txt.innerHTML = html;
+  return txt.value;
+};
+
 export const parseXmlCatalog = (xmlText: string): FeedResult => {
   const doc = new DOMParser().parseFromString(xmlText, "application/xml");
 
@@ -69,7 +75,9 @@ export const parseXmlCatalog = (xmlText: string): FeedResult => {
       available:
         (getAttr(offer, "available") ?? "true").toLowerCase() === "true",
       name,
-      description: getText(offer.querySelector("description")),
+      description: decodeHtml(
+        getText(offer.querySelector("description")) ?? "",
+      ),
       price: getNum(offer.querySelector("price")),
       currencyId: getText(offer.querySelector("currencyId")),
       categoryId,
