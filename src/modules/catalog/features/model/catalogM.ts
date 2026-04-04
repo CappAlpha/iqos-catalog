@@ -28,7 +28,7 @@ class CatalogM {
   categories: Category[] = [];
   products: Product[] = [];
 
-  selectedCategoryId: string | null = null;
+  selectedCategoryIds: string[] = [];
   sort: SortKey = CATALOG_DEFAULT.sort;
   page = CATALOG_DEFAULT.page;
   pageSize = CATALOG_DEFAULT.pageSize;
@@ -167,16 +167,14 @@ class CatalogM {
   }
 
   get filteredProductGroups(): ProductGroup[] {
-    if (!this.selectedCategoryId) return this.baseProductGroups;
+    if (this.selectedCategoryIds.length === 0) return this.baseProductGroups;
 
-    const group = this.groupedCategories.find(
-      (c) => c.id === this.selectedCategoryId,
-    );
-    if (!group) return this.baseProductGroups;
+    const selectedSet = new Set(this.selectedCategoryIds);
 
-    const groupIds = new Set(group.ids);
-    return this.baseProductGroups.filter((g) =>
-      g.variants.some((v) => groupIds.has(v.categoryId ?? UNCAT_ID)),
+    return this.baseProductGroups.filter((group) =>
+      group.variants.some((variant) =>
+        selectedSet.has(variant.categoryId ?? UNCAT_ID),
+      ),
     );
   }
 
@@ -220,7 +218,7 @@ class CatalogM {
   }
 
   get isAnyFilterSelected() {
-    return this.selectedCategoryId !== null;
+    return this.selectedCategoryIds.length > 0;
   }
 
   get skeletonCount() {
@@ -252,16 +250,28 @@ class CatalogM {
     });
   };
 
-  setCategory = (id: string | null) => {
-    if (this.selectedCategoryId === id) return;
+  setCategory = (id: string) => {
+    if (this.selectedCategoryIds.includes(id)) return;
     this.updateWithTransition(() => {
-      this.selectedCategoryId = id;
+      this.selectedCategoryIds.push(id);
       this.page = CATALOG_DEFAULT.page;
     });
   };
 
-  toggleCategory = (id: string | null) => {
-    this.setCategory(this.selectedCategoryId === id ? null : id);
+  toggleCategory = (id: string) => {
+    this.updateWithTransition(() => {
+      const isSelected = this.selectedCategoryIds.includes(id);
+
+      if (isSelected) {
+        this.selectedCategoryIds = this.selectedCategoryIds.filter(
+          (cId) => cId !== id,
+        );
+      } else {
+        this.selectedCategoryIds = [...this.selectedCategoryIds, id];
+      }
+
+      this.page = CATALOG_DEFAULT.page;
+    });
   };
 
   setPage = (n: number) => {
@@ -271,7 +281,7 @@ class CatalogM {
 
   resetFilters = () => {
     this.updateWithTransition(() => {
-      this.selectedCategoryId = null;
+      this.selectedCategoryIds = [];
       this.sort = CATALOG_DEFAULT.sort;
       this.page = CATALOG_DEFAULT.page;
     });

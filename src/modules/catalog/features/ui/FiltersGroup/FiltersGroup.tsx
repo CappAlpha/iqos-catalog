@@ -8,14 +8,14 @@ import s from "./FiltersGroup.module.scss";
 
 interface Props {
   filterGroups: FilterGroup[];
-  selectedCategoryId: string | null;
+  selectedCategoryIds: string[];
   toggleCategory: (id: string) => void;
   className?: string;
 }
 
 export const FiltersGroup = ({
   filterGroups,
-  selectedCategoryId,
+  selectedCategoryIds,
   toggleCategory,
   className,
 }: Props) => {
@@ -31,9 +31,9 @@ export const FiltersGroup = ({
               {categories.map(({ id, title }) => (
                 <Checkbox
                   key={id}
-                  checked={selectedCategoryId === id}
+                  checked={selectedCategoryIds.includes(id)}
                   onChange={() => toggleCategory(id)}
-                  label={`${title}`}
+                  label={title}
                 />
               ))}
             </div>

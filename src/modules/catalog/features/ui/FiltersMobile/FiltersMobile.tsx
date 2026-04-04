@@ -24,7 +24,7 @@ export const FiltersMobile = observer(() => {
   const {
     isLoading,
     categoryFilters,
-    selectedCategoryId,
+    selectedCategoryIds,
     setCategory,
     resetFilters,
     isAnyFilterSelected,
@@ -68,7 +68,7 @@ export const FiltersMobile = observer(() => {
             <FiltersGroup
               className={s.filtersGroup}
               filterGroups={categoryFilters}
-              selectedCategoryId={selectedCategoryId}
+              selectedCategoryIds={selectedCategoryIds}
               toggleCategory={handleSetCategory}
             />
           </div>

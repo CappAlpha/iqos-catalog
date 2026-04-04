@@ -10,7 +10,7 @@ export const useCatalogUrlSync = () => {
   const isInternalNav = useRef(false);
 
   const {
-    selectedCategoryId,
+    selectedCategoryIds,
     sort,
     page,
     status,
@@ -26,21 +26,23 @@ export const useCatalogUrlSync = () => {
     const nextParams = new URLSearchParams(searchParams);
     const defaultSort = normalizeSort(null);
 
+    const catVal =
+      selectedCategoryIds.length > 0 ? selectedCategoryIds.join(",") : null;
+    const sortVal = sort === defaultSort ? null : sort;
+    const pageVal = page > 1 ? String(page) : null;
+
     const updates = [
-      { key: "cat", val: selectedCategoryId },
-      { key: "sort", val: sort === defaultSort ? null : sort },
-      { key: "page", val: page > 1 ? String(page) : null },
+      { key: "cat", val: catVal },
+      { key: "sort", val: sortVal },
+      { key: "page", val: pageVal },
     ];
 
     let hasChanged = false;
     updates.forEach(({ key, val }) => {
       const current = nextParams.get(key);
       if (val !== current) {
-        if (val) {
-          nextParams.set(key, val);
-        } else {
-          nextParams.delete(key);
-        }
+        if (val) nextParams.set(key, val);
+        else nextParams.delete(key);
         hasChanged = true;
       }
     });
@@ -49,7 +51,7 @@ export const useCatalogUrlSync = () => {
       isInternalNav.current = true;
       setSearchParams(nextParams, { replace: true });
     }
-  }, [selectedCategoryId, sort, page, status, searchParams, setSearchParams]);
+  }, [selectedCategoryIds, sort, page, status, searchParams, setSearchParams]);
 
   // URL -> Store
   useEffect(() => {
@@ -61,16 +63,20 @@ export const useCatalogUrlSync = () => {
     const params = new URLSearchParams(location.search);
 
     // TODO: normalize too?
-    const urlCat = params.get("cat") ?? null;
+    const urlCatRaw = params.get("cat");
+    const urlCats = urlCatRaw ? urlCatRaw.split(",") : [];
+
     const urlSort = normalizeSort(params.get("sort"));
     const urlPage = normalizePage(params.get("page"));
 
-    if (selectedCategoryId !== urlCat) setCategory(urlCat);
+    if (JSON.stringify(selectedCategoryIds) !== JSON.stringify(urlCats)) {
+      urlCats.forEach((id) => setCategory(id));
+    }
     if (sort !== urlSort) setSort(urlSort);
     if (page !== urlPage) setPage(urlPage);
   }, [
     page,
-    selectedCategoryId,
+    selectedCategoryIds,
     sort,
     location,
     setCategory,

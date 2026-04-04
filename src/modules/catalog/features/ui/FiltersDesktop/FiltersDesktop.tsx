@@ -10,7 +10,7 @@ import s from "./FiltersDesktop.module.scss";
 export const FiltersDesktop = observer(() => {
   const {
     categoryFilters,
-    selectedCategoryId,
+    selectedCategoryIds,
     toggleCategory,
     resetFilters,
     isAnyFilterSelected,
@@ -22,7 +22,7 @@ export const FiltersDesktop = observer(() => {
 
       <FiltersGroup
         filterGroups={categoryFilters}
-        selectedCategoryId={selectedCategoryId}
+        selectedCategoryIds={selectedCategoryIds}
         toggleCategory={toggleCategory}
       />
 
