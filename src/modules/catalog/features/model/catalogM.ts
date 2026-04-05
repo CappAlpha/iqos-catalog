@@ -1,4 +1,4 @@
-import { makeAutoObservable, runInAction } from "mobx";
+import { makeAutoObservable, observable, runInAction } from "mobx";
 
 import { clamp } from "@/shared/lib/math";
 
@@ -9,6 +9,9 @@ import {
   UNCAT_ID,
   GROUP_KEYWORDS,
   GROUP_TITLES,
+  BLOCK_REGEX,
+  CLEAN_NAME_REGEX,
+  SIZE_VARIANT_REGEX,
 } from "./constants";
 import type {
   Category,
@@ -28,7 +31,7 @@ class CatalogM {
   categories: Category[] = [];
   products: Product[] = [];
 
-  selectedCategoryIds: string[] = [];
+  selectedCategoryIds = observable.set<string>();
   sort: SortKey = CATALOG_DEFAULT.sort;
   page = CATALOG_DEFAULT.page;
   pageSize = CATALOG_DEFAULT.pageSize;
@@ -38,6 +41,18 @@ class CatalogM {
 
   constructor() {
     makeAutoObservable(this, {}, { autoBind: true });
+  }
+
+  get childrenMap(): Map<string, string[]> {
+    const map = new Map<string, string[]>();
+    for (const cat of this.categories) {
+      if (cat.parentId) {
+        const children = map.get(cat.parentId) ?? [];
+        children.push(cat.id);
+        map.set(cat.parentId, children);
+      }
+    }
+    return map;
   }
 
   get groupedCategories(): MergedCategory[] {
@@ -53,28 +68,18 @@ class CatalogM {
         map.set(key, { ...cat, ids: [cat.id] });
       }
     }
-
     return Array.from(map.values());
   }
 
   get groupIdsMap(): Map<FilterGroupKey, Set<string>> {
     const map = new Map<FilterGroupKey, Set<string>>();
 
-    const getChildIds = (rootId: string, out = new Set<string>()) => {
-      out.add(rootId);
-      this.categories.forEach((child) => {
-        if (child.parentId === rootId && !out.has(child.id))
-          getChildIds(child.id, out);
-      });
-      return out;
-    };
-
     (Object.entries(GROUP_KEYWORDS) as [FilterGroupKey, string[]][]).forEach(
       ([key, keywords]) => {
         const root = this.categories.find((cat) =>
           keywords.some((keyword) => cat.title.includes(keyword)),
         );
-        map.set(key, root ? getChildIds(root.id) : new Set());
+        map.set(key, root ? this.getAllChildIds([root.id]) : new Set());
       },
     );
     return map;
@@ -84,14 +89,16 @@ class CatalogM {
     const counts = new Map<string, number>();
     const childToParentId = new Map<string, string>();
 
-    this.groupedCategories.forEach((cat) =>
-      cat.ids.forEach((id) => childToParentId.set(id, cat.id)),
-    );
+    for (const cat of this.groupedCategories) {
+      for (const id of cat.ids) {
+        childToParentId.set(id, cat.id);
+      }
+    }
 
-    this.products.forEach((product) => {
+    for (const product of this.products) {
       const groupId = childToParentId.get(product.categoryId ?? UNCAT_ID);
       if (groupId) counts.set(groupId, (counts.get(groupId) ?? 0) + 1);
-    });
+    }
 
     return (Object.keys(GROUP_KEYWORDS) as FilterGroupKey[]).map((key) => {
       const groupIds = this.groupIdsMap.get(key);
@@ -114,13 +121,15 @@ class CatalogM {
   get baseProductGroups(): ProductGroup[] {
     const groups = new Map<string, Omit<ProductGroup, "id">>();
 
-    this.products.forEach((product) => {
+    for (const product of this.products) {
       const { groupId, baseName, type, variantLabel } =
         this.parseProductData(product);
-      if (!groups.has(groupId))
+
+      if (!groups.has(groupId)) {
         groups.set(groupId, { baseName, type, variants: [] });
+      }
       groups.get(groupId)!.variants.push({ ...product, variantLabel });
-    });
+    }
 
     return Array.from(groups.values()).map((group) => {
       if (group.type === "size") {
@@ -142,45 +151,32 @@ class CatalogM {
     });
   }
 
-  private parseProductData(product: Product) {
-    const lowerName = product.name.toLowerCase();
-    const isSizeVariant =
-      lowerName.includes("стик") || lowerName.includes("картридж");
+  get filteredProductGroups(): ProductGroup[] {
+    if (this.selectedCategoryIds.size === 0) return this.baseProductGroups;
 
-    if (isSizeVariant) {
-      return {
-        type: "size" as const,
-        groupId: product.id,
-        variantLabel: lowerName.includes("блок") ? "Блок" : "Пачка",
-        baseName: product.name.replace(/,?\s*(пачка|блок.*)/i, "").trim(),
-      };
+    const expandedIds: string[] = [];
+    for (const group of this.groupedCategories) {
+      if (group.ids.some((id) => this.selectedCategoryIds.has(id))) {
+        expandedIds.push(...group.ids);
+      }
     }
 
-    const [baseName, variantLabel = "Стандарт"] = product.name.split(/\s*,\s*/);
+    const allowedIds = this.getAllChildIds(expandedIds);
 
-    return {
-      type: "color" as const,
-      groupId: baseName,
-      variantLabel,
-      baseName,
-    };
-  }
+    return this.baseProductGroups.reduce<ProductGroup[]>((acc, group) => {
+      const filteredVariants = group.variants.filter((variant) =>
+        allowedIds.has(variant.categoryId ?? UNCAT_ID),
+      );
 
-  get filteredProductGroups(): ProductGroup[] {
-    if (this.selectedCategoryIds.length === 0) return this.baseProductGroups;
-
-    const selectedSet = new Set(this.selectedCategoryIds);
-
-    return this.baseProductGroups.filter((group) =>
-      group.variants.some((variant) =>
-        selectedSet.has(variant.categoryId ?? UNCAT_ID),
-      ),
-    );
+      if (filteredVariants.length > 0) {
+        acc.push({ ...group, variants: filteredVariants });
+      }
+      return acc;
+    }, []);
   }
 
   get sortedProductGroups(): ProductGroup[] {
     const compare = getComparator(this.sort);
-
     return [...this.filteredProductGroups].sort((a, b) =>
       compare(a.variants[0], b.variants[0]),
     );
@@ -218,11 +214,50 @@ class CatalogM {
   }
 
   get isAnyFilterSelected() {
-    return this.selectedCategoryIds.length > 0;
+    return this.selectedCategoryIds.size > 0;
   }
 
   get skeletonCount() {
     return this.totalCount > 0 ? this.pagedProductGroups.length : this.pageSize;
+  }
+
+  private getAllChildIds(rootIds: string[]): Set<string> {
+    const result = new Set(rootIds);
+    const queue = [...rootIds];
+
+    while (queue.length > 0) {
+      const currentId = queue.shift()!;
+      const children = this.childrenMap.get(currentId);
+
+      if (children) {
+        for (const childId of children) {
+          if (!result.has(childId)) {
+            result.add(childId);
+            queue.push(childId);
+          }
+        }
+      }
+    }
+    return result;
+  }
+
+  private parseProductData(product: Product) {
+    if (SIZE_VARIANT_REGEX.test(product.name)) {
+      return {
+        type: "size" as const,
+        groupId: product.id,
+        variantLabel: BLOCK_REGEX.test(product.name) ? "Блок" : "Пачка",
+        baseName: product.name.replace(CLEAN_NAME_REGEX, "").trim(),
+      };
+    }
+
+    const [baseName, variantLabel = "Стандарт"] = product.name.split(/\s*,\s*/);
+    return {
+      type: "color" as const,
+      groupId: baseName,
+      variantLabel,
+      baseName,
+    };
   }
 
   private triggerTransition(ms = 400) {
@@ -251,25 +286,19 @@ class CatalogM {
   };
 
   setCategory = (id: string) => {
-    if (this.selectedCategoryIds.includes(id)) return;
     this.updateWithTransition(() => {
-      this.selectedCategoryIds.push(id);
+      this.selectedCategoryIds.add(id);
       this.page = CATALOG_DEFAULT.page;
     });
   };
 
   toggleCategory = (id: string) => {
     this.updateWithTransition(() => {
-      const isSelected = this.selectedCategoryIds.includes(id);
-
-      if (isSelected) {
-        this.selectedCategoryIds = this.selectedCategoryIds.filter(
-          (cId) => cId !== id,
-        );
+      if (this.selectedCategoryIds.has(id)) {
+        this.selectedCategoryIds.delete(id);
       } else {
-        this.selectedCategoryIds = [...this.selectedCategoryIds, id];
+        this.selectedCategoryIds.add(id);
       }
-
       this.page = CATALOG_DEFAULT.page;
     });
   };
@@ -281,7 +310,7 @@ class CatalogM {
 
   resetFilters = () => {
     this.updateWithTransition(() => {
-      this.selectedCategoryIds = [];
+      this.selectedCategoryIds.clear();
       this.sort = CATALOG_DEFAULT.sort;
       this.page = CATALOG_DEFAULT.page;
     });
@@ -294,8 +323,6 @@ class CatalogM {
       this.isTransitioning = false;
       this.status = "loading";
       this.error = null;
-      this.categories = [];
-      this.products = [];
     });
 
     try {

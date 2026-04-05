@@ -1,27 +1,22 @@
 import cn from "classnames";
+import { observer } from "mobx-react-lite";
 
 import { Checkbox } from "@/shared/ui/Checkbox";
 
-import type { FilterGroup } from "../../model/types";
+import { catalogM } from "../../model/catalogM";
 
 import s from "./FiltersGroup.module.scss";
 
 interface Props {
-  filterGroups: FilterGroup[];
-  selectedCategoryIds: string[];
-  toggleCategory: (id: string) => void;
   className?: string;
 }
 
-export const FiltersGroup = ({
-  filterGroups,
-  selectedCategoryIds,
-  toggleCategory,
-  className,
-}: Props) => {
+export const FiltersGroup = observer(({ className }: Props) => {
+  const { categoryFilters, selectedCategoryIds, toggleCategory } = catalogM;
+
   return (
     <>
-      {filterGroups.map(({ key, title, categories }) => {
+      {categoryFilters.map(({ key, title, categories }) => {
         if (categories.length === 0) return null;
 
         return (
@@ -31,7 +26,7 @@ export const FiltersGroup = ({
               {categories.map(({ id, title }) => (
                 <Checkbox
                   key={id}
-                  checked={selectedCategoryIds.includes(id)}
+                  checked={selectedCategoryIds.has(id)}
                   onChange={() => toggleCategory(id)}
                   label={title}
                 />
@@ -42,4 +37,4 @@ export const FiltersGroup = ({
       })}
     </>
   );
-};
+});

@@ -19,6 +19,11 @@ export const useCatalogUrlSync = () => {
     setPage,
   } = catalogM;
 
+  const catValString =
+    selectedCategoryIds.size > 0
+      ? Array.from(selectedCategoryIds).join(",")
+      : null;
+
   // Store -> URL
   useEffect(() => {
     if (status !== "success") return;
@@ -26,13 +31,11 @@ export const useCatalogUrlSync = () => {
     const nextParams = new URLSearchParams(searchParams);
     const defaultSort = normalizeSort(null);
 
-    const catVal =
-      selectedCategoryIds.length > 0 ? selectedCategoryIds.join(",") : null;
     const sortVal = sort === defaultSort ? null : sort;
     const pageVal = page > 1 ? String(page) : null;
 
     const updates = [
-      { key: "cat", val: catVal },
+      { key: "cat", val: catValString },
       { key: "sort", val: sortVal },
       { key: "page", val: pageVal },
     ];
@@ -51,7 +54,7 @@ export const useCatalogUrlSync = () => {
       isInternalNav.current = true;
       setSearchParams(nextParams, { replace: true });
     }
-  }, [selectedCategoryIds, sort, page, status, searchParams, setSearchParams]);
+  }, [catValString, sort, page, status, searchParams, setSearchParams]);
 
   // URL -> Store
   useEffect(() => {
@@ -62,26 +65,31 @@ export const useCatalogUrlSync = () => {
 
     const params = new URLSearchParams(location.search);
 
-    // TODO: normalize too?
     const urlCatRaw = params.get("cat");
     const urlCats = urlCatRaw ? urlCatRaw.split(",") : [];
 
     const urlSort = normalizeSort(params.get("sort"));
     const urlPage = normalizePage(params.get("page"));
 
-    if (JSON.stringify(selectedCategoryIds) !== JSON.stringify(urlCats)) {
-      urlCats.forEach((id) => setCategory(id));
+    const currentCatsStr = Array.from(selectedCategoryIds).join(",");
+    const urlCatsStr = [...urlCats].join(",");
+
+    if (currentCatsStr !== urlCatsStr) {
+      selectedCategoryIds.clear();
+      urlCats.forEach((id) => {
+        setCategory(id);
+      });
     }
+
     if (sort !== urlSort) setSort(urlSort);
     if (page !== urlPage) setPage(urlPage);
   }, [
-    page,
-    selectedCategoryIds,
+    location.search,
     sort,
-    location,
+    page,
     setCategory,
     setSort,
     setPage,
-    location.search,
+    selectedCategoryIds,
   ]);
 };

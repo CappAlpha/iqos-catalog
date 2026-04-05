@@ -21,22 +21,7 @@ export const FiltersMobile = observer(() => {
     if (isOpen) setIsOpen(false);
   }, wrapRef);
 
-  const {
-    isLoading,
-    categoryFilters,
-    selectedCategoryIds,
-    setCategory,
-    resetFilters,
-    isAnyFilterSelected,
-  } = catalogM;
-
-  const handleSetCategory = (id: string) => {
-    setCategory(id);
-  };
-
-  const handleResetFilters = () => {
-    resetFilters();
-  };
+  const { isLoading, resetFilters, isAnyFilterSelected } = catalogM;
 
   return (
     <>
@@ -65,19 +50,14 @@ export const FiltersMobile = observer(() => {
           </div>
 
           <div className={s.body}>
-            <FiltersGroup
-              className={s.filtersGroup}
-              filterGroups={categoryFilters}
-              selectedCategoryIds={selectedCategoryIds}
-              toggleCategory={handleSetCategory}
-            />
+            <FiltersGroup />
           </div>
 
           <div className={s.footer}>
             <Button
               className={s.resetBtn}
               color="outline"
-              onClick={handleResetFilters}
+              onClick={resetFilters}
               disabled={!isAnyFilterSelected}
             >
               Сбросить

@@ -31,6 +31,10 @@ export const GROUP_TITLES: Record<FilterGroupKey, string> = {
   accessories: "Аксессуары и комплектующие",
 };
 
+export const SIZE_VARIANT_REGEX = /(стик|картридж)/i;
+export const BLOCK_REGEX = /блок/i;
+export const CLEAN_NAME_REGEX = /,?\s*(пачка|блок.*)/i;
+
 export const COLOR_MAP: Record<string, string> = {
   "желтый матовый": "#FFD700",
   розовый: "#FFB6C1",
