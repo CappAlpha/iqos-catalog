@@ -16,15 +16,8 @@ import s from "./CatalogPage.module.scss";
 export const CatalogPage = observer(() => {
   const topRef = useRef<HTMLDivElement | null>(null);
 
-  const {
-    error,
-    isLoading,
-    fetchData,
-    totalPages,
-    safePage,
-    setPage,
-    isTransitioning,
-  } = catalogM;
+  const { error, isLoading, fetchData, totalPages, safePage, setPage } =
+    catalogM;
 
   const isTablet = useTablet();
 
@@ -55,7 +48,7 @@ export const CatalogPage = observer(() => {
         <CatalogGrid />
       </div>
 
-      {!isLoading && !isTransitioning && totalPages > 1 && (
+      {!error && !isLoading && totalPages > 1 && (
         <Pagination
           page={safePage}
           totalPages={totalPages}

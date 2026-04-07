@@ -40,7 +40,7 @@ class CatalogM {
   #transitionTimer: ReturnType<typeof setTimeout> | null = null;
 
   constructor() {
-    makeAutoObservable(this, {}, { autoBind: true });
+    makeAutoObservable(this);
   }
 
   get childrenMap(): Map<string, string[]> {

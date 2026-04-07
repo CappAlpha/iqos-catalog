@@ -87,22 +87,20 @@ export const ProductModal = ({
             />
 
             {description && (
-              <div className={s.description}>
+              <div className={s.descriptionWrap}>
                 <h4>Описание</h4>
-                <p dangerouslySetInnerHTML={{ __html: description }} />
+                <div dangerouslySetInnerHTML={{ __html: description }} />
               </div>
             )}
 
             {price && (
-              <div className={s.price}>
-                <p>
-                  Цена:{" "}
-                  <b className={cn(isPending && s.priceSkeleton)}>
-                    {formatPrice(price)}
-                  </b>{" "}
-                  шт.
-                </p>
-              </div>
+              <p className={s.price}>
+                Цена:{" "}
+                <b className={cn(isPending && s.priceSkeleton)}>
+                  {formatPrice(price)}
+                </b>{" "}
+                шт.
+              </p>
             )}
 
             <AddCartButton

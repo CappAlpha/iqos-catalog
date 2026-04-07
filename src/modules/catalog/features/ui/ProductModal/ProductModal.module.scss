@@ -20,7 +20,7 @@
   box-shadow: 0 10px 40px var(--opacity-colors-black-40);
   animation: slideUp 0.3s ease-out;
 
-  @include breakpoint(desktop-l) {
+  @include breakpoint(desktop-s) {
     width: 85dvw;
   }
 }
@@ -75,7 +75,7 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 24px;
+  gap: 20px;
 
   @include breakpoint(desktop-s) {
     gap: 12px;
@@ -94,18 +94,45 @@
 .title,
 .titleSkeleton {
   font-size: 22px;
-  height: 55px;
+  min-height: 55px;
+
+  @include breakpoint(mobile-m) {
+    font-size: 18px;
+  }
 }
 
-.description {
+.descriptionWrap {
   color: var(--dark-gray);
   line-height: 1.5;
 
   h4 {
     margin-bottom: 8px;
-    font-size: 16px;
+    font-size: 18px;
     color: var(--black);
   }
+
+  div {
+    font-size: 16px;
+
+    p:not(:last-child) {
+      margin-bottom: 8px;
+    }
+  }
+
+  @include breakpoint(desktop-s) {
+    h4 {
+      font-size: 16px;
+    }
+
+    div {
+      font-size: 14px;
+    }
+  }
+}
+
+.price {
+  display: flex;
+  gap: 4px;
 }
 
 .imgSkeleton,

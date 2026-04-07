@@ -19,7 +19,7 @@ class CartM {
   #cartTimer: ReturnType<typeof setTimeout> | null = null;
 
   constructor() {
-    makeAutoObservable(this, {}, { autoBind: true });
+    makeAutoObservable(this);
 
     autorun(async () => {
       if (!this.isInitialized) return;
@@ -157,7 +157,7 @@ class CartM {
           "success",
           item.product.name,
           "Вернуть",
-          () => runInAction(() => this.returnItemToCart(productId, item)),
+          () => this.returnItemToCart(productId, item),
         );
       },
       true,
