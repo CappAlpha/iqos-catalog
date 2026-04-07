@@ -7,15 +7,18 @@ import { parseXmlCatalog } from "./feedParser";
 interface FetchParams {
   signal?: AbortSignal;
   feedUrl?: string;
+  timeout?: number;
 }
 
 export async function fetchCatalog({
   signal,
   feedUrl = DEFAULT_FEED_URL,
+  timeout = 30000,
 }: FetchParams = {}): Promise<FeedResult> {
   try {
     const { data } = await axios.get<string>(feedUrl, {
       signal,
+      timeout,
       responseType: "text",
       headers: {
         Accept: "application/xml, text/xml, */*",
@@ -29,23 +32,36 @@ export async function fetchCatalog({
     }
 
     return parseXmlCatalog(data);
-  } catch (error) {
+  } catch (error: unknown) {
     if (axios.isCancel(error)) {
       throw new DOMException("Aborted", "AbortError");
     }
 
     if (axios.isAxiosError(error)) {
-      const status = error.response?.status;
-      if (status) {
+      if (error.code === "ECONNABORTED") {
+        throw new Error(`Превышено время ожидания ответа (${timeout}мс)`, {
+          cause: error,
+        });
+      }
+
+      if (error.response) {
         throw new Error(
-          `Ошибка загрузки (${status}): Не удалось получить данные с ${error.config?.url}`,
+          `Ошибка загрузки (${error.response.status}): Сервер вернул ошибку.`,
           { cause: error },
         );
       }
-      throw new Error("Сетевая ошибка: сервер недоступен.", { cause: error });
+
+      if (error.request) {
+        throw new Error(
+          "Сетевая ошибка: сервер недоступен или блокирован CORS.",
+          { cause: error },
+        );
+      }
     }
 
-    if (error instanceof Error) throw error;
+    if (error instanceof Error) {
+      throw error;
+    }
 
     throw new Error("Неизвестная ошибка при загрузке каталога.", {
       cause: error,

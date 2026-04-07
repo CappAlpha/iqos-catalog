@@ -8,20 +8,26 @@ const SELECTORS = {
   offers: "shop > offers > offer",
 } as const;
 
-const getText = (text: Element | null) => text?.textContent?.trim() || null;
+const getText = (text: Element | null | undefined): string | null =>
+  text?.textContent?.trim() || null;
 
-const getAttr = (el: Element, name: string) =>
+const getAttr = (el: Element, name: string): string | null =>
   el.getAttribute(name)?.trim() || null;
 
-const getNum = (el: Element | null) => {
+const getNum = (el: Element | null | undefined): number | null => {
   const v = getText(el);
-  return v ? currency(v).value : null;
+  if (!v) return null;
+  return currency(v).value;
 };
 
-const decodeHtml = (html: string) => {
-  const txt = document.createElement("textarea");
-  txt.innerHTML = html;
-  return txt.value;
+let decodeTextarea: HTMLTextAreaElement | null = null;
+
+const decodeHtml = (html: string): string => {
+  if (!html) return "";
+
+  decodeTextarea ??= document.createElement("textarea");
+  decodeTextarea.innerHTML = html;
+  return decodeTextarea.value;
 };
 
 export const parseXmlCatalog = (xmlText: string): FeedResult => {
@@ -38,10 +44,7 @@ export const parseXmlCatalog = (xmlText: string): FeedResult => {
     const id = getAttr(category, "id");
     const title = getText(category);
 
-    if (!id || !title) {
-      console.error("Некорректная категория:", category);
-      continue;
-    }
+    if (!id || !title) continue;
 
     categories.push({ id, title, parentId: getAttr(category, "parentId") });
     catTitleById.set(id, title);
@@ -50,16 +53,16 @@ export const parseXmlCatalog = (xmlText: string): FeedResult => {
   const products: Product[] = [];
   let hasNoCategory = false;
 
-  for (const offer of doc.querySelectorAll(SELECTORS.offers)) {
+  const offers = doc.querySelectorAll(SELECTORS.offers);
+
+  for (const offer of offers) {
     const id = getAttr(offer, "id");
-    const name = getText(offer.querySelector("name"));
 
-    if (!id || !name) {
-      console.error("Некорректный товар:", offer);
-      continue;
-    }
+    const name = getText(offer.getElementsByTagName("name")[0]);
 
-    let categoryId = getText(offer.querySelector("categoryId"));
+    if (!id || !name) continue;
+
+    let categoryId = getText(offer.getElementsByTagName("categoryId")[0]);
     let categoryTitle: string | null;
 
     if (categoryId) {
@@ -76,14 +79,14 @@ export const parseXmlCatalog = (xmlText: string): FeedResult => {
         (getAttr(offer, "available") ?? "true").toLowerCase() === "true",
       name,
       description: decodeHtml(
-        getText(offer.querySelector("description")) ?? "",
+        getText(offer.getElementsByTagName("description")[0]) ?? "",
       ),
-      price: getNum(offer.querySelector("price")),
-      currencyId: getText(offer.querySelector("currencyId")),
+      price: getNum(offer.getElementsByTagName("price")[0]),
+      currencyId: getText(offer.getElementsByTagName("currencyId")[0]),
       categoryId,
       categoryTitle,
-      pictureUrl: getText(offer.querySelector("picture")),
-      url: getText(offer.querySelector("url")),
+      pictureUrl: getText(offer.getElementsByTagName("picture")[0]),
+      url: getText(offer.getElementsByTagName("url")[0]),
     });
   }
 
