@@ -1,4 +1,4 @@
-name: CI
+name: CI/CD
 
 on:
   push:
@@ -11,32 +11,27 @@ concurrency:
   cancel-in-progress: true
 
 permissions:
-  contents: read
+  contents: write 
 
 jobs:
-  validate-and-build:
+  build-and-test:
     runs-on: ubuntu-latest
-    
     steps:
-      - name: Checkout code
-        uses: actions/checkout@main
-
-      
-      - name: Setup Node.js
-        uses: actions/setup-node@main
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with:
           node-version: 24
           cache: "npm"
       
-      - name: Install dependencies
-        run: npm ci --legacy-peer-deps
-
-      - name: Lint
-        run: npm run lint
-      
-      - name: Check for dead code
-        run: npm run knip
+      - run: npm ci --legacy-peer-deps
+      - run: npm run lint
+      - run: npm run knip
         continue-on-error: true
-      
-      - name: Build
-        run: npm run build
+      - run: npm run build
+
+      - name: Deploy to GitHub Pages
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        uses: peaceiris/actions-gh-pages@v5
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
