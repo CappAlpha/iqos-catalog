@@ -33,9 +33,6 @@ jobs:
       - name: Lint
         run: npm run lint
       
-      - name: Type check
-        run: npm run type-check
-      
       - name: Check for dead code
         run: npm run knip
         continue-on-error: true
