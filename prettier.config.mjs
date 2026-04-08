@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   plugins: ["@trivago/prettier-plugin-sort-imports"],
   tabWidth: 2,
   importOrder: [

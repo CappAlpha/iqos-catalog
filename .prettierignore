@@ -1,5 +1,8 @@
-/node_modules
-/dist
-/public
+node_modules
+dist
+*.local
+coverage
+.git
+.env
 package.json
 package-lock.json
