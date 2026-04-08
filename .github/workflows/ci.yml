@@ -1,4 +1,4 @@
-name: Deploy to GitHub Pages
+name: CI
 
 on:
   push:
@@ -39,8 +39,3 @@ jobs:
       
       - name: Build
         run: npm run build
-
-        name: Deploy to GitHub Pages
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./dist
