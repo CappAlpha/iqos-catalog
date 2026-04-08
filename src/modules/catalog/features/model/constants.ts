@@ -1,6 +1,6 @@
 import type { FilterGroupKey, SortKey } from "./types";
 
-export const DEFAULT_FEED_URL = "/mindbox_feed.xml";
+export const DEFAULT_FEED_URL = "mindbox_feed.xml";
 // export const DEFAULT_FEED_URL = "https://www.iqos.ru/mindbox_feed.xml";
 
 export const UNCAT_ID = "uncategorized" as const;

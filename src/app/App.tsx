@@ -10,7 +10,7 @@ import { AppRoutes } from "./routes/AppRoutes";
 
 function App() {
   return (
-    <BrowserRouter basename="/iqos-catalog">
+    <BrowserRouter basename="/iqos-catalog/">
       <AppLayout>
         <AppRoutes />
         <Toaster position="top-center" richColors className="toast-root" />
