@@ -1,4 +1,5 @@
 import currency from "currency.js";
+import DOMPurify from "dompurify";
 
 import { UNCAT_TITLE, UNCAT_ID } from "../model/constants";
 import type { FeedResult, Category, Product } from "../model/types";
@@ -27,7 +28,7 @@ const decodeHtml = (html: string): string => {
 
   decodeTextarea ??= document.createElement("textarea");
   decodeTextarea.innerHTML = html;
-  return decodeTextarea.value;
+  return DOMPurify.sanitize(decodeTextarea.value);
 };
 
 export const parseXmlCatalog = (xmlText: string): FeedResult => {
