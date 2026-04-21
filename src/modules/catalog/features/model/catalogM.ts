@@ -227,6 +227,10 @@ class CatalogM {
     return this.totalCount > 0 ? this.pagedProductGroups.length : this.pageSize;
   }
 
+  get selectedCategoriesQuery(): string {
+    return Array.from(this.selectedCategoryIds).sort().join(",");
+  }
+
   private getAllChildIds(rootIds: string[]): Set<string> {
     const result = new Set(rootIds);
     const queue = [...rootIds];

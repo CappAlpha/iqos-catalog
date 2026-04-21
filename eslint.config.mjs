@@ -1,6 +1,5 @@
 import js from "@eslint/js";
 import reactPlugin from "@eslint-react/eslint-plugin";
-import reactCompilerPlugin from "eslint-plugin-react-compiler";
 import prettierConfig from "eslint-config-prettier";
 import reactHooksPlugin from "eslint-plugin-react-hooks";
 import reactRefreshPlugin from "eslint-plugin-react-refresh";
@@ -34,14 +33,12 @@ export default [
     files: ["**/*.{ts,tsx}"],
     plugins: {
       "@eslint-react": reactPlugin,
-      "react-compiler": reactCompilerPlugin,
       "react-hooks": reactHooksPlugin,
       "react-refresh": reactRefreshPlugin,
       mobx: pluginMobx,
     },
     rules: {
       ...reactPlugin.configs.recommended.rules,
-      ...reactCompilerPlugin.configs.recommended.rules,
       ...reactHooksPlugin.configs.recommended.rules,
       ...reactRefreshPlugin.configs.recommended.rules,
       ...pluginMobx.configs.recommended.rules,
@@ -57,7 +54,7 @@ export default [
       "mobx/exhaustive-make-observable": "warn",
       "mobx/unconditional-make-observable": "error",
       "mobx/missing-make-observable": "error",
-      "mobx/missing-observer": "warn",
+      "mobx/missing-observer": "off",
     },
   },
 

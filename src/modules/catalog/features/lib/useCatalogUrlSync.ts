@@ -8,9 +8,7 @@ import { normalizeSort, normalizePage } from "./catalogPage";
 export const useCatalogUrlSync = () => {
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const currentCatsStr = Array.from(catalogM.selectedCategoryIds)
-    .sort()
-    .join(",");
+  const currentCatsStr = catalogM.selectedCategoriesQuery;
   const currentSort = catalogM.sort;
   const currentPage = catalogM.page;
   const status = catalogM.status;
@@ -58,9 +56,7 @@ export const useCatalogUrlSync = () => {
     const urlSort = normalizeSort(searchParams.get("sort"));
     const urlPage = normalizePage(searchParams.get("page"));
 
-    const storeCatsStr = Array.from(catalogM.selectedCategoryIds)
-      .sort()
-      .join(",");
+    const storeCatsStr = catalogM.selectedCategoriesQuery;
 
     runInAction(() => {
       if (storeCatsStr !== urlCatsStr) {
