@@ -1,8 +1,10 @@
 import js from "@eslint/js";
+import reactPlugin from "@eslint-react/eslint-plugin";
+import reactCompilerPlugin from "eslint-plugin-react-compiler";
 import prettierConfig from "eslint-config-prettier";
-import react from "@eslint-react/eslint-plugin";
-import reactHooks from "eslint-plugin-react-hooks";
-import reactRefresh from "eslint-plugin-react-refresh";
+import reactHooksPlugin from "eslint-plugin-react-hooks";
+import reactRefreshPlugin from "eslint-plugin-react-refresh";
+import pluginMobx from "eslint-plugin-mobx"
 import globals from "globals";
 import tsEslint from "typescript-eslint";
 
@@ -27,18 +29,22 @@ export default [
     },
   })),
 
-  // react
+  // plugins
   {
     files: ["**/*.{ts,tsx}"],
     plugins: {
-      "@eslint-react": react,
-      "react-hooks": reactHooks,
-      "react-refresh": reactRefresh,
+      "@eslint-react": reactPlugin,
+      "react-compiler": reactCompilerPlugin,
+      "react-hooks": reactHooksPlugin,
+      "react-refresh": reactRefreshPlugin,
+      mobx: pluginMobx,
     },
     rules: {
-      ...react.configs.recommended.rules,
-      ...reactHooks.configs.recommended.rules,
-      ...reactRefresh.configs.recommended.rules,
+      ...reactPlugin.configs.recommended.rules,
+      ...reactCompilerPlugin.configs.recommended.rules,
+      ...reactHooksPlugin.configs.recommended.rules,
+      ...reactRefreshPlugin.configs.recommended.rules,
+      ...pluginMobx.configs.recommended.rules,
       "react-refresh/only-export-components": [
         "warn",
         { allowConstantExport: true },
@@ -48,6 +54,10 @@ export default [
         "error",
         { checksVoidReturn: false },
       ],
+      "mobx/exhaustive-make-observable": "warn",
+      "mobx/unconditional-make-observable": "error",
+      "mobx/missing-make-observable": "error",
+      "mobx/missing-observer": "warn",
     },
   },
 
