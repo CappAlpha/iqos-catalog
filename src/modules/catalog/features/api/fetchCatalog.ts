@@ -1,70 +1,78 @@
 import axios from "axios";
 
-import { DEFAULT_FEED_URL } from "../model/constants";
+import { formatError } from "@/shared/lib/axiosFormatError";
+import { customToastTemplate } from "@/shared/lib/customToastTemplate";
+
+import { FEED_URL, RESERVE_FEED_URL } from "../model/constants";
 import type { FeedResult } from "../model/types";
 import { parseXmlCatalog } from "./feedParser";
 
 interface FetchParams {
-  signal?: AbortSignal;
   feedUrl?: string;
+  signal?: AbortSignal;
   timeout?: number;
 }
 
+async function executeRequest(
+  url: string,
+  signal?: AbortSignal,
+  timeout?: number,
+): Promise<string> {
+  const { data } = await axios.get<string>(url, {
+    signal,
+    timeout,
+    responseType: "text",
+    headers: {
+      Accept: "application/xml, text/xml, */*",
+      "Cache-Control": "no-cache",
+    },
+  });
+
+  if (!data?.trim()) {
+    throw new Error("Пустой ответ от сервера");
+  }
+
+  return data;
+}
+
 export async function fetchCatalog({
+  feedUrl = FEED_URL,
   signal,
-  feedUrl = DEFAULT_FEED_URL,
   timeout = 30000,
 }: FetchParams = {}): Promise<FeedResult> {
   try {
-    const { data } = await axios.get<string>(feedUrl, {
-      signal,
-      timeout,
-      responseType: "text",
-      headers: {
-        Accept: "application/xml, text/xml, */*",
-        "Cache-Control": "no-cache",
-        Pragma: "no-cache",
-      },
-    });
-
-    if (!data?.trim()) {
-      throw new Error("Сервер вернул пустой ответ.");
-    }
-
-    return parseXmlCatalog(data);
+    const xmlData = await executeRequest(feedUrl, signal, timeout);
+    return parseXmlCatalog(xmlData);
   } catch (error: unknown) {
-    if (axios.isCancel(error)) {
+    if (
+      axios.isCancel(error) ??
+      (error instanceof Error && error.name === "AbortError")
+    ) {
       throw new DOMException("Aborted", "AbortError");
     }
 
-    if (axios.isAxiosError(error)) {
-      if (error.code === "ECONNABORTED") {
-        throw new Error(`Превышено время ожидания ответа (${timeout}мс)`, {
-          cause: error,
-        });
-      }
+    console.warn(
+      `Ошибка основного фида (${feedUrl}), берём резервный...`,
+      error,
+    );
+    customToastTemplate(
+      `Ошибка основного фида (${feedUrl}), берём резервный...`,
+      "warning",
+    );
 
-      if (error.response) {
-        throw new Error(
-          `Ошибка загрузки (${error.response.status}): Сервер вернул ошибку.`,
-          { cause: error },
-        );
-      }
-
-      if (error.request) {
-        throw new Error(
-          "Сетевая ошибка: сервер недоступен или блокирован CORS.",
-          { cause: error },
-        );
-      }
+    try {
+      const reserveData = await executeRequest(
+        RESERVE_FEED_URL,
+        signal,
+        timeout,
+      );
+      return parseXmlCatalog(reserveData);
+    } catch (reserveError: unknown) {
+      throw formatError(
+        reserveError,
+        timeout,
+        "Резервный сервер также недоступен",
+      );
     }
-
-    if (error instanceof Error) {
-      throw error;
-    }
-
-    throw new Error("Неизвестная ошибка при загрузке каталога.", {
-      cause: error,
-    });
   }
 }

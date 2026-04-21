@@ -1,11 +1,14 @@
 import { Preferences } from "@capacitor/preferences";
-import { makeAutoObservable, autorun, runInAction } from "mobx";
+import { makeAutoObservable, autorun, runInAction, toJS } from "mobx";
 
 import type { Product } from "@/modules/catalog/features/model/types";
 import { customToastTemplate } from "@/shared/lib/customToastTemplate";
 
 import { CART_STORAGE_KEY, ORDERS_STORAGE_KEY } from "./constants";
-import type { CartActionType, CartItem, Order } from "./types";
+import type { CartItem, Order } from "./types";
+
+type GlobalActionType = "checkout" | "clear" | null;
+type CartActionType = "add" | "inc" | "dec" | "remove";
 
 class CartM {
   items: CartItem[] = [];
@@ -13,10 +16,10 @@ class CartM {
   isInitialized = false;
 
   activeTransitions = new Map<string, CartActionType>();
-  readonly #cartItemsTimers = new Map<string, ReturnType<typeof setTimeout>>();
+  globalAction: GlobalActionType = null;
 
-  globalAction: "checkout" | null = null;
-  #cartTimer: ReturnType<typeof setTimeout> | null = null;
+  #globalTimer: ReturnType<typeof setTimeout> | null = null;
+  readonly #cartItemsTimers = new Map<string, ReturnType<typeof setTimeout>>();
 
   constructor() {
     makeAutoObservable(this);
@@ -26,13 +29,31 @@ class CartM {
 
       await Preferences.set({
         key: CART_STORAGE_KEY,
-        value: JSON.stringify(this.items),
+        value: JSON.stringify(toJS(this.items)),
       });
       await Preferences.set({
         key: ORDERS_STORAGE_KEY,
-        value: JSON.stringify(this.orderHistory),
+        value: JSON.stringify(toJS(this.orderHistory)),
       });
     });
+  }
+
+  private runGlobalTransition(
+    action: GlobalActionType,
+    updateFn: () => void,
+    ms = 400,
+  ) {
+    if (this.#globalTimer) clearTimeout(this.#globalTimer);
+
+    this.globalAction = action;
+
+    this.#globalTimer = setTimeout(() => {
+      runInAction(() => {
+        updateFn();
+        this.globalAction = null;
+        this.#globalTimer = null;
+      });
+    }, ms);
   }
 
   private updateItemWithTransition(
@@ -98,7 +119,9 @@ class CartM {
   }
 
   get isCartClearing() {
-    if (this.globalAction === "checkout") return true;
+    if (this.globalAction === "checkout" || this.globalAction === "clear") {
+      return true;
+    }
     return (
       !this.isEmpty &&
       this.items.every(
@@ -180,44 +203,44 @@ class CartM {
   };
 
   clearCart = () => {
-    this.items = [];
+    if (this.isEmpty) return;
+
+    this.runGlobalTransition("clear", () => {
+      this.items = [];
+      customToastTemplate("Корзина очищена", "success");
+    });
   };
 
   checkout = () => {
     if (this.isEmpty) return;
 
-    if (this.#cartTimer) {
-      clearTimeout(this.#cartTimer);
-      this.globalAction = null;
-    }
+    this.runGlobalTransition(
+      "checkout",
+      () => {
+        const orderId = crypto.randomUUID();
 
-    this.globalAction = "checkout";
-
-    this.#cartTimer = setTimeout(() => {
-      runInAction(() => {
-        const id = crypto.randomUUID();
+        const itemsSnapshot = toJS(this.items);
+        const finalPrice = this.totalPrice;
 
         this.orderHistory.unshift({
-          id,
+          id: orderId,
           date: new Date().toISOString(),
-          items: [...this.items],
-          totalPrice: this.totalPrice,
+          items: itemsSnapshot,
+          totalPrice: finalPrice,
         });
 
-        this.clearCart();
-        this.globalAction = null;
+        this.items = [];
 
         this.updateItemWithTransition(
-          id,
+          orderId,
           "add",
-          () => {
-            customToastTemplate("Заказ успешно оформлен", "success");
-          },
+          () => customToastTemplate("Заказ успешно оформлен", "success"),
           false,
           600,
         );
-      });
-    }, 400);
+      },
+      400,
+    );
   };
 }
 
