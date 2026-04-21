@@ -19,19 +19,37 @@ export const buildPagination = (
 
   if (total <= 7) return range(1, total).map(toPage);
 
-  const left = Math.max(current - 1, 2);
-  const right = Math.min(current + 1, total - 1);
+  const siblings = 1;
+  const showLeftDots = current > 2 + siblings;
+  const showRightDots = current < total - (1 + siblings);
 
-  const hasLeftDots = left > 2;
-  const hasRightDots = right < total - 1;
+  if (!showLeftDots && showRightDots) {
+    const leftItemCount = 3 + 2 * siblings;
+    return [
+      ...range(1, leftItemCount).map(toPage),
+      toDots("right"),
+      toPage(total),
+    ];
+  }
 
-  const items: PaginationItem[] = [
-    toPage(1),
-    ...(hasLeftDots ? [toDots("left")] : []),
-    ...range(left, right).map(toPage),
-    ...(hasRightDots ? [toDots("right")] : []),
-    toPage(total),
-  ];
+  if (showLeftDots && !showRightDots) {
+    const rightItemCount = 3 + 2 * siblings;
+    return [
+      toPage(1),
+      toDots("left"),
+      ...range(total - rightItemCount + 1, total).map(toPage),
+    ];
+  }
 
-  return items;
+  if (showLeftDots && showRightDots) {
+    return [
+      toPage(1),
+      toDots("left"),
+      ...range(current - siblings, current + siblings).map(toPage),
+      toDots("right"),
+      toPage(total),
+    ];
+  }
+
+  return [];
 };
