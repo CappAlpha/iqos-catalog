@@ -3,8 +3,7 @@ import { useState, useRef, type MouseEvent } from "react";
 
 import { useMobileM } from "@/shared/hooks/useBreakpoint";
 import { useOnButtonDown } from "@/shared/hooks/useOnButtonDown";
-
-import { useOutsideClick } from "../../hooks/useOutsideClick";
+import { useOutsideClick } from "@/shared/hooks/useOutsideClick";
 
 import s from "./Select.module.scss";
 

@@ -46,11 +46,14 @@ class CatalogM {
   get childrenMap(): Map<string, string[]> {
     const map = new Map<string, string[]>();
     for (const cat of this.categories) {
-      if (cat.parentId) {
-        const children = map.get(cat.parentId) ?? [];
-        children.push(cat.id);
+      if (!cat.parentId) continue;
+
+      let children = map.get(cat.parentId);
+      if (!children) {
+        children = [];
         map.set(cat.parentId, children);
       }
+      children.push(cat.id);
     }
     return map;
   }
@@ -125,18 +128,21 @@ class CatalogM {
       const { groupId, baseName, type, variantLabel } =
         this.parseProductData(product);
 
-      if (!groups.has(groupId)) {
-        groups.set(groupId, { baseName, type, variants: [] });
+      let group = groups.get(groupId);
+      if (!group) {
+        group = { baseName, type, variants: [] };
+        groups.set(groupId, group);
       }
-      groups.get(groupId)!.variants.push({ ...product, variantLabel });
+      group.variants.push({ ...product, variantLabel });
     }
 
     return Array.from(groups.values()).map((group) => {
-      if (group.type === "size") {
-        group.variants.sort((a, b) => (a.price || 0) - (b.price || 0));
-      }
+      const sortedVariants =
+        group.type === "size"
+          ? group.variants.toSorted((a, b) => (a.price || 0) - (b.price || 0))
+          : group.variants;
 
-      const variants = group.variants.map((v, i) => ({
+      const variants = sortedVariants.map((v, i) => ({
         ...v,
         originalId: v.id,
         id: `${v.id}_${i}`,
@@ -177,7 +183,7 @@ class CatalogM {
 
   get sortedProductGroups(): ProductGroup[] {
     const compare = getComparator(this.sort);
-    return [...this.filteredProductGroups].sort((a, b) =>
+    return this.filteredProductGroups.toSorted((a, b) =>
       compare(a.variants[0], b.variants[0]),
     );
   }
