@@ -1,95 +1,75 @@
-import { useEffect, useRef } from "react";
-import { useSearchParams, useLocation } from "react-router";
+import { runInAction } from "mobx";
+import { useEffect } from "react";
+import { useSearchParams } from "react-router";
 
 import { catalogM } from "../model/catalogM";
 import { normalizeSort, normalizePage } from "./catalogPage";
 
 export const useCatalogUrlSync = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const location = useLocation();
-  const isInternalNavRef = useRef(false);
 
-  const {
-    selectedCategoryIds,
-    sort,
-    page,
-    status,
-    setCategory,
-    setSort,
-    setPage,
-  } = catalogM;
-
-  const catValString =
-    selectedCategoryIds.size > 0
-      ? Array.from(selectedCategoryIds).join(",")
-      : null;
+  const currentCatsStr = Array.from(catalogM.selectedCategoryIds)
+    .sort()
+    .join(",");
+  const currentSort = catalogM.sort;
+  const currentPage = catalogM.page;
+  const status = catalogM.status;
 
   // Store -> URL
   useEffect(() => {
     if (status !== "success") return;
 
-    const nextParams = new URLSearchParams(searchParams);
-    const defaultSort = normalizeSort(null);
+    setSearchParams(
+      (prevParams) => {
+        const nextParams = new URLSearchParams(prevParams);
+        const defaultSort = normalizeSort(null);
 
-    const sortVal = sort === defaultSort ? null : sort;
-    const pageVal = page > 1 ? String(page) : null;
+        const updates = [
+          { key: "cat", val: currentCatsStr || null },
+          {
+            key: "sort",
+            val: currentSort === defaultSort ? null : currentSort,
+          },
+          { key: "page", val: currentPage > 1 ? String(currentPage) : null },
+        ];
 
-    const updates = [
-      { key: "cat", val: catValString },
-      { key: "sort", val: sortVal },
-      { key: "page", val: pageVal },
-    ];
+        let hasChanged = false;
+        updates.forEach(({ key, val }) => {
+          const current = nextParams.get(key);
+          if (val !== current) {
+            if (val) nextParams.set(key, val);
+            else nextParams.delete(key);
+            hasChanged = true;
+          }
+        });
 
-    let hasChanged = false;
-    updates.forEach(({ key, val }) => {
-      const current = nextParams.get(key);
-      if (val !== current) {
-        if (val) nextParams.set(key, val);
-        else nextParams.delete(key);
-        hasChanged = true;
-      }
-    });
-
-    if (hasChanged) {
-      isInternalNavRef.current = true;
-      setSearchParams(nextParams, { replace: true });
-    }
-  }, [catValString, sort, page, status, searchParams, setSearchParams]);
+        return hasChanged ? nextParams : prevParams;
+      },
+      { replace: true },
+    );
+  }, [currentCatsStr, currentSort, currentPage, status, setSearchParams]);
 
   // URL -> Store
   useEffect(() => {
-    if (isInternalNavRef.current) {
-      isInternalNavRef.current = false;
-      return;
-    }
-
-    const params = new URLSearchParams(location.search);
-
-    const urlCatRaw = params.get("cat");
+    const urlCatRaw = searchParams.get("cat");
     const urlCats = urlCatRaw ? urlCatRaw.split(",") : [];
+    const urlCatsStr = [...urlCats].sort().join(",");
 
-    const urlSort = normalizeSort(params.get("sort"));
-    const urlPage = normalizePage(params.get("page"));
+    const urlSort = normalizeSort(searchParams.get("sort"));
+    const urlPage = normalizePage(searchParams.get("page"));
 
-    const currentCatsStr = Array.from(selectedCategoryIds).join(",");
-    const urlCatsStr = [...urlCats].join(",");
+    const storeCatsStr = Array.from(catalogM.selectedCategoryIds)
+      .sort()
+      .join(",");
 
-    if (currentCatsStr !== urlCatsStr) {
-      selectedCategoryIds.clear();
-      urlCats.forEach((id) => {
-        setCategory(id);
-      });
-    }
+    runInAction(() => {
+      if (storeCatsStr !== urlCatsStr) {
+        catalogM.selectedCategoryIds.clear();
+        urlCats.forEach((id) => catalogM.setCategory(id));
+      }
 
-    if (sort !== urlSort) setSort(urlSort);
-    if (page !== urlPage) setPage(urlPage);
-  }, [
-    location.search,
-    sort,
-    page,
-    setCategory,
-    setSort,
-    setPage,
-    selectedCategoryIds,
-  ]);
+      if (catalogM.sort !== urlSort) catalogM.setSort(urlSort);
+      if (catalogM.page !== urlPage) catalogM.setPage(urlPage);
+    });
+  }, [searchParams]);
 };
