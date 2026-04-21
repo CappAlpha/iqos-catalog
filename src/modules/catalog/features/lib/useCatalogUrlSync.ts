@@ -7,7 +7,7 @@ import { normalizeSort, normalizePage } from "./catalogPage";
 export const useCatalogUrlSync = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const location = useLocation();
-  const isInternalNav = useRef(false);
+  const isInternalNavRef = useRef(false);
 
   const {
     selectedCategoryIds,
@@ -51,15 +51,15 @@ export const useCatalogUrlSync = () => {
     });
 
     if (hasChanged) {
-      isInternalNav.current = true;
+      isInternalNavRef.current = true;
       setSearchParams(nextParams, { replace: true });
     }
   }, [catValString, sort, page, status, searchParams, setSearchParams]);
 
   // URL -> Store
   useEffect(() => {
-    if (isInternalNav.current) {
-      isInternalNav.current = false;
+    if (isInternalNavRef.current) {
+      isInternalNavRef.current = false;
       return;
     }
 

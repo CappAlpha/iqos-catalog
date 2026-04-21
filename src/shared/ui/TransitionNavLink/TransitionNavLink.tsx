@@ -19,14 +19,16 @@ export const TransitionNavLink = ({
       return;
     }
 
-    document.startViewTransition(async () => {
-      await flushSync(async () => {
-        await navigate(to);
+    document.startViewTransition(() => {
+      // eslint-disable-next-line @eslint-react/dom-no-flush-sync
+      flushSync(() => {
+        void navigate(to);
       });
     });
   };
 
   return (
+    // TODO: sometime add viewTransition parameter
     <NavLink to={to} onClick={handleClick} className={className}>
       {children}
     </NavLink>

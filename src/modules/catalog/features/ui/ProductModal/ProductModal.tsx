@@ -89,6 +89,7 @@ export const ProductModal = ({
             {description && (
               <div className={s.descriptionWrap}>
                 <h4>Описание</h4>
+                {/* eslint-disable-next-line @eslint-react/dom-no-dangerously-set-innerhtml */}
                 <div dangerouslySetInnerHTML={{ __html: description }} />
               </div>
             )}

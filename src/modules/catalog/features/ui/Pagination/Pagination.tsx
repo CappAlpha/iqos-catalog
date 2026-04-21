@@ -35,6 +35,7 @@ export const Pagination = ({ page, totalPages, onChange }: Props) => {
         {items.map((item, i) => {
           if (item.type === "dots") {
             return (
+              /* eslint-disable-next-line @eslint-react/no-array-index-key */
               <li key={`dots-${i}`} className={s.dots} aria-hidden="true">
                 …
               </li>

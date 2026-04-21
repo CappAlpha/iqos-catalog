@@ -1,4 +1,6 @@
 import js from "@eslint/js";
+import prettierConfig from "eslint-config-prettier";
+import react from "@eslint-react/eslint-plugin";
 import reactHooks from "eslint-plugin-react-hooks";
 import reactRefresh from "eslint-plugin-react-refresh";
 import globals from "globals";
@@ -29,10 +31,12 @@ export default [
   {
     files: ["**/*.{ts,tsx}"],
     plugins: {
+      "@eslint-react": react,
       "react-hooks": reactHooks,
       "react-refresh": reactRefresh,
     },
     rules: {
+      ...react.configs.recommended.rules,
       ...reactHooks.configs.recommended.rules,
       ...reactRefresh.configs.recommended.rules,
       "react-refresh/only-export-components": [
@@ -53,4 +57,5 @@ export default [
       globals: { ...globals.browser },
     },
   },
+  prettierConfig,
 ];
