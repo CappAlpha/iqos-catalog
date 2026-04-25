@@ -45,7 +45,7 @@ export async function fetchCatalog({
     return parseXmlCatalog(xmlData);
   } catch (error: unknown) {
     if (
-      axios.isCancel(error) ??
+      axios.isCancel(error) ||
       (error instanceof Error && error.name === "AbortError")
     ) {
       throw new DOMException("Aborted", "AbortError");
@@ -71,7 +71,7 @@ export async function fetchCatalog({
       throw formatError(
         reserveError,
         timeout,
-        "Резервный сервер также недоступен",
+        "Кэшированный файл также недоступен",
       );
     }
   }

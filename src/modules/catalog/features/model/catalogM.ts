@@ -48,12 +48,9 @@ class CatalogM {
     for (const cat of this.categories) {
       if (!cat.parentId) continue;
 
-      let children = map.get(cat.parentId);
-      if (!children) {
-        children = [];
-        map.set(cat.parentId, children);
-      }
+      const children = map.get(cat.parentId) ?? [];
       children.push(cat.id);
+      map.set(cat.parentId, children);
     }
     return map;
   }
@@ -71,6 +68,7 @@ class CatalogM {
         map.set(key, { ...cat, ids: [cat.id] });
       }
     }
+
     return Array.from(map.values());
   }
 
