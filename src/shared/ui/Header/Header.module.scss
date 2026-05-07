@@ -20,13 +20,26 @@
   }
 }
 
+.logo,
+.logo svg {
+  transition: all 0.3s ease-in-out;
+}
+
 .logo {
-  font-size: 24px;
-  font-weight: 800;
-  color: var(--black);
-  text-decoration: none;
   display: flex;
   align-items: center;
+
+  &:hover {
+    @media (hover: hover) and (pointer: fine) {
+      fill: var(--accent-color);
+
+      svg {
+        &:first-child {
+          border-color: var(--accent-color);
+        }
+      }
+    }
+  }
 
   svg {
     &:first-child {
