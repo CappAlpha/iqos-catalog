@@ -13,6 +13,14 @@ interface FetchParams {
   timeout?: number;
 }
 
+const isAbortError = (error: unknown): boolean =>
+  axios.isCancel(error) ||
+  (error instanceof Error && error.name === "AbortError");
+
+const throwAbortException = (): never => {
+  throw new DOMException("Aborted", "AbortError");
+};
+
 async function executeRequest(
   url: string,
   signal?: AbortSignal,
@@ -28,8 +36,8 @@ async function executeRequest(
     },
   });
 
-  if (!data?.trim()) {
-    throw new Error("Пустой ответ от сервера");
+  if (typeof data !== "string" || !data.trim()) {
+    throw new Error("Пустой или некорректный ответ от сервера");
   }
 
   return data;
@@ -44,21 +52,25 @@ export async function fetchCatalog({
     const xmlData = await executeRequest(feedUrl, signal, timeout);
     return parseXmlCatalog(xmlData);
   } catch (error: unknown) {
-    if (
-      axios.isCancel(error) ||
-      (error instanceof Error && error.name === "AbortError")
-    ) {
-      throw new DOMException("Aborted", "AbortError");
+    if (isAbortError(error)) {
+      throwAbortException();
+    }
+
+    if (signal?.aborted) {
+      throwAbortException();
     }
 
     console.warn(
       `Ошибка основного фида (${feedUrl}), берём резервный...`,
       error,
     );
-    customToastTemplate(
-      `Ошибка основного фида (${feedUrl}), берём резервный...`,
-      "warning",
-    );
+
+    if (globalThis.window !== undefined) {
+      customToastTemplate(
+        `Ошибка основного фида (${feedUrl}), берём резервный...`,
+        "warning",
+      );
+    }
 
     try {
       const reserveData = await executeRequest(
@@ -68,11 +80,11 @@ export async function fetchCatalog({
       );
       return parseXmlCatalog(reserveData);
     } catch (reserveError: unknown) {
-      throw formatError(
-        reserveError,
-        timeout,
-        "Кэшированный файл также недоступен",
-      );
+      if (isAbortError(reserveError)) {
+        throwAbortException();
+      }
+
+      throw formatError(reserveError, timeout, "Не удалось загрузить каталог");
     }
   }
 }

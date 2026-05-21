@@ -11,7 +11,7 @@ export const useCatalogUrlSync = () => {
   const currentCatsStr = catalogM.selectedCategoriesQuery;
   const currentSort = catalogM.sort;
   const currentPage = catalogM.page;
-  const status = catalogM.status;
+  const status = catalogM.catalogQuery.status;
 
   // Store -> URL
   useEffect(() => {
@@ -51,7 +51,9 @@ export const useCatalogUrlSync = () => {
   useEffect(() => {
     const urlCatRaw = searchParams.get("cat");
     const urlCats = urlCatRaw ? urlCatRaw.split(",") : [];
-    const urlCatsStr = [...urlCats].sort().join(",");
+    const urlCatsStr = [...urlCats]
+      .sort((a, b) => a.localeCompare(b))
+      .join(",");
 
     const urlSort = normalizeSort(searchParams.get("sort"));
     const urlPage = normalizePage(searchParams.get("page"));

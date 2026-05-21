@@ -1,6 +1,6 @@
 import cn from "classnames";
 import { observer } from "mobx-react-lite";
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
 
 import { useCatalogUrlSync } from "@/modules/catalog/features/lib/useCatalogUrlSync";
 import { catalogM } from "@/modules/catalog/features/model/catalogM";
@@ -16,16 +16,11 @@ import s from "./CatalogPage.module.scss";
 export const CatalogPage = observer(() => {
   const topRef = useRef<HTMLDivElement | null>(null);
 
-  const { error, isLoading, fetchData, totalPages, safePage, setPage } =
-    catalogM;
+  const { isLoading, error, totalPages, safePage, setPage } = catalogM;
 
   const isTablet = useTablet();
 
   useCatalogUrlSync();
-
-  useEffect(() => {
-    void fetchData();
-  }, [fetchData]);
 
   const onPageChange = (nextPage: number) => {
     setPage(nextPage);

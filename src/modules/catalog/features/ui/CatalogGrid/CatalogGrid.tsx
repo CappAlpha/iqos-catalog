@@ -14,7 +14,7 @@ export const CatalogGrid = observer(() => {
     showSkeleton,
     isEmpty,
     pagedProductGroups,
-    fetchData,
+    catalogQuery,
     skeletonCount,
   } = catalogM;
 
@@ -22,8 +22,10 @@ export const CatalogGrid = observer(() => {
     return (
       <div className={s.errorWrap}>
         <div className={s.errorTitle}>Не удалось загрузить каталог</div>
-        <div className={s.errorText}>{error}</div>
-        <Button className={s.reloadBtn} onClick={fetchData}>
+        <div className={s.errorText}>
+          Проверьте подключение к интернету или попробуйте позже
+        </div>
+        <Button className={s.reloadBtn} onClick={() => catalogQuery.refetch()}>
           Повторить
         </Button>
       </div>

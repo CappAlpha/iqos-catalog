@@ -1,4 +1,6 @@
 import { makeAutoObservable, observable, runInAction } from "mobx";
+import { Query } from "mobx-tanstack-query";
+import { queryClient } from "mobx-tanstack-query/preset";
 
 import { clamp } from "@/shared/lib/math";
 
@@ -14,23 +16,15 @@ import {
   SIZE_VARIANT_REGEX,
 } from "./constants";
 import type {
-  Category,
   FilterGroup,
   FilterGroupKey,
   MergedCategory,
   Product,
   ProductGroup,
   SortKey,
-  Status,
 } from "./types";
 
 class CatalogM {
-  status: Status = "loading";
-  error: string | null = null;
-
-  categories: Category[] = [];
-  products: Product[] = [];
-
   selectedCategoryIds = observable.set<string>();
   sort: SortKey = CATALOG_DEFAULT.sort;
   page = CATALOG_DEFAULT.page;
@@ -39,8 +33,23 @@ class CatalogM {
   isTransitioning = false;
   #transitionTimer: ReturnType<typeof setTimeout> | null = null;
 
+  readonly catalogQuery = new Query({
+    queryClient,
+    queryKey: ["catalog"],
+    queryFn: ({ signal }) => fetchCatalog({ signal }),
+    staleTime: 5 * 60 * 1000,
+  });
+
   constructor() {
     makeAutoObservable(this);
+  }
+
+  get categories() {
+    return this.catalogQuery.data?.categories ?? [];
+  }
+
+  get products() {
+    return this.catalogQuery.data?.products ?? [];
   }
 
   get childrenMap(): Map<string, string[]> {
@@ -203,16 +212,20 @@ class CatalogM {
   }
 
   get showSkeleton() {
-    return this.status === "loading" || this.isTransitioning;
+    return this.catalogQuery.isLoading || this.isTransitioning;
+  }
+
+  get error() {
+    return this.catalogQuery.error;
   }
 
   get isLoading() {
-    return this.status === "loading";
+    return this.catalogQuery.isLoading;
   }
 
   get isEmpty() {
     return (
-      this.status === "success" && !this.showSkeleton && this.totalCount === 0
+      this.catalogQuery.isSuccess && !this.showSkeleton && this.totalCount === 0
     );
   }
 
@@ -322,32 +335,6 @@ class CatalogM {
       this.sort = CATALOG_DEFAULT.sort;
       this.page = CATALOG_DEFAULT.page;
     });
-  };
-
-  fetchData = async () => {
-    if (this.#transitionTimer) clearTimeout(this.#transitionTimer);
-
-    runInAction(() => {
-      this.isTransitioning = false;
-      this.status = "loading";
-      this.error = null;
-    });
-
-    try {
-      const data = await fetchCatalog();
-
-      runInAction(() => {
-        this.categories = data.categories;
-        this.products = data.products;
-        this.page = this.safePage;
-        this.status = "success";
-      });
-    } catch (e) {
-      runInAction(() => {
-        this.status = "error";
-        this.error = e instanceof Error ? e.message : "Ошибка загрузки";
-      });
-    }
   };
 }
 
