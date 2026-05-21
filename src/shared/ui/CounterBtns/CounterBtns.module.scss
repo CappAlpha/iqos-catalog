@@ -21,3 +21,9 @@
   min-width: 20px;
   text-align: center;
 }
+
+.updatingText {
+  @include skeleton;
+  width: 20px;
+  border-radius: 6px;
+}

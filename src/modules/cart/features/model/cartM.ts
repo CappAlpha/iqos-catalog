@@ -26,15 +26,14 @@ class CartM {
 
     autorun(async () => {
       if (!this.isInitialized) return;
+      const value = JSON.stringify(toJS(this.items));
+      await Preferences.set({ key: CART_STORAGE_KEY, value });
+    });
 
-      await Preferences.set({
-        key: CART_STORAGE_KEY,
-        value: JSON.stringify(toJS(this.items)),
-      });
-      await Preferences.set({
-        key: ORDERS_STORAGE_KEY,
-        value: JSON.stringify(toJS(this.orderHistory)),
-      });
+    autorun(async () => {
+      if (!this.isInitialized) return;
+      const value = JSON.stringify(toJS(this.orderHistory));
+      await Preferences.set({ key: ORDERS_STORAGE_KEY, value });
     });
   }
 
@@ -59,8 +58,7 @@ class CartM {
   private updateItemWithTransition(
     productId: string,
     action: CartActionType,
-    updateFn?: () => void,
-    delayAction = false,
+    callbacks: { onStart?: () => void; onEnd?: () => void } = {},
     ms = 400,
   ) {
     this.activeTransitions.set(productId, action);
@@ -68,11 +66,11 @@ class CartM {
     const currentTimer = this.#cartItemsTimers.get(productId);
     if (currentTimer) clearTimeout(currentTimer);
 
-    if (!delayAction && updateFn) updateFn();
+    if (callbacks.onStart) callbacks.onStart();
 
     const timer = setTimeout(() => {
       runInAction(() => {
-        if (delayAction && updateFn) updateFn();
+        if (callbacks.onEnd) callbacks.onEnd();
         this.activeTransitions.delete(productId);
         this.#cartItemsTimers.delete(productId);
       });
@@ -88,9 +86,19 @@ class CartM {
         Preferences.get({ key: ORDERS_STORAGE_KEY }),
       ]);
 
+      const parseSafe = <T>(data: string | null): T | [] => {
+        if (!data) return [];
+        try {
+          return JSON.parse(data) as T;
+        } catch (e) {
+          console.error(`Ошибка парсинга данных хранилища - ${data}`, e);
+          return [];
+        }
+      };
+
       runInAction(() => {
-        this.items = cart ? (JSON.parse(cart) as CartItem[]) : [];
-        this.orderHistory = orders ? (JSON.parse(orders) as Order[]) : [];
+        this.items = parseSafe<CartItem[]>(cart);
+        this.orderHistory = parseSafe<Order[]>(orders);
         this.isInitialized = true;
       });
     } catch (e) {
@@ -123,7 +131,7 @@ class CartM {
       return true;
     }
     return (
-      !this.isEmpty &&
+      this.items.length > 0 &&
       this.items.every(
         (i) => this.activeTransitions.get(i.product.id) === "remove",
       )
@@ -146,8 +154,15 @@ class CartM {
   }
 
   addToCart = (product: Product) => {
-    this.updateItemWithTransition(product.id, "add", () => {
-      this.items.push({ product, quantity: 1 });
+    const existingItem = this.getCartItem(product.id);
+
+    if (existingItem) {
+      this.setQuantity(product.id, existingItem.quantity + 1);
+      return;
+    }
+
+    this.updateItemWithTransition(product.id, "add", {
+      onStart: () => this.items.push({ product, quantity: 1 }),
     });
 
     customToastTemplate("Товар добавлен в корзину", "success", product.name);
@@ -159,8 +174,7 @@ class CartM {
     this.updateItemWithTransition(
       productId,
       "add",
-      () => this.items.push(item),
-      false,
+      { onStart: () => this.items.push(item) },
       600,
     );
   }
@@ -169,10 +183,8 @@ class CartM {
     const item = this.getCartItem(productId);
     if (!item) return;
 
-    this.updateItemWithTransition(
-      productId,
-      "remove",
-      () => {
+    this.updateItemWithTransition(productId, "remove", {
+      onEnd: () => {
         this.items = this.items.filter((i) => i.product.id !== productId);
 
         customToastTemplate(
@@ -183,8 +195,7 @@ class CartM {
           () => this.returnItemToCart(productId, item),
         );
       },
-      true,
-    );
+    });
   };
 
   setQuantity = (productId: string, quantity: number) => {
@@ -197,8 +208,8 @@ class CartM {
     if (!item) return;
 
     const action = quantity > item.quantity ? "inc" : "dec";
-    this.updateItemWithTransition(productId, action, () => {
-      item.quantity = quantity;
+    this.updateItemWithTransition(productId, action, {
+      onStart: () => (item.quantity = quantity),
     });
   };
 
@@ -219,14 +230,11 @@ class CartM {
       () => {
         const orderId = crypto.randomUUID();
 
-        const itemsSnapshot = toJS(this.items);
-        const finalPrice = this.totalPrice;
-
         this.orderHistory.unshift({
           id: orderId,
           date: new Date().toISOString(),
-          items: itemsSnapshot,
-          totalPrice: finalPrice,
+          items: toJS(this.items),
+          totalPrice: this.totalPrice,
         });
 
         this.items = [];
@@ -234,8 +242,10 @@ class CartM {
         this.updateItemWithTransition(
           orderId,
           "add",
-          () => customToastTemplate("Заказ успешно оформлен", "success"),
-          false,
+          {
+            onStart: () =>
+              customToastTemplate("Заказ успешно оформлен", "success"),
+          },
           600,
         );
       },

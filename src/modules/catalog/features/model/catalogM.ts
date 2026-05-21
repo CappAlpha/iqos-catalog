@@ -45,111 +45,115 @@ class CatalogM {
 
   get childrenMap(): Map<string, string[]> {
     const map = new Map<string, string[]>();
-    for (const cat of this.categories) {
-      if (!cat.parentId) continue;
 
-      const children = map.get(cat.parentId) ?? [];
-      children.push(cat.id);
-      map.set(cat.parentId, children);
+    for (const { id, parentId } of this.categories) {
+      if (!parentId) continue;
+
+      if (!map.has(parentId)) {
+        map.set(parentId, []);
+      }
+      map.get(parentId)!.push(id);
     }
+
     return map;
   }
 
   get groupedCategories(): MergedCategory[] {
-    const map = new Map<string, MergedCategory>();
+    const groups = Map.groupBy(this.categories, (cat) =>
+      cat.title.trim().toLowerCase(),
+    );
 
-    for (const cat of this.categories) {
-      const key = cat.title.trim().toLowerCase();
-      const existing = map.get(key);
-
-      if (existing) {
-        existing.ids.push(cat.id);
-      } else {
-        map.set(key, { ...cat, ids: [cat.id] });
-      }
-    }
-
-    return Array.from(map.values());
+    return Array.from(groups.values(), (cats) => ({
+      ...cats[0],
+      ids: cats.map((c) => c.id),
+    }));
   }
 
   get groupIdsMap(): Map<FilterGroupKey, Set<string>> {
     const map = new Map<FilterGroupKey, Set<string>>();
 
-    (Object.entries(GROUP_KEYWORDS) as [FilterGroupKey, string[]][]).forEach(
-      ([key, keywords]) => {
-        const root = this.categories.find((cat) =>
-          keywords.some((keyword) => cat.title.includes(keyword)),
-        );
-        map.set(key, root ? this.getAllChildIds([root.id]) : new Set());
-      },
-    );
+    for (const key of Object.keys(GROUP_KEYWORDS) as FilterGroupKey[]) {
+      const root = this.categories.find(({ title }) =>
+        GROUP_KEYWORDS[key].some((kw) => title.includes(kw)),
+      );
+
+      const childIds = root
+        ? this.getAllChildIds([root.id])
+        : new Set<string>();
+      map.set(key, childIds);
+    }
+
     return map;
   }
 
   get categoryFilters(): FilterGroup[] {
-    const counts = new Map<string, number>();
     const childToParentId = new Map<string, string>();
-
-    for (const cat of this.groupedCategories) {
-      for (const id of cat.ids) {
-        childToParentId.set(id, cat.id);
+    for (const { id: parentId, ids } of this.groupedCategories) {
+      for (const childId of ids) {
+        childToParentId.set(childId, parentId);
       }
     }
 
-    for (const product of this.products) {
-      const groupId = childToParentId.get(product.categoryId ?? UNCAT_ID);
-      if (groupId) counts.set(groupId, (counts.get(groupId) ?? 0) + 1);
+    const counts = new Map<string, number>();
+    for (const { categoryId } of this.products) {
+      const parentId = childToParentId.get(categoryId ?? UNCAT_ID);
+      if (parentId) {
+        counts.set(parentId, (counts.get(parentId) ?? 0) + 1);
+      }
     }
 
-    return (Object.keys(GROUP_KEYWORDS) as FilterGroupKey[]).map((key) => {
-      const groupIds = this.groupIdsMap.get(key);
+    const groupKeys = Object.keys(GROUP_KEYWORDS) as FilterGroupKey[];
+
+    return groupKeys.map((key) => {
+      const groupIds = this.groupIdsMap.get(key) ?? new Set();
+
+      const categoriesInGroup = this.groupedCategories.flatMap(
+        ({ id, title, ids }) => {
+          const count = counts.get(id) ?? 0;
+          const isInGroup = ids.some((childId) => groupIds.has(childId));
+
+          if (isInGroup && count > 0) {
+            return [{ id, title, count }];
+          }
+          return [];
+        },
+      );
 
       return {
         key,
         title: GROUP_TITLES[key],
-        categories: this.groupedCategories
-          .filter((cat) => cat.ids.some((id) => groupIds?.has(id)))
-          .map((cat) => ({
-            id: cat.id,
-            title: cat.title,
-            count: counts.get(cat.id) ?? 0,
-          }))
-          .filter((cat) => cat.count > 0),
+        categories: categoriesInGroup,
       };
     });
   }
 
   get baseProductGroups(): ProductGroup[] {
-    const groups = new Map<string, Omit<ProductGroup, "id">>();
+    const parsedProducts = this.products.map((product) => ({
+      ...product,
+      meta: this.parseProductData(product),
+    }));
 
-    for (const product of this.products) {
-      const { groupId, baseName, type, variantLabel } =
-        this.parseProductData(product);
+    const groups = Map.groupBy(parsedProducts, (item) => item.meta.groupId);
 
-      let group = groups.get(groupId);
-      if (!group) {
-        group = { baseName, type, variants: [] };
-        groups.set(groupId, group);
-      }
-      group.variants.push({ ...product, variantLabel });
-    }
+    return Array.from(groups.values(), (items) => {
+      const { baseName, type } = items[0].meta;
 
-    return Array.from(groups.values()).map((group) => {
-      const sortedVariants =
-        group.type === "size"
-          ? group.variants.toSorted((a, b) => (a.price || 0) - (b.price || 0))
-          : group.variants;
+      const sortedItems =
+        type === "size"
+          ? items.toSorted((a, b) => (a.price ?? 0) - (b.price ?? 0))
+          : items;
 
-      const variants = sortedVariants.map((v, i) => ({
-        ...v,
-        originalId: v.id,
-        id: `${v.id}_${i}`,
+      const variants = sortedItems.map(({ meta, ...product }, i) => ({
+        ...product,
+        variantLabel: meta.variantLabel,
+        originalId: product.id,
+        id: `${product.id}_${i}`,
       }));
 
       return {
-        id: variants[0].originalId,
-        baseName: group.baseName,
-        type: group.type,
+        id: items[0].id,
+        baseName,
+        type,
         variants,
       };
     });
@@ -158,25 +162,20 @@ class CatalogM {
   get filteredProductGroups(): ProductGroup[] {
     if (this.selectedCategoryIds.size === 0) return this.baseProductGroups;
 
-    const expandedIds: string[] = [];
-    for (const group of this.groupedCategories) {
-      if (group.ids.some((id) => this.selectedCategoryIds.has(id))) {
-        expandedIds.push(...group.ids);
-      }
-    }
+    const expandedIds = this.groupedCategories.flatMap((group) =>
+      group.ids.some((id) => this.selectedCategoryIds.has(id)) ? group.ids : [],
+    );
 
     const allowedIds = this.getAllChildIds(expandedIds);
 
-    return this.baseProductGroups.reduce<ProductGroup[]>((acc, group) => {
-      const filteredVariants = group.variants.filter((variant) =>
-        allowedIds.has(variant.categoryId ?? UNCAT_ID),
-      );
-
-      if (filteredVariants.length > 0) {
-        acc.push({ ...group, variants: filteredVariants });
-      }
-      return acc;
-    }, []);
+    return this.baseProductGroups
+      .map((group) => ({
+        ...group,
+        variants: group.variants.filter((v) =>
+          allowedIds.has(v.categoryId ?? UNCAT_ID),
+        ),
+      }))
+      .filter((group) => group.variants.length > 0);
   }
 
   get sortedProductGroups(): ProductGroup[] {
@@ -226,40 +225,41 @@ class CatalogM {
   }
 
   get selectedCategoriesQuery(): string {
-    return Array.from(this.selectedCategoryIds).sort().join(",");
+    return Array.from(this.selectedCategoryIds)
+      .sort((a, b) => a.localeCompare(b))
+      .join(",");
   }
 
   private getAllChildIds(rootIds: string[]): Set<string> {
-    const result = new Set(rootIds);
-    const queue = [...rootIds];
+    const result = new Set<string>();
 
-    while (queue.length > 0) {
-      const currentId = queue.shift()!;
-      const children = this.childrenMap.get(currentId);
+    const collect = (id: string) => {
+      if (result.has(id)) return;
+      result.add(id);
 
+      const children = this.childrenMap.get(id);
       if (children) {
         for (const childId of children) {
-          if (!result.has(childId)) {
-            result.add(childId);
-            queue.push(childId);
-          }
+          collect(childId);
         }
       }
-    }
+    };
+
+    rootIds.forEach(collect);
     return result;
   }
 
-  private parseProductData(product: Product) {
-    if (SIZE_VARIANT_REGEX.test(product.name)) {
+  private parseProductData({ id, name }: Product) {
+    if (SIZE_VARIANT_REGEX.test(name)) {
       return {
         type: "size" as const,
-        groupId: product.id,
-        variantLabel: BLOCK_REGEX.test(product.name) ? "Блок" : "Пачка",
-        baseName: product.name.replace(CLEAN_NAME_REGEX, "").trim(),
+        groupId: id,
+        variantLabel: BLOCK_REGEX.test(name) ? "Блок" : "Пачка",
+        baseName: name.replace(CLEAN_NAME_REGEX, "").trim(),
       };
     }
 
-    const [baseName, variantLabel = "Стандарт"] = product.name.split(/\s*,\s*/);
+    const [baseName, variantLabel = "Стандарт"] = name.split(/\s*,\s*/);
     return {
       type: "color" as const,
       groupId: baseName,
