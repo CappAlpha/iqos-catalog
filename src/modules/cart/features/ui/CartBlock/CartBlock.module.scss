@@ -1,9 +1,38 @@
+@use "@/app/styles/animations.scss" as *;
+
 .emptyState,
 .wrap,
-.emptyStateSkeleton {
+.emptyStateSkeleton,
+.loadingState {
   margin-bottom: 40px;
 }
 
+.loadingState {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 60dvh;
+}
+
+.loader {
+  position: relative;
+
+  &::after {
+    display: block;
+    content: "";
+    position: absolute;
+    top: calc(50% - 22px);
+    left: calc(50% - 20px);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 2px solid var(--black);
+    border-top-color: transparent;
+    animation: infinite 1s linear loaderSpin;
+  }
+}
+
+.loadingState,
 .emptyState {
   text-align: center;
   padding: 60px 20px;

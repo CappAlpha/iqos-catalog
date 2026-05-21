@@ -7,12 +7,12 @@ import { cartM } from "../../model/cartM";
 import s from "./CartHeader.module.scss";
 
 export const CartHeader = observer(() => {
-  const { isEmpty, isCartClearing, clearCart } = cartM;
+  const { isEmpty, isCartClearing, isInitialized, clearCart } = cartM;
 
   return (
     <div className={s.root}>
       <h1 className={s.title}>Корзина</h1>
-      {!isEmpty && (
+      {isInitialized && !isEmpty && (
         <Button
           className={s.clearBtn}
           onClick={clearCart}

@@ -10,7 +10,15 @@ import { CartSidebar } from "../CartSidebar";
 import s from "./CartBlock.module.scss";
 
 export const CartBlock = observer(() => {
-  const { isEmpty, isCartClearing } = cartM;
+  const { isEmpty, isCartClearing, isInitialized } = cartM;
+
+  if (!isInitialized) {
+    return (
+      <div className={s.loadingState}>
+        <div className={s.loader} />
+      </div>
+    );
+  }
 
   return (
     <>
