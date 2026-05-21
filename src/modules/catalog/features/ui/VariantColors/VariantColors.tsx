@@ -39,6 +39,7 @@ export const VariantsColors = ({
         return (
           <button
             key={id}
+            type="button"
             className={cn(
               s.colorBtn,
               selectedIdx === idx && s.activeColor,
