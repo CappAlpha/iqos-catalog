@@ -82,8 +82,8 @@ class CatalogM {
     const map = new Map<FilterGroupKey, Set<string>>();
 
     for (const key of Object.keys(GROUP_KEYWORDS) as FilterGroupKey[]) {
-      const root = this.categories.find(({ title }) =>
-        GROUP_KEYWORDS[key].some((kw) => title.includes(kw)),
+      const root = this.categories.find(
+        ({ title }) => GROUP_KEYWORDS[key] === title,
       );
 
       const childIds = root

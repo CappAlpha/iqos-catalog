@@ -37,14 +37,12 @@ export const Select = <T extends string | number>({
   const isMobileM = useMobileM();
   useOnButtonDown("Escape", () => setIsOpen(false), isMobileM || !isOpen);
 
-  const handleToggle = (e: MouseEvent) => {
+  const handleToggle = () => {
     if (disabled) return;
-    e.stopPropagation();
     setIsOpen((prev) => !prev);
   };
 
   const handleSelect = (optionId: T, e: MouseEvent) => {
-    e.stopPropagation();
     onChange(optionId, e);
     setIsOpen(false);
   };
@@ -59,23 +57,26 @@ export const Select = <T extends string | number>({
         className={cn(s.select, isOpen && s.open)}
         onClick={handleToggle}
         disabled={disabled}
-        role="listbox"
+        aria-haspopup="listbox"
+        aria-expanded={isOpen}
       >
         <span className={s.value}>{selectedOption?.label}</span>
         <div className={s.chevron} />
       </button>
 
-      <div className={cn(s.options, isOpen && s.open)} role="listbox">
+      <ul className={cn(s.options, isOpen && s.open)} role="listbox">
         {options.map(({ id, label }) => (
-          <option
+          <li
             key={id}
+            role="option"
+            aria-selected={id === value}
             className={cn(s.option, id === value && s.selected)}
             onClick={(e) => handleSelect(id, e)}
           >
             {label}
-          </option>
+          </li>
         ))}
-      </div>
+      </ul>
     </div>
   );
 };
