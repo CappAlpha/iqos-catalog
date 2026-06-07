@@ -6,7 +6,7 @@ import { TransitionNavLink } from "../TransitionNavLink";
 import s from "./Button.module.scss";
 
 interface ButtonProps {
-  color?: "grey" | "transparent" | "outline";
+  color?: "grey" | "transparent" | "outline" | "error";
   noPadding?: boolean;
   onClick?: (event?: React.MouseEvent<HTMLButtonElement> | MouseEvent) => void;
   onMouseDown?: (

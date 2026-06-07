@@ -30,7 +30,7 @@
   overflow: hidden;
   height: 270px;
   border-radius: 15px;
-  background-color: var(--image-bg-gray);
+  background-color: var(--light-bg-gray);
 
   @include breakpoint(mobile-m) {
     height: 200px;

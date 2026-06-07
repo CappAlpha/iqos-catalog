@@ -57,6 +57,20 @@
         }
       }
     }
+
+    &_error {
+      background: transparent;
+      color: var(--additional-red);
+      fill: var(--additional-red);
+      border: 1px solid var(--additional-red);
+
+      &:hover {
+        @media (hover: hover) and (pointer: fine) {
+          color: var(--white);
+          background: var(--additional-red);
+        }
+      }
+    }
   }
 
   &.disabled {
