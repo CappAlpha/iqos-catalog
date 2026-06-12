@@ -53,6 +53,10 @@
   color: var(--additional-red);
 }
 
+.error {
+  padding-right: 2rem;
+}
+
 .closeIconBtn {
   @include expandableArea;
   --clickable-area-expandable-ratio: 16px;
