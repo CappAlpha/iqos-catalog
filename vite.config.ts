@@ -6,7 +6,7 @@ import svgr from "vite-plugin-svgr";
 // https://vite.dev/config/
 export default defineConfig({
   base: "/iqos-catalog/",
-  plugins: [react(), svgr({ include: "**/*.svg" })],
+  plugins: [react(), svgr()],
   css: {
     preprocessorOptions: {
       scss: {

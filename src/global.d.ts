@@ -1,3 +1,5 @@
+import type { FunctionComponent, SVGProps } from "react";
+
 export {};
 
 declare global {
@@ -8,12 +10,15 @@ declare global {
     getBatteryLevel?(): number;
   }
 
+  type IconType = FunctionComponent<
+    SVGProps<SVGSVGElement> & {
+      title?: string;
+      titleId?: string;
+      desc?: string;
+      descId?: string;
+    }
+  >;
+
   var AndroidBridge: AndroidBridge | undefined;
   var onAndroidBluetoothDisconnect: (() => void) | null | undefined;
-}
-
-declare module "*.svg" {
-  import { type ComponentType, type SVGProps } from "react";
-  const ReactComponent: ComponentType<SVGProps<SVGSVGElement>>;
-  export default ReactComponent;
 }

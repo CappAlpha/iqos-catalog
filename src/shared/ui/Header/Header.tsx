@@ -11,7 +11,6 @@ import {
 } from "@/assets/icons";
 import { cartM } from "@/modules/cart/features/model/cartM";
 import { useMobile, useMobileM } from "@/shared/hooks/useBreakpoint";
-import type { IconType } from "@/shared/types/types";
 
 import { TransitionNavLink } from "../TransitionNavLink";
 
