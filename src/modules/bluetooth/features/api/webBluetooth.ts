@@ -3,8 +3,6 @@ import { actionPromiseWithTimeout } from "@/shared/lib/actionPromiseWithTimeout"
 import { COMMON_SERVICES, UUIDS } from "../model/constants";
 import type { IBluetooth, BluetoothConnectionResult } from "../model/types";
 
-const GENERIC_NAME_REGEX = /unknown|неизвестн|unsupported/i;
-
 const readCharacteristic = async (
   device: BluetoothDevice,
   serviceUuid: string,
@@ -36,25 +34,13 @@ const getDeviceBattery = async (device: BluetoothDevice) => {
   return value?.getUint8(0) ?? null;
 };
 
-const fetchGAPDeviceName = async (
-  device: BluetoothDevice,
-): Promise<string | null> => {
-  const value = await readCharacteristic(
-    device,
-    UUIDS.GAP_SERVICE,
-    UUIDS.GAP_DEVICE_NAME,
-    "Не удалось прочитать имя устройства из GAP:",
-  );
-  return value ? new TextDecoder().decode(value).trim() : null;
-};
-
 export class WebBluetooth implements IBluetooth {
   private device: BluetoothDevice | null = null;
   private onDisconnectCallback: (() => void) | null = null;
 
   connect = async (
     targetServiceUuid: string,
-    fallbackName: string,
+    _fallbackName: string,
     onDisconnect: () => void,
   ): Promise<BluetoothConnectionResult> => {
     if (typeof navigator === "undefined" || !navigator.bluetooth) {
@@ -112,17 +98,11 @@ export class WebBluetooth implements IBluetooth {
     }
 
     const battery = await getDeviceBattery(selectedDevice);
-    let deviceName = selectedDevice.name ?? "Неизвестное устройство";
-
-    if (!selectedDevice.name || GENERIC_NAME_REGEX.test(selectedDevice.name)) {
-      deviceName = (await fetchGAPDeviceName(selectedDevice)) ?? deviceName;
-    }
 
     return {
-      deviceName,
       services: servicesList,
       batteryLevel: battery,
-      deviceId: selectedDevice.id,
+      device: selectedDevice,
     };
   };
 

@@ -1,8 +1,7 @@
 export type BluetoothConnectionResult = {
-  deviceName: string;
   services: string[];
   batteryLevel: number | null;
-  deviceId?: string;
+  device?: BluetoothDevice | null;
 };
 
 export interface IBluetooth {

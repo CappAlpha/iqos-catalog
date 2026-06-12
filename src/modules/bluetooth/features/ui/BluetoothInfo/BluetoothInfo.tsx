@@ -1,5 +1,7 @@
 import { observer } from "mobx-react-lite";
 
+import { Button } from "@/shared/ui/Button";
+
 import { bluetoothM } from "../../model/bluetoothM";
 
 import s from "./BluetoothInfo.module.scss";
@@ -9,44 +11,35 @@ interface Props {
 }
 
 export const BluetoothInfo = observer(({ device }: Props) => {
-  const { name, id, gatt } = device;
-  const battery = bluetoothM.batteryLevel;
+  const { name, id } = device;
+  const { batteryLevel, services, refreshBattery } = bluetoothM;
 
   return (
     <div className={s.infoBlock}>
       <section>
         <h3>Информация об устройстве:</h3>
         <p>Имя устройства: {name ?? "Неизвестное устройство"}</p>
-
         <p>ID устройства: {id}</p>
 
-        {battery === null ? (
-          <p>
-            Заряд батареи: информация недоступна (или не поддерживается
-            устройством)
-          </p>
-        ) : (
+        {batteryLevel !== null && (
           <div className={s.batteryInfo}>
             <p>
-              Заряд батареи: <strong>{battery}%</strong>
+              Заряд батареи: <strong>{batteryLevel}%</strong>
             </p>
-            <button
-              onClick={() => bluetoothM.refreshBattery()}
-              className={s.refreshBtn}
-            >
+            <Button onClick={refreshBattery} className={s.refreshBtn}>
               Обновить заряд
-            </button>
+            </Button>
           </div>
         )}
       </section>
 
-      {gatt && (
+      {services.length > 0 && (
         <section>
           <h3>Доступные GATT-сервисы (UUID):</h3>
           <ul>
-            {/* {gatt.map((uuid) => (
+            {services.map((uuid) => (
               <li key={uuid}>{uuid}</li>
-            ))} */}
+            ))}
           </ul>
         </section>
       )}

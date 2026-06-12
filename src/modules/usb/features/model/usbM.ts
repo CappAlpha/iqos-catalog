@@ -37,7 +37,6 @@ const configureWebUsbDevice = async (device: USBDevice) => {
 
 class UsbM {
   device: USBDevice | null = null;
-  deviceName: string | null = null;
   status: UsbStatus = "disconnected";
   error: string | null = null;
   batteryLevel: number | null = null;
@@ -81,10 +80,6 @@ class UsbM {
     this.status = status;
     this.device = device;
     this.error = error;
-    this.deviceName =
-      status === "connected"
-        ? (device?.productName ?? device?.manufacturerName ?? "USB Устройство")
-        : null;
     this.batteryLevel = status === "connected" ? batteryLevel : null;
   };
 

@@ -1,4 +1,4 @@
-import { makeAutoObservable } from "mobx";
+import { makeAutoObservable, observable } from "mobx";
 
 import { actionPromiseWithTimeout } from "@/shared/lib/actionPromiseWithTimeout";
 import { getErrorMessage } from "@/shared/lib/getErrorMessage";
@@ -14,11 +14,10 @@ type BluetoothStatus =
   | "disconnecting";
 
 class BluetoothM {
-  deviceName: string | null = null;
-  deviceId: string | null = null;
+  device: BluetoothDevice | null = null;
   status: BluetoothStatus = "disconnected";
   error: string | null = null;
-  bluetoothServices: string[] = [];
+  services: string[] = [];
   batteryLevel: number | null = null;
 
   readonly #getStrategy: () => IBluetooth;
@@ -28,7 +27,9 @@ class BluetoothM {
 
   constructor(getStrategy: () => IBluetooth) {
     this.#getStrategy = getStrategy;
-    makeAutoObservable(this);
+    makeAutoObservable(this, {
+      device: observable.ref,
+    });
   }
 
   get isConnected() {
@@ -52,29 +53,22 @@ class BluetoothM {
   private readonly setConnected = ({
     services,
     batteryLevel,
-    deviceName,
-    deviceId,
+    device,
   }: BluetoothConnectionResult) => {
     this.status = "connected";
     this.error = null;
-    this.bluetoothServices = services;
+    this.services = services;
     this.batteryLevel = batteryLevel;
-    this.deviceName = deviceName;
-    this.deviceId = deviceId ?? null;
+    this.device = device ?? null;
   };
 
   private readonly reset = (error: string | null = null) => {
-    this.deviceName = null;
-    this.deviceId = null;
+    this.device = null;
     this.status = "disconnected";
     this.error = error;
-    this.bluetoothServices = [];
+    this.services = [];
     this.batteryLevel = null;
     this.#strategy = null;
-  };
-
-  setBatteryLevel = (level: number | null) => {
-    this.batteryLevel = level;
   };
 
   connect = async (
@@ -91,7 +85,7 @@ class BluetoothM {
     this.status = "connecting";
     this.error = null;
     this.batteryLevel = null;
-    this.bluetoothServices = [];
+    this.services = [];
 
     if (connectionId !== this.#currentConnectionId) return;
 
@@ -145,7 +139,7 @@ class BluetoothM {
 
       if (!this.isConnected) return;
 
-      this.setBatteryLevel(battery);
+      this.batteryLevel = battery;
     } catch (err) {
       if (!this.isConnected) return;
 

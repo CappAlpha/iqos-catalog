@@ -1,11 +1,13 @@
 import { observer } from "mobx-react-lite";
 
+import { bluetoothM } from "@/modules/bluetooth/features/model/bluetoothM";
 import { BluetoothConnect } from "@/modules/bluetooth/features/ui/BluetoothConnect";
+import { BluetoothInfo } from "@/modules/bluetooth/features/ui/BluetoothInfo";
 
 import s from "./BluetoothPage.module.scss";
 
 export const BluetoothPage = observer(() => {
-  // const { device } = bluetoothM;
+  const { device } = bluetoothM;
 
   return (
     <div className={s.root}>
@@ -16,7 +18,7 @@ export const BluetoothPage = observer(() => {
 
       <div className={s.content}>
         <BluetoothConnect />
-        {/* {device && <BluetoothInfo device={device} />} */}
+        {device && <BluetoothInfo device={device} />}
       </div>
     </div>
   );

@@ -1,4 +1,3 @@
-// nativeBluetooth.ts
 import { getAndroidBridge } from "@/shared/lib/getAndroidBridge";
 import { getErrorMessage } from "@/shared/lib/getErrorMessage";
 
@@ -26,9 +25,9 @@ export class NativeBluetooth implements IBluetooth {
       globalThis.onAndroidBluetoothDisconnect = onDisconnect ?? null;
 
       return Promise.resolve({
-        deviceName: fallbackName,
         services: [targetServiceUuid],
         batteryLevel: android.getBatteryLevel?.() ?? null,
+        device: null,
       });
     } catch (error) {
       const message = getErrorMessage(
