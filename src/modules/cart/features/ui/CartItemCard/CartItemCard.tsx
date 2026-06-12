@@ -14,7 +14,7 @@ interface Props {
   item: CartItem;
 }
 
-export const CartItemCard = observer(({ item }: Readonly<Props>) => {
+export const CartItemCard = observer(({ item }: Props) => {
   const {
     product: { pictureUrl, name, categoryTitle, id, price },
     quantity,

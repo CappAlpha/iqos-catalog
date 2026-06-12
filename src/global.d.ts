@@ -1,3 +1,5 @@
+export {};
+
 declare global {
   interface AndroidBridge {
     connectBluetoothDevice?(serviceUuid: string): void;
@@ -15,5 +17,3 @@ declare module "*.svg" {
   const ReactComponent: ComponentType<SVGProps<SVGSVGElement>>;
   export default ReactComponent;
 }
-
-export {};

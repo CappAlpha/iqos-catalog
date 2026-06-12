@@ -2,8 +2,6 @@ import type { ProductGroup } from "../../model/types";
 import { VariantsColors } from "../VariantColors";
 import { VariantsSizes } from "../VariantSizes";
 
-import s from "./ProductVariants.module.scss";
-
 interface Props {
   productGroup: ProductGroup;
   selectedIdx: number;
@@ -28,7 +26,7 @@ export const ProductVariants = ({
   }
 
   return (
-    <div className={s.root}>
+    <>
       {type === "color" ? (
         <VariantsColors
           variants={variants}
@@ -46,6 +44,6 @@ export const ProductVariants = ({
           onSelect={onSelect}
         />
       )}
-    </div>
+    </>
   );
 };

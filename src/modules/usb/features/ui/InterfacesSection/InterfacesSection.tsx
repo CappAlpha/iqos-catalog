@@ -1,4 +1,4 @@
-import s from "./InterfaceSection.module.scss";
+import s from "./InterfacesSection.module.scss";
 
 export interface Props {
   interfaces: USBInterface[];

@@ -1,6 +1,5 @@
 import cn from "classnames";
 import { observer } from "mobx-react-lite";
-import { useEffect } from "react";
 
 import {
   BluetoothIcon,
@@ -35,13 +34,16 @@ const NAV_LINKS: NavLinkItem[] = [
 export const Header = observer(() => {
   const isMobile = useMobile();
   const isMobileM = useMobileM();
-  const { isCartUpdating, initStore, totalItems, isEmpty } = cartM;
+  const { isCartUpdating, totalItems, isEmpty } = cartM;
 
-  useEffect(() => {
-    void initStore();
-  }, [initStore]);
+  const logoLink = (
+    <TransitionNavLink key="logo-mobile" to="/" className={s.logo}>
+      <LogoIqos />
+      <LogoLil />
+    </TransitionNavLink>
+  );
 
-  const renderedLinks = NAV_LINKS.map(({ to, text, Icon, isCart }) => (
+  const navLinks = NAV_LINKS.map(({ to, text, Icon, isCart }) => (
     <TransitionNavLink
       key={to}
       to={to}
@@ -66,28 +68,15 @@ export const Header = observer(() => {
     </TransitionNavLink>
   ));
 
-  if (!isMobile && isMobileM) {
-    const insertIndex = 2;
-
-    renderedLinks.splice(
-      insertIndex,
-      0,
-      <TransitionNavLink key="logo-mobile" to="/" className={s.logo}>
-        <LogoIqos />
-        <LogoLil />
-      </TransitionNavLink>,
-    );
-  }
+  const renderedLinks =
+    !isMobile && isMobileM
+      ? [...navLinks.slice(0, 2), logoLink, ...navLinks.slice(2)]
+      : navLinks;
 
   return (
     <header className={s.header}>
       <div className={s.container}>
-        {!isMobileM && (
-          <TransitionNavLink to="/" className={s.logo}>
-            <LogoIqos />
-            <LogoLil />
-          </TransitionNavLink>
-        )}
+        {!isMobileM && logoLink}
 
         <nav className={s.nav}>{renderedLinks}</nav>
       </div>

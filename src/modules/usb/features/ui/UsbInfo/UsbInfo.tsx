@@ -1,6 +1,6 @@
 import { DeviceMetadataSection } from "../DeviceMetadataSection";
-import { EndpointsSection } from "../EndpointSection";
-import { InterfacesSection } from "../InterfaceSection";
+import { EndpointsSection } from "../EndpointsSection";
+import { InterfacesSection } from "../InterfacesSection";
 
 import s from "./UsbInfo.module.scss";
 
