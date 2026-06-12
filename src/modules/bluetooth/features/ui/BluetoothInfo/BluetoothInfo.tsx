@@ -11,7 +11,7 @@ export const BluetoothInfo = observer(() => {
   const { name, id } = device;
   return (
     <div className={s.root}>
-      <section>
+      <section className={s.section}>
         <h3 className={s.title}>Информация об устройстве:</h3>
         <div className={s.wrap}>
           <p className={s.name}>
@@ -29,7 +29,7 @@ export const BluetoothInfo = observer(() => {
       </section>
 
       {services.length > 0 && (
-        <section>
+        <section className={s.section}>
           <h3 className={s.title}>Доступные GATT-сервисы (UUID):</h3>
           <ul className={s.list}>
             {services.map((uuid) => (
