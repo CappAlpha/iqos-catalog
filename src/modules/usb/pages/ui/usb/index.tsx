@@ -1,14 +1,9 @@
-import { observer } from "mobx-react-lite";
-
-import { usbM } from "@/modules/usb/features/model/usbM";
 import { UsbConnect } from "@/modules/usb/features/ui/UsbConnect";
 import { UsbInfo } from "@/modules/usb/features/ui/UsbInfo";
 
 import s from "./UsbPage.module.scss";
 
-export const UsbPage = observer(() => {
-  const { device } = usbM;
-
+export const UsbPage = () => {
   return (
     <div className={s.root}>
       <div className={s.header}>
@@ -18,8 +13,8 @@ export const UsbPage = observer(() => {
 
       <div className={s.content}>
         <UsbConnect />
-        {device && <UsbInfo device={device} />}
+        <UsbInfo />
       </div>
     </div>
   );
-});
+};

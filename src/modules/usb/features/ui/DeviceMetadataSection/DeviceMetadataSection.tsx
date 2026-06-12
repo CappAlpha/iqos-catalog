@@ -10,7 +10,7 @@ export interface Props {
 
 export const DeviceMetadataSection = observer(({ device }: Props) => {
   const { manufacturerName, productName, vendorId, productId } = device;
-  const battery = usbM.batteryLevel;
+  const { batteryLevel } = usbM;
 
   return (
     <section className={s.root}>
@@ -28,9 +28,9 @@ export const DeviceMetadataSection = observer(({ device }: Props) => {
         <p className={s.productId}>
           <b>Product ID:</b> {productId}
         </p>
-        {battery && (
+        {batteryLevel !== null && (
           <p className={s.battery}>
-            <b>Заряд батареи:</b> {battery}%
+            <b>Заряд батареи:</b> {batteryLevel}%
           </p>
         )}
       </div>

@@ -1,42 +1,37 @@
 import { observer } from "mobx-react-lite";
 
-import { Button } from "@/shared/ui/Button";
-
 import { bluetoothM } from "../../model/bluetoothM";
 
 import s from "./BluetoothInfo.module.scss";
 
-interface Props {
-  device: BluetoothDevice;
-}
+export const BluetoothInfo = observer(() => {
+  const { batteryLevel, services, device } = bluetoothM;
+  if (!device) return null;
 
-export const BluetoothInfo = observer(({ device }: Props) => {
   const { name, id } = device;
-  const { batteryLevel, services, refreshBattery } = bluetoothM;
-
   return (
-    <div className={s.infoBlock}>
+    <div className={s.root}>
       <section>
-        <h3>Информация об устройстве:</h3>
-        <p>Имя устройства: {name ?? "Неизвестное устройство"}</p>
-        <p>ID устройства: {id}</p>
-
-        {batteryLevel !== null && (
-          <div className={s.batteryInfo}>
-            <p>
-              Заряд батареи: <strong>{batteryLevel}%</strong>
+        <h3 className={s.title}>Информация об устройстве:</h3>
+        <div className={s.wrap}>
+          <p className={s.name}>
+            <b>Имя устройства:</b> {name ?? "Неизвестное устройство"}
+          </p>
+          <p className={s.id}>
+            <b>ID устройства:</b> {id}
+          </p>
+          {batteryLevel !== null && (
+            <p className={s.battery}>
+              <b>Заряд батареи:</b> <strong>{batteryLevel}%</strong>
             </p>
-            <Button onClick={refreshBattery} className={s.refreshBtn}>
-              Обновить заряд
-            </Button>
-          </div>
-        )}
+          )}
+        </div>
       </section>
 
       {services.length > 0 && (
         <section>
-          <h3>Доступные GATT-сервисы (UUID):</h3>
-          <ul>
+          <h3 className={s.title}>Доступные GATT-сервисы (UUID):</h3>
+          <ul className={s.list}>
             {services.map((uuid) => (
               <li key={uuid}>{uuid}</li>
             ))}

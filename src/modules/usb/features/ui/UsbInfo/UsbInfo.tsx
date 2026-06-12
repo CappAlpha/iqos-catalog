@@ -1,14 +1,16 @@
+import { observer } from "mobx-react-lite";
+
+import { usbM } from "../../model/usbM";
 import { DeviceMetadataSection } from "../DeviceMetadataSection";
 import { EndpointsSection } from "../EndpointsSection";
 import { InterfacesSection } from "../InterfacesSection";
 
 import s from "./UsbInfo.module.scss";
 
-export interface Props {
-  device: USBDevice;
-}
+export const UsbInfo = observer(() => {
+  const { device } = usbM;
+  if (!device) return null;
 
-export const UsbInfo = ({ device }: Props) => {
   const interfaces = device.configuration?.interfaces ?? [];
   return (
     <div className={s.root}>
@@ -17,4 +19,4 @@ export const UsbInfo = ({ device }: Props) => {
       <EndpointsSection interfaces={interfaces} />
     </div>
   );
-};
+});
