@@ -14,7 +14,7 @@ export class AndroidNativeUsb implements IUsbStrategy {
 
   connect = (
     config: IUsbDeviceConfig,
-    onDisconnect?: () => void,
+    onDisconnect: () => void,
   ): Promise<IUsbConnectionResult> => {
     const android = this.bridge;
 

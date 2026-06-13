@@ -1,7 +1,7 @@
-export type IUsbConnectionResult = {
+export interface IUsbConnectionResult {
   device: USBDevice | null;
   batteryLevel: number | null;
-};
+}
 
 export interface IUsbDeviceConfig {
   vendorId?: number;
@@ -11,7 +11,7 @@ export interface IUsbDeviceConfig {
 export interface IUsbStrategy {
   connect(
     config: IUsbDeviceConfig,
-    onDisconnect?: () => void,
+    onDisconnect: () => void,
   ): Promise<IUsbConnectionResult>;
   disconnect(): Promise<void>;
   getBatteryLevel(): Promise<number | null>;

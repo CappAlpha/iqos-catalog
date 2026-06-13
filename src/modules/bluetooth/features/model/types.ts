@@ -11,7 +11,7 @@ export interface IBluetoothDeviceConfig {
 export interface IBluetoothStrategy {
   connect(
     config: IBluetoothDeviceConfig,
-    onDisconnect?: () => void,
+    onDisconnect: () => void,
   ): Promise<IBluetoothConnectionResult>;
   disconnect(): Promise<void>;
   getBatteryLevel(): Promise<number | null>;

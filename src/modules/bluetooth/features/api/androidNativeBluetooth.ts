@@ -14,7 +14,7 @@ export class AndroidNativeBluetooth implements IBluetoothStrategy {
 
   connect = (
     config: IBluetoothDeviceConfig,
-    onDisconnect?: () => void,
+    onDisconnect: () => void,
   ): Promise<IBluetoothConnectionResult> => {
     const android = this.bridge;
 
