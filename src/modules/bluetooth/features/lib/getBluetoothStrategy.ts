@@ -2,15 +2,15 @@ import { getAndroidBridge } from "@/shared/lib/getAndroidBridge";
 
 import { NativeBluetooth } from "../api/nativeBluetooth";
 import { WebBluetooth } from "../api/webBluetooth";
-import type { IBluetooth } from "../model/types";
+import type { IBluetoothStrategy } from "../model/types";
 
-let bluetoothInstance: IBluetooth | null = null;
+let BLUETOOTH_INSTANCE: IBluetoothStrategy | null = null;
 
-export const getBluetoothStrategy = (): IBluetooth => {
-  if (!bluetoothInstance) {
+export const getBluetoothStrategy = () => {
+  if (!BLUETOOTH_INSTANCE) {
     const isAndroid = !!getAndroidBridge()?.connectBluetoothDevice;
-    bluetoothInstance = isAndroid ? new NativeBluetooth() : new WebBluetooth();
+    BLUETOOTH_INSTANCE = isAndroid ? new NativeBluetooth() : new WebBluetooth();
   }
 
-  return bluetoothInstance;
+  return BLUETOOTH_INSTANCE;
 };

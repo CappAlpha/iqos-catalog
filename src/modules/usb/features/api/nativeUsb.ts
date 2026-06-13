@@ -2,45 +2,50 @@ import { getAndroidBridge } from "@/shared/lib/getAndroidBridge";
 import { getErrorMessage } from "@/shared/lib/getErrorMessage";
 
 import type {
-  IBluetoothStrategy,
-  IBluetoothConnectionResult,
-  IBluetoothDeviceConfig,
+  IUsbStrategy,
+  IUsbConnectionResult,
+  IUsbDeviceConfig,
 } from "../model/types";
 
-export class NativeBluetooth implements IBluetoothStrategy {
+export class NativeUsb implements IUsbStrategy {
   private get bridge() {
     return getAndroidBridge();
   }
 
   connect = (
-    config: IBluetoothDeviceConfig,
+    config: IUsbDeviceConfig,
     onDisconnect?: () => void,
-  ): Promise<IBluetoothConnectionResult> => {
+  ): Promise<IUsbConnectionResult> => {
     const android = this.bridge;
 
-    if (!android?.connectBluetoothDevice) {
-      return Promise.reject(new Error("Нативный Bluetooth мост недоступен."));
+    if (!android?.connectUsbDevice) {
+      return Promise.reject(new Error("Нативный USB мост недоступен."));
+    }
+
+    if (config.vendorId === undefined || config.productId === undefined) {
+      return Promise.reject(
+        new Error("Неверная конфигурация: отсутствуют vendorId или productId."),
+      );
     }
 
     try {
-      android.connectBluetoothDevice(config.services[0]);
+      android.connectUsbDevice(config.vendorId, config.productId);
 
-      globalThis.onAndroidBluetoothDisconnect = onDisconnect
+      globalThis.onAndroidUsbDisconnect = onDisconnect
         ? () => {
-            globalThis.onAndroidBluetoothDisconnect = null;
+            globalThis.onAndroidUsbDisconnect = null;
             onDisconnect();
           }
         : null;
 
       return Promise.resolve({
         device: null,
-        services: config.services,
         batteryLevel: android.getBatteryLevel?.() ?? null,
       });
     } catch (error) {
       const message = getErrorMessage(
         error,
-        "Не удалось подключиться к устройству.",
+        "Не удалось подключиться к устройству по USB.",
       );
       return Promise.reject(new Error(message));
     }
@@ -48,14 +53,14 @@ export class NativeBluetooth implements IBluetoothStrategy {
 
   disconnect = () => {
     try {
-      globalThis.onAndroidBluetoothDisconnect = null;
+      globalThis.onAndroidUsbDisconnect = null;
 
       this.bridge?.disconnect?.();
       return Promise.resolve();
     } catch (error) {
       const message = getErrorMessage(
         error,
-        "Не удалось отключить устройство.",
+        "Не удалось отключить USB устройство.",
       );
       return Promise.reject(new Error(message));
     }
@@ -68,7 +73,7 @@ export class NativeBluetooth implements IBluetoothStrategy {
     } catch (error) {
       const message = getErrorMessage(
         error,
-        "Не удалось получить уровень заряда устройства.",
+        "Не удалось получить уровень заряда USB устройства.",
       );
       return Promise.reject(new Error(message));
     }

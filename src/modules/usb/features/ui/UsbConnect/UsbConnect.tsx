@@ -34,7 +34,7 @@ export const UsbConnect = observer(() => {
     ? "Подключение..."
     : isDisconnecting
       ? "Отключение..."
-      : "Подключить USB устройство";
+      : "Подключить устройство";
 
   return (
     <section className={s.root}>

@@ -1,4 +1,4 @@
-export const ANDROID_USB_CONFIG = {
+export const USB_CONFIG = {
   VENDOR_ID: 10073,
   PRODUCT_ID: 3,
 } as const;

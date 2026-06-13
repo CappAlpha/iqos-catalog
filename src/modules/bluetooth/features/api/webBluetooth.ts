@@ -1,66 +1,59 @@
 import { actionPromiseWithTimeout } from "@/shared/lib/actionPromiseWithTimeout";
 
-import { COMMON_SERVICES, UUIDS } from "../model/constants";
-import type { IBluetooth, BluetoothConnectionResult } from "../model/types";
+import { SERVICE_UUIDS, BATTERY_CHARACTERISTIC } from "../model/constants";
+import type {
+  IBluetoothStrategy,
+  IBluetoothConnectionResult,
+  IBluetoothDeviceConfig,
+} from "../model/types";
 
-const readCharacteristic = async (
-  device: BluetoothDevice,
-  serviceUuid: string,
-  characteristicUuid: string,
-  errorLabel: string,
-) => {
-  if (!device.gatt?.connected) {
-    console.warn(errorLabel, "GATT-сервер не подключен.");
-    return null;
-  }
-
+const getDeviceBattery = async (
+  gatt: BluetoothRemoteGATTServer | undefined,
+): Promise<number | null> => {
+  if (!gatt?.connected) return null;
   try {
-    const service = await device.gatt.getPrimaryService(serviceUuid);
-    const characteristic = await service.getCharacteristic(characteristicUuid);
-    return (await characteristic.readValue()) ?? null;
+    const service = await gatt.getPrimaryService(SERVICE_UUIDS.BATTERY_SERVICE);
+    const characteristic = await service.getCharacteristic(
+      BATTERY_CHARACTERISTIC,
+    );
+    const value = await characteristic.readValue();
+    return value.getUint8(0);
   } catch (error) {
-    console.warn(errorLabel, error);
+    console.warn(
+      "Не удалось прочитать заряд батареи Bluetooth-устройства:",
+      error,
+    );
     return null;
   }
 };
 
-const getDeviceBattery = async (device: BluetoothDevice) => {
-  const value = await readCharacteristic(
-    device,
-    UUIDS.BATTERY_SERVICE,
-    UUIDS.BATTERY_CHARACTERISTIC,
-    "Не удалось прочитать заряд батареи Bluetooth-устройства:",
-  );
-  return value?.getUint8(0) ?? null;
-};
-
-export class WebBluetooth implements IBluetooth {
+export class WebBluetooth implements IBluetoothStrategy {
   private device: BluetoothDevice | null = null;
   private onDisconnectCallback: (() => void) | null = null;
 
   connect = async (
-    targetServiceUuid: string,
-    _fallbackName: string,
+    config: IBluetoothDeviceConfig,
     onDisconnect: () => void,
-  ): Promise<BluetoothConnectionResult> => {
+  ): Promise<IBluetoothConnectionResult> => {
     if (typeof navigator === "undefined" || !navigator.bluetooth) {
       throw new Error(
         "Web Bluetooth не поддерживается вашей платформой или браузером.",
       );
     }
 
-    const optionalServices = Array.from(
-      new Set([...COMMON_SERVICES, targetServiceUuid]),
-    );
-
     const selectedDevice = await navigator.bluetooth.requestDevice({
-      acceptAllDevices: true,
-      optionalServices,
+      filters: [{ services: config.services }],
+      optionalServices: [SERVICE_UUIDS.BATTERY_SERVICE],
     });
 
     const gatt = selectedDevice.gatt;
     if (!gatt) {
-      throw new Error("GATT-сервер недоступен на этом устройстве.");
+      console.warn("Не удалось получить GATT устройства:", selectedDevice.name);
+      return {
+        services: [],
+        batteryLevel: null,
+        device: selectedDevice,
+      };
     }
 
     this.device = selectedDevice;
@@ -81,27 +74,23 @@ export class WebBluetooth implements IBluetooth {
       throw err;
     }
 
-    const servicesList: string[] = [];
-    const commonServices: readonly string[] = COMMON_SERVICES;
+    const batteryLevel = await getDeviceBattery(gatt);
 
+    let services: string[] = [];
     try {
-      if (gatt.connected) {
-        const activeServices = await gatt.getPrimaryServices();
-        for (const service of activeServices) {
-          if (commonServices.includes(service.uuid)) {
-            servicesList.push(service.uuid);
-          }
-        }
-      }
+      const activeServices = await gatt.getPrimaryServices();
+      services = activeServices
+        .map((service) => service.uuid)
+        .filter((uuid) => config.services.includes(uuid));
+
+      console.log("Получен список сервисов устройства:", services);
     } catch (error) {
       console.warn("Не удалось получить список сервисов устройства:", error);
     }
 
-    const battery = await getDeviceBattery(selectedDevice);
-
     return {
-      services: servicesList,
-      batteryLevel: battery,
+      services,
+      batteryLevel,
       device: selectedDevice,
     };
   };
@@ -112,8 +101,7 @@ export class WebBluetooth implements IBluetooth {
   };
 
   getBatteryLevel = async () => {
-    if (!this.device?.gatt?.connected) return null;
-    return getDeviceBattery(this.device);
+    return getDeviceBattery(this.device?.gatt);
   };
 
   private readonly cleanup = () => {
@@ -129,7 +117,7 @@ export class WebBluetooth implements IBluetooth {
   };
 
   private readonly handleDisconnect = () => {
-    this.onDisconnectCallback?.();
     this.cleanup();
+    this.onDisconnectCallback?.();
   };
 }

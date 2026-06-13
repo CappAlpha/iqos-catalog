@@ -1,4 +1,4 @@
-import secondS from "../FiltersGroup/FiltersGroup.module.scss";
+import groupS from "../FiltersGroup/FiltersGroup.module.scss";
 import s from "./FiltersDesktop.module.scss";
 
 interface Props {
@@ -12,7 +12,7 @@ export const FiltersDesktopSkeleton = ({ arrays, count }: Props) => {
       <div className={s.titleSkeleton} />
 
       {Array.from({ length: arrays }, (_, i) => (
-        <div key={i} className={secondS.categories}>
+        <div key={i} className={groupS.categories}>
           <div className={s.subtitleSkeleton} />
           {Array.from({ length: count }, (_, i) => (
             <div key={i} className={s.checkBoxSkeleton} />

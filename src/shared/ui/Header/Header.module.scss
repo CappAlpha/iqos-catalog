@@ -25,6 +25,7 @@
 
   @include breakpoint(mobile-m) {
     justify-content: center;
+    gap: 100px;
   }
 
   @include breakpoint(mobile-s) {

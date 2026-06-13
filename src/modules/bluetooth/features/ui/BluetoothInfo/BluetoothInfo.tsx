@@ -5,10 +5,10 @@ import { bluetoothM } from "../../model/bluetoothM";
 import s from "./BluetoothInfo.module.scss";
 
 export const BluetoothInfo = observer(() => {
-  const { batteryLevel, services, device } = bluetoothM;
+  const { batteryLevel, device } = bluetoothM;
   if (!device) return null;
 
-  const { name, id } = device;
+  const { id, name } = device;
   return (
     <div className={s.root}>
       <section className={s.section}>
@@ -27,17 +27,6 @@ export const BluetoothInfo = observer(() => {
           )}
         </div>
       </section>
-
-      {services.length > 0 && (
-        <section className={s.section}>
-          <h3 className={s.title}>Доступные GATT-сервисы (UUID):</h3>
-          <ul className={s.list}>
-            {services.map((uuid) => (
-              <li key={uuid}>{uuid}</li>
-            ))}
-          </ul>
-        </section>
-      )}
     </div>
   );
 });

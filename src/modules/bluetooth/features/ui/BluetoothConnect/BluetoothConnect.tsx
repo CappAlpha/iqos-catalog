@@ -35,7 +35,7 @@ export const BluetoothConnect = observer(() => {
     ? "Подключение..."
     : isDisconnecting
       ? "Отключение..."
-      : "Подключить Bluetooth устройство";
+      : "Подключить устройство";
 
   useEffect(() => {
     return () => {

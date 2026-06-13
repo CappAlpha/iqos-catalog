@@ -20,5 +20,6 @@ declare global {
   >;
 
   var AndroidBridge: AndroidBridge | undefined;
-  var onAndroidBluetoothDisconnect: (() => void) | null | undefined;
+  var onAndroidBluetoothDisconnect: (() => void) | null;
+  var onAndroidUsbDisconnect: (() => void) | null;
 }

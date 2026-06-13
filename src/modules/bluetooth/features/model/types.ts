@@ -1,15 +1,18 @@
-export type BluetoothConnectionResult = {
+export type IBluetoothConnectionResult = {
+  device: BluetoothDevice | null;
   services: string[];
   batteryLevel: number | null;
-  device?: BluetoothDevice | null;
 };
 
-export interface IBluetooth {
+export interface IBluetoothDeviceConfig {
+  services: string[];
+}
+
+export interface IBluetoothStrategy {
   connect(
-    targetServiceUuid: string,
-    fallbackName: string,
+    config: IBluetoothDeviceConfig,
     onDisconnect?: () => void,
-  ): Promise<BluetoothConnectionResult>;
+  ): Promise<IBluetoothConnectionResult>;
   disconnect(): Promise<void>;
   getBatteryLevel(): Promise<number | null>;
 }
