@@ -7,7 +7,7 @@ import type {
   IBluetoothDeviceConfig,
 } from "../model/types";
 
-export class NativeBluetooth implements IBluetoothStrategy {
+export class AndroidNativeBluetooth implements IBluetoothStrategy {
   private get bridge() {
     return getAndroidBridge();
   }
