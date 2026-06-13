@@ -7,7 +7,7 @@ import type {
   IUsbDeviceConfig,
 } from "../model/types";
 
-export class NativeUsb implements IUsbStrategy {
+export class AndroidNativeUsb implements IUsbStrategy {
   private get bridge() {
     return getAndroidBridge();
   }
