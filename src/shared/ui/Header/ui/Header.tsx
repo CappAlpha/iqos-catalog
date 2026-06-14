@@ -6,8 +6,8 @@ import {
   LogoLil,
   USBIcon,
 } from "@/assets/icons";
+import { IS_IOS } from "@/shared/constants/constants";
 import { useMobile, useMobileM } from "@/shared/hooks/useBreakpoint";
-import { isIOS } from "@/shared/lib/isIOS";
 
 import { TransitionNavLink } from "../../TransitionNavLink";
 import { HeaderLink } from "./HeaderLink";
@@ -29,13 +29,12 @@ const NAV_LINKS: INavLinkItem[] = [
 ];
 
 const ALLOWED_NAV_LINKS = NAV_LINKS.filter(
-  ({ to }) => !(to === "/usb" && isIOS()),
+  ({ to }) => !(to === "/usb" && IS_IOS),
 );
 
 export const Header = () => {
   const isMobile = useMobile();
   const isMobileM = useMobileM();
-  const isIOSPlatform = isIOS();
 
   const logoLink = (
     <TransitionNavLink key="logo-mobile" to="/" className={s.logo}>
@@ -48,8 +47,8 @@ export const Header = () => {
     <HeaderLink key={link.to} {...link} />
   ));
 
-  const isSplitLayout = !isMobile && isMobileM && !isIOSPlatform;
-  const showLogoOutside = !isMobileM || isIOSPlatform;
+  const isSplitLayout = !isMobile && isMobileM && !IS_IOS;
+  const showLogoOutside = !isMobileM || IS_IOS;
 
   return (
     <header className={s.header}>

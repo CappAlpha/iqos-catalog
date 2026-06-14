@@ -5,7 +5,7 @@ import { usbM } from "../../model/usbM";
 import s from "./DeviceMetadataSection.module.scss";
 
 export interface Props {
-  device: USBDevice;
+  device: Partial<USBDevice>;
 }
 
 export const DeviceMetadataSection = observer(({ device }: Props) => {

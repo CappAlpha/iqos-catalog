@@ -35,5 +35,5 @@
     "declarationMap": true,
     "sourceMap": true
   },
-  "include": ["src", "knip.config.ts"]
+  "include": ["src", "capacitor.config.ts", "knip.config.ts"]
 }

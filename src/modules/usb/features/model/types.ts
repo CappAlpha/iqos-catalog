@@ -1,5 +1,5 @@
 export interface IUsbConnectionResult {
-  device: USBDevice | null;
+  device: Partial<USBDevice> | null;
   batteryLevel: number | null;
 }
 

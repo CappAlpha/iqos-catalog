@@ -10,7 +10,7 @@ import type { IUsbStrategy, IUsbDeviceConfig } from "./types";
 type UsbStatus = "disconnected" | "connecting" | "connected" | "disconnecting";
 
 class UsbM {
-  device: USBDevice | null = null;
+  device: Partial<USBDevice> | null = null;
   status: UsbStatus = "disconnected";
   error: string | null = null;
   batteryLevel: number | null = null;
@@ -41,7 +41,7 @@ class UsbM {
 
   private readonly updateState = (
     status: UsbStatus,
-    device: USBDevice | null = null,
+    device: Partial<USBDevice> | null = null,
     error: string | null = null,
     batteryLevel: number | null = null,
   ) => {
@@ -123,6 +123,7 @@ class UsbM {
         this.status,
         this.device,
         getErrorMessage(err, "Не удалось обновить заряд батареи USB"),
+        this.batteryLevel,
       );
     }
 
@@ -130,7 +131,6 @@ class UsbM {
   };
 
   private readonly handleDisconnect = () => {
-    this.#currentConnectionId++;
     this.updateState(
       "disconnected",
       null,

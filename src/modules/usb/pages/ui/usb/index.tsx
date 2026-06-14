@@ -3,7 +3,7 @@ import { useNavigate } from "react-router";
 
 import { UsbConnect } from "@/modules/usb/features/ui/UsbConnect";
 import { UsbInfo } from "@/modules/usb/features/ui/UsbInfo";
-import { isIOS } from "@/shared/lib/isIOS";
+import { IS_IOS } from "@/shared/constants/constants";
 
 import s from "./UsbPage.module.scss";
 
@@ -11,12 +11,12 @@ export const UsbPage = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (isIOS()) {
+    if (IS_IOS) {
       void navigate("/bluetooth", { replace: true });
     }
   }, [navigate]);
 
-  if (isIOS()) return null;
+  if (IS_IOS) return null;
 
   return (
     <div className={s.root}>

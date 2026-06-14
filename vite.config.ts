@@ -4,20 +4,22 @@ import { defineConfig, type CSSOptions } from "vite";
 import svgr from "vite-plugin-svgr";
 
 // https://vite.dev/config/
-export default defineConfig({
-  base: "/iqos-catalog/",
-  plugins: [react(), svgr()],
-  css: {
-    preprocessorOptions: {
-      scss: {
-        api: "modern-compiler",
-        additionalData: `@use "@/app/styles/_mixins.scss" as *;`,
+export default defineConfig(({ mode }) => {
+  return {
+    base: mode === "capacitor" ? "./" : "/iqos-catalog/",
+    plugins: [react(), svgr()],
+    css: {
+      preprocessorOptions: {
+        scss: {
+          api: "modern-compiler",
+          additionalData: `@use "@/app/styles/_mixins.scss" as *;`,
+        },
+      },
+    } as CSSOptions,
+    resolve: {
+      alias: {
+        "@": path.resolve(__dirname, "src"),
       },
     },
-  } as CSSOptions,
-  resolve: {
-    alias: {
-      "@": path.resolve(__dirname, "src"),
-    },
-  },
+  };
 });

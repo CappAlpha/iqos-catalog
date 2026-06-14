@@ -1,3 +1,4 @@
+import { Capacitor } from "@capacitor/core";
 import { useEffect } from "react";
 import { BrowserRouter } from "react-router";
 import { Toaster } from "sonner";
@@ -11,12 +12,14 @@ import { AppLayout } from "./layout/AppLayout";
 import { AppRoutes } from "./routes/AppRoutes";
 
 function App() {
+  const routerBasename = Capacitor.isNativePlatform() ? "/" : "/iqos-catalog/";
+
   useEffect(() => {
     void cartM.initStore();
   }, []);
 
   return (
-    <BrowserRouter basename="/iqos-catalog/">
+    <BrowserRouter basename={routerBasename}>
       <AppLayout>
         <AppRoutes />
         <Toaster position="top-center" richColors className="toast-root" />

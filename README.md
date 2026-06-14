@@ -50,6 +50,25 @@ allprojects {
 
 Если уже есть этот блок кода в файле, то важно добавить туда именно `maven { url 'https://jitpack.io' }`
 
+И в android/app/src/main/AndroidManifest.xml добавить в самом верху:
+
+```
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          xmlns:tools="http://schemas.android.com/tools">
+```
+
+В Permissions:
+
+```
+<uses-permission android:name="android.permission.BLUETOOTH_SCAN"
+                 android:usesPermissionFlags="neverForLocation"
+                 tools:targetApi="s" />
+<uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+
+<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" android:maxSdkVersion="30" />
+<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" android:maxSdkVersion="30" />
+```
+
 - В Android Studio запустите эмулятор или соберите APK-файл.
 - **Готовый для тестирования APK с последней версией приложения находится в корне проекта `iqos-mvp.apk`.**
 

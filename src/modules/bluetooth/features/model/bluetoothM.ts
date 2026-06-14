@@ -18,16 +18,13 @@ type BluetoothStatus =
   | "disconnecting";
 
 class BluetoothM {
-  device: BluetoothDevice | null = null;
+  device: Partial<BluetoothDevice> | null = null;
   status: BluetoothStatus = "disconnected";
   error: string | null = null;
   services: string[] = [];
   batteryLevel: number | null = null;
   deviceConfig: IBluetoothDeviceConfig = {
-    services: [
-      ...Object.values(SERVICE_UUIDS),
-      SERVICE_UUIDS.DEVICE_CONTROL_SERVICE,
-    ],
+    services: Object.values(SERVICE_UUIDS),
   };
 
   readonly #strategy: IBluetoothStrategy;
@@ -109,6 +106,7 @@ class BluetoothM {
     if (this.status === "disconnecting") {
       this.reset();
     } else {
+      this.#currentConnectionId++;
       this.reset(
         "Соединение разорвано: устройство отключено или вышло из зоны действия.",
       );

@@ -4,7 +4,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite dev",
-    "build": "tsc && vite build",
+    "build": "tsc -b && vite build",
+    "build:capacitor": "tsc -b && vite build --mode capacitor",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "knip": "knip",
@@ -24,12 +25,14 @@
     "pre-commit": "npx lint-staged"
   },
   "dependencies": {
+    "@capacitor-community/bluetooth-le": "^8.2.0",
     "@capacitor/android": "^8.4.0",
     "@capacitor/core": "^8.4.0",
     "@capacitor/ios": "^8.4.0",
     "@capacitor/preferences": "^8.0.1",
     "@tanstack/query-core": "^5.101.0",
     "axios": "^1.17.0",
+    "capacitor-usb-serial": "^1.0.3",
     "classnames": "^2.5.1",
     "currency.js": "^2.0.4",
     "dompurify": "^3.4.9",

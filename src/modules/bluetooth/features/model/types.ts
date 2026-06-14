@@ -1,5 +1,5 @@
 export type IBluetoothConnectionResult = {
-  device: BluetoothDevice | null;
+  device: Partial<BluetoothDevice> | null;
   services: string[];
   batteryLevel: number | null;
 };

@@ -7,26 +7,6 @@ import type {
   IBluetoothDeviceConfig,
 } from "../model/types";
 
-const getDeviceBattery = async (
-  gatt: BluetoothRemoteGATTServer | undefined,
-): Promise<number | null> => {
-  if (!gatt?.connected) return null;
-  try {
-    const service = await gatt.getPrimaryService(SERVICE_UUIDS.BATTERY_SERVICE);
-    const characteristic = await service.getCharacteristic(
-      BATTERY_CHARACTERISTIC,
-    );
-    const value = await characteristic.readValue();
-    return value.getUint8(0);
-  } catch (error) {
-    console.warn(
-      "Не удалось прочитать заряд батареи Bluetooth-устройства:",
-      error,
-    );
-    return null;
-  }
-};
-
 export class WebBluetooth implements IBluetoothStrategy {
   private device: BluetoothDevice | null = null;
   private onDisconnectCallback: (() => void) | null = null;
@@ -42,7 +22,9 @@ export class WebBluetooth implements IBluetoothStrategy {
     }
 
     const selectedDevice = await navigator.bluetooth.requestDevice({
-      filters: [{ services: config.services }],
+      // TODO: remove comment and acceptAllDevices on release
+      // filters: [{ services: config.services }],
+      acceptAllDevices: true,
       optionalServices: [SERVICE_UUIDS.BATTERY_SERVICE],
     });
 
@@ -74,7 +56,7 @@ export class WebBluetooth implements IBluetoothStrategy {
       throw err;
     }
 
-    const batteryLevel = await getDeviceBattery(gatt);
+    const batteryLevel = await this.getDeviceBattery(gatt);
 
     let services: string[] = [];
     try {
@@ -101,7 +83,29 @@ export class WebBluetooth implements IBluetoothStrategy {
   };
 
   getBatteryLevel = async () => {
-    return getDeviceBattery(this.device?.gatt);
+    return this.getDeviceBattery(this.device?.gatt);
+  };
+
+  private readonly getDeviceBattery = async (
+    gatt: BluetoothRemoteGATTServer | undefined,
+  ) => {
+    if (!gatt?.connected) return null;
+    try {
+      const service = await gatt.getPrimaryService(
+        SERVICE_UUIDS.BATTERY_SERVICE,
+      );
+      const characteristic = await service.getCharacteristic(
+        BATTERY_CHARACTERISTIC,
+      );
+      const value = await characteristic.readValue();
+      return value.getUint8(0);
+    } catch (error) {
+      console.warn(
+        "Не удалось прочитать заряд батареи Bluetooth-устройства:",
+        error,
+      );
+      return null;
+    }
   };
 
   private readonly cleanup = () => {
@@ -117,7 +121,8 @@ export class WebBluetooth implements IBluetoothStrategy {
   };
 
   private readonly handleDisconnect = () => {
+    const callback = this.onDisconnectCallback;
     this.cleanup();
-    this.onDisconnectCallback?.();
+    callback?.();
   };
 }

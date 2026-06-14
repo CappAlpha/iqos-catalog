@@ -10,30 +10,6 @@ import type {
   IUsbDeviceConfig,
 } from "../model/types";
 
-const configureWebUsbDevice = async (device: USBDevice) => {
-  await device.open();
-  try {
-    if (
-      device.configuration === null ||
-      device.configuration.configurationValue !== DEFAULT_CONFIGURATION
-    ) {
-      await device.selectConfiguration(DEFAULT_CONFIGURATION);
-    }
-  } catch (err) {
-    await device.close().catch(() => {});
-    throw err;
-  }
-
-  try {
-    await device.claimInterface(DEFAULT_INTERFACE);
-  } catch (err) {
-    console.warn(
-      "Интерфейс занят ОС или заблокирован браузером. Продолжаем в режиме чтения метаданных.",
-      err,
-    );
-  }
-};
-
 export class WebUsb implements IUsbStrategy {
   private device: USBDevice | null = null;
   private onDisconnectCallback: (() => void) | null = null;
@@ -46,12 +22,15 @@ export class WebUsb implements IUsbStrategy {
       throw new Error("WebUSB не поддерживается вашим браузером.");
     }
 
-    const selectedDevice = await navigator.usb.requestDevice({
-      filters: [config],
+    const device = await navigator.usb.requestDevice({
+      // TODO: remove comment on release
+      filters: [
+        //config
+      ],
     });
 
-    await configureWebUsbDevice(selectedDevice);
-    this.device = selectedDevice;
+    await this.configureWebUsbDevice(device);
+    this.device = device;
 
     this.onDisconnectCallback = onDisconnect;
     navigator.usb.addEventListener("disconnect", this.handleDisconnect);
@@ -59,9 +38,33 @@ export class WebUsb implements IUsbStrategy {
     const batteryLevel = await this.getBatteryLevel();
 
     return {
-      device: selectedDevice,
+      device,
       batteryLevel,
     };
+  };
+
+  private readonly configureWebUsbDevice = async (device: USBDevice) => {
+    await device.open();
+    try {
+      if (
+        device.configuration === null ||
+        device.configuration.configurationValue !== DEFAULT_CONFIGURATION
+      ) {
+        await device.selectConfiguration(DEFAULT_CONFIGURATION);
+      }
+    } catch (err) {
+      await device.close().catch(() => {});
+      throw err;
+    }
+
+    try {
+      await device.claimInterface(DEFAULT_INTERFACE);
+    } catch (err) {
+      console.warn(
+        "Интерфейс занят ОС или заблокирован браузером. Продолжаем в режиме чтения метаданных.",
+        err,
+      );
+    }
   };
 
   disconnect = async () => {

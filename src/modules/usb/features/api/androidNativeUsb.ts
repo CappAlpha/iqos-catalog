@@ -1,4 +1,7 @@
-import { getAndroidBridge } from "@/shared/lib/getAndroidBridge";
+import type { PluginListenerHandle } from "@capacitor/core";
+import { UsbSerial } from "capacitor-usb-serial";
+
+import { AndroidBridge } from "@/shared/lib/getAndroidBridge";
 import { getErrorMessage } from "@/shared/lib/getErrorMessage";
 
 import type {
@@ -7,75 +10,132 @@ import type {
   IUsbDeviceConfig,
 } from "../model/types";
 
-export class AndroidNativeUsb implements IUsbStrategy {
-  private get bridge() {
-    return getAndroidBridge();
-  }
+interface CapacitorPluginWithEvents {
+  addListener(
+    eventName: string,
+    listenerFunc: (...args: unknown[]) => void,
+  ): Promise<PluginListenerHandle> & PluginListenerHandle;
+}
 
-  connect = (
+export class AndroidNativeUsb implements IUsbStrategy {
+  private activePortKey: string | null = null;
+  private disconnectListener: PluginListenerHandle | null = null;
+
+  connect = async (
     config: IUsbDeviceConfig,
     onDisconnect: () => void,
   ): Promise<IUsbConnectionResult> => {
-    const android = this.bridge;
+    const { vendorId, productId } = config;
 
-    if (!android?.connectUsbDevice) {
-      return Promise.reject(new Error("Нативный USB мост недоступен."));
-    }
-
-    if (config.vendorId === undefined || config.productId === undefined) {
-      return Promise.reject(
-        new Error("Неверная конфигурация: отсутствуют vendorId или productId."),
+    if (vendorId === undefined || productId === undefined) {
+      throw new Error(
+        "Неверная конфигурация: отсутствуют vendorId или productId.",
       );
     }
 
     try {
-      android.connectUsbDevice(config.vendorId, config.productId);
+      const { devices } = await UsbSerial.getDeviceConnections();
 
-      globalThis.onAndroidUsbDisconnect = onDisconnect
-        ? () => {
-            globalThis.onAndroidUsbDisconnect = null;
-            onDisconnect();
-          }
-        : null;
+      const targetDevice = devices.find(
+        (d) => d.vendorId === vendorId && d.productId === productId,
+      );
 
-      return Promise.resolve({
-        device: null,
-        batteryLevel: android.getBatteryLevel?.() ?? null,
+      if (!targetDevice) {
+        throw new Error(
+          "Не удалось подключиться к устройству по USB через плагин. Устройство не найдено.",
+        );
+      }
+
+      const connection = await UsbSerial.openConnection({
+        deviceId: targetDevice.deviceId,
       });
+
+      this.activePortKey = connection.portKey;
+
+      this.setupDisconnectListener(onDisconnect);
+
+      const batteryLevel = await this.getBatteryLevel();
+
+      return {
+        device: {
+          vendorId,
+          productId,
+          productName: targetDevice.deviceName ?? "USB устройство",
+          manufacturerName: "Generic USB Device",
+          opened: true,
+        },
+        batteryLevel,
+      };
     } catch (error) {
       const message = getErrorMessage(
         error,
-        "Не удалось подключиться к устройству по USB.",
+        "Не удалось подключиться к устройству по USB через плагин.",
       );
-      return Promise.reject(new Error(message));
+      throw new Error(message, { cause: error });
     }
   };
 
-  disconnect = () => {
+  disconnect = async (): Promise<void> => {
     try {
-      globalThis.onAndroidUsbDisconnect = null;
+      await this.cleanupDisconnectListener();
 
-      this.bridge?.disconnect?.();
-      return Promise.resolve();
+      if (this.activePortKey) {
+        await UsbSerial.endConnection({ key: this.activePortKey });
+        this.activePortKey = null;
+      } else {
+        await UsbSerial.endConnections();
+      }
     } catch (error) {
       const message = getErrorMessage(
         error,
         "Не удалось отключить USB устройство.",
       );
-      return Promise.reject(new Error(message));
+      throw new Error(message, { cause: error });
     }
   };
 
-  getBatteryLevel = () => {
+  getBatteryLevel = async (): Promise<number | null> => {
     try {
-      const battery = this.bridge?.getBatteryLevel?.() ?? null;
-      return Promise.resolve(battery);
+      if (AndroidBridge?.getBatteryLevel) {
+        const batteryRes = await AndroidBridge.getBatteryLevel();
+        return batteryRes?.level ?? null;
+      }
+      return null;
     } catch (error) {
-      const message = getErrorMessage(
-        error,
-        "Не удалось получить уровень заряда USB устройства.",
-      );
-      return Promise.reject(new Error(message));
+      console.warn("Не удалось получить уровень заряда USB устройства:", error);
+      return null;
+    }
+  };
+
+  private setupDisconnectListener(onDisconnect: () => void) {
+    void this.cleanupDisconnectListener();
+
+    if (AndroidBridge && "addListener" in AndroidBridge) {
+      try {
+        const bridgeWithEvents =
+          AndroidBridge as unknown as CapacitorPluginWithEvents;
+
+        this.disconnectListener = bridgeWithEvents.addListener(
+          "usbDisconnect",
+          () => {
+            void this.cleanupDisconnectListener();
+            onDisconnect();
+          },
+        );
+      } catch (e) {
+        console.warn("Не удалось добавить Capacitor listener:", e);
+      }
+    }
+  }
+
+  private readonly cleanupDisconnectListener = async () => {
+    if (this.disconnectListener) {
+      try {
+        await this.disconnectListener.remove();
+      } catch (e) {
+        console.warn("Ошибка при удалении Capacitor listener:", e);
+      }
+      this.disconnectListener = null;
     }
   };
 }
