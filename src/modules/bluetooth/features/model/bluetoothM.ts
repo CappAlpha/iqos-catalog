@@ -103,10 +103,10 @@ class BluetoothM {
   };
 
   private readonly handleDisconnect = () => {
+    this.#currentConnectionId++;
     if (this.status === "disconnecting") {
       this.reset();
     } else {
-      this.#currentConnectionId++;
       this.reset(
         "Соединение разорвано: устройство отключено или вышло из зоны действия.",
       );

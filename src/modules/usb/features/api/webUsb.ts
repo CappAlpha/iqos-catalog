@@ -43,6 +43,31 @@ export class WebUsb implements IUsbStrategy {
     };
   };
 
+  disconnect = async () => {
+    await this.cleanup();
+  };
+
+  getBatteryLevel = async () => {
+    if (!this.device) return null;
+
+    try {
+      const result = await this.device.controlTransferIn(
+        CUSTOM_BATTERY_REQUEST,
+        BATTERY_RESPONSE_LENGTH,
+      );
+
+      if (result.status === "ok" && result.data && result.data.byteLength > 0) {
+        return result.data.getUint8(0);
+      }
+    } catch (error) {
+      console.warn(
+        "Ошибка при низкоуровневом чтении заряда устройства:",
+        error,
+      );
+    }
+    return null;
+  };
+
   private readonly configureWebUsbDevice = async (device: USBDevice) => {
     await device.open();
     try {
@@ -67,47 +92,24 @@ export class WebUsb implements IUsbStrategy {
     }
   };
 
-  disconnect = async () => {
-    if (this.device) {
-      await this.device.close().catch((err) => {
-        console.warn("Предупреждение при закрытии WebUSB устройства:", err);
-      });
-    }
-    this.cleanup();
-  };
-
-  getBatteryLevel = async () => {
-    if (!this.device) return null;
-
-    try {
-      const result = await this.device.controlTransferIn(
-        CUSTOM_BATTERY_REQUEST,
-        BATTERY_RESPONSE_LENGTH,
-      );
-
-      if (result.status === "ok" && result.data && result.data.byteLength > 0) {
-        return result.data.getUint8(0);
-      }
-    } catch (error) {
-      console.warn(
-        "Ошибка при низкоуровневом чтении заряда устройства:",
-        error,
-      );
-    }
-    return null;
-  };
-
-  private readonly cleanup = () => {
-    navigator.usb.removeEventListener("disconnect", this.handleDisconnect);
-    this.device = null;
-    this.onDisconnectCallback = null;
-  };
-
   private readonly handleDisconnect = (event: USBConnectionEvent) => {
     if (this.device && event.device === this.device) {
       const callback = this.onDisconnectCallback;
-      this.cleanup();
+      void this.cleanup();
       callback?.();
     }
+  };
+
+  private readonly cleanup = async () => {
+    if (this.device) {
+      if (typeof navigator !== "undefined" && navigator.usb) {
+        navigator.usb.removeEventListener("disconnect", this.handleDisconnect);
+      }
+      await this.device.close().catch((err) => {
+        console.warn("Ошибка при закрытии WebUSB устройства:", err);
+      });
+      this.device = null;
+    }
+    this.onDisconnectCallback = null;
   };
 }

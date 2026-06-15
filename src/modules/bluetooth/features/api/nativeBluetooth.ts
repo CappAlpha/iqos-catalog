@@ -84,13 +84,14 @@ export class NativeBluetooth implements IBluetoothStrategy {
     if (!this.deviceId) return null;
 
     try {
-      const dataView = await BleClient.read(
+      const batteryLevel = await BleClient.read(
         this.deviceId,
         SERVICE_UUIDS.BATTERY_SERVICE,
         BATTERY_CHARACTERISTIC,
       );
 
-      return dataView.getUint8(0);
+      if (batteryLevel.byteLength === 0) return null;
+      return batteryLevel.getUint8(0);
     } catch (error) {
       console.warn("Ошибка при чтении заряда батареи:", error);
       return null;

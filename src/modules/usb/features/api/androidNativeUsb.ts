@@ -19,6 +19,7 @@ interface CapacitorPluginWithEvents {
 
 export class AndroidNativeUsb implements IUsbStrategy {
   private activePortKey: string | null = null;
+  private onDisconnectCallback: (() => void) | null = null;
   private disconnectListener: PluginListenerHandle | null = null;
 
   connect = async (
@@ -41,9 +42,7 @@ export class AndroidNativeUsb implements IUsbStrategy {
       );
 
       if (!targetDevice) {
-        throw new Error(
-          "Не удалось подключиться к устройству по USB через плагин. Устройство не найдено.",
-        );
+        throw new Error("Не удалось подключиться к устройству по USB.");
       }
 
       const connection = await UsbSerial.openConnection({
@@ -51,8 +50,9 @@ export class AndroidNativeUsb implements IUsbStrategy {
       });
 
       this.activePortKey = connection.portKey;
+      this.onDisconnectCallback = onDisconnect;
 
-      this.setupDisconnectListener(onDisconnect);
+      this.setupDisconnectListener();
 
       const batteryLevel = await this.getBatteryLevel();
 
@@ -67,6 +67,7 @@ export class AndroidNativeUsb implements IUsbStrategy {
         batteryLevel,
       };
     } catch (error) {
+      await this.cleanup();
       const message = getErrorMessage(
         error,
         "Не удалось подключиться к устройству по USB через плагин.",
@@ -75,23 +76,8 @@ export class AndroidNativeUsb implements IUsbStrategy {
     }
   };
 
-  disconnect = async (): Promise<void> => {
-    try {
-      await this.cleanupDisconnectListener();
-
-      if (this.activePortKey) {
-        await UsbSerial.endConnection({ key: this.activePortKey });
-        this.activePortKey = null;
-      } else {
-        await UsbSerial.endConnections();
-      }
-    } catch (error) {
-      const message = getErrorMessage(
-        error,
-        "Не удалось отключить USB устройство.",
-      );
-      throw new Error(message, { cause: error });
-    }
+  disconnect = async () => {
+    await this.cleanup();
   };
 
   getBatteryLevel = async (): Promise<number | null> => {
@@ -107,8 +93,8 @@ export class AndroidNativeUsb implements IUsbStrategy {
     }
   };
 
-  private setupDisconnectListener(onDisconnect: () => void) {
-    void this.cleanupDisconnectListener();
+  private readonly setupDisconnectListener = () => {
+    void this.cleanup();
 
     if (AndroidBridge && "addListener" in AndroidBridge) {
       try {
@@ -118,17 +104,22 @@ export class AndroidNativeUsb implements IUsbStrategy {
         this.disconnectListener = bridgeWithEvents.addListener(
           "usbDisconnect",
           () => {
-            void this.cleanupDisconnectListener();
-            onDisconnect();
+            void this.handleDisconnect();
           },
         );
       } catch (e) {
         console.warn("Не удалось добавить Capacitor listener:", e);
       }
     }
-  }
+  };
 
-  private readonly cleanupDisconnectListener = async () => {
+  private readonly handleDisconnect = async () => {
+    const callback = this.onDisconnectCallback;
+    await this.cleanup();
+    callback?.();
+  };
+
+  private readonly cleanup = async () => {
     if (this.disconnectListener) {
       try {
         await this.disconnectListener.remove();
@@ -137,5 +128,20 @@ export class AndroidNativeUsb implements IUsbStrategy {
       }
       this.disconnectListener = null;
     }
+
+    if (this.activePortKey) {
+      try {
+        await UsbSerial.endConnection({ key: this.activePortKey });
+      } catch (e) {
+        console.warn("Ошибка при закрытии USB порта:", e);
+      }
+      this.activePortKey = null;
+    } else {
+      await UsbSerial.endConnections().catch((e) => {
+        console.warn("Ошибка при закрытии USB соединений:", e);
+      });
+    }
+
+    this.onDisconnectCallback = null;
   };
 }

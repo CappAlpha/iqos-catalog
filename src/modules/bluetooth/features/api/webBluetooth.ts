@@ -108,6 +108,12 @@ export class WebBluetooth implements IBluetoothStrategy {
     }
   };
 
+  private readonly handleDisconnect = () => {
+    const callback = this.onDisconnectCallback;
+    this.cleanup();
+    callback?.();
+  };
+
   private readonly cleanup = () => {
     if (this.device) {
       this.device.removeEventListener(
@@ -118,11 +124,5 @@ export class WebBluetooth implements IBluetoothStrategy {
       this.device = null;
     }
     this.onDisconnectCallback = null;
-  };
-
-  private readonly handleDisconnect = () => {
-    const callback = this.onDisconnectCallback;
-    this.cleanup();
-    callback?.();
   };
 }

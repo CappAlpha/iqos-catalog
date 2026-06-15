@@ -39,16 +39,24 @@ class UsbM {
     return this.status === "disconnecting";
   }
 
-  private readonly updateState = (
-    status: UsbStatus,
-    device: Partial<USBDevice> | null = null,
-    error: string | null = null,
-    batteryLevel: number | null = null,
-  ) => {
-    this.status = status;
+  private readonly setConnected = ({
+    device,
+    batteryLevel,
+  }: {
+    device: Partial<USBDevice> | null;
+    batteryLevel: number | null;
+  }) => {
+    this.status = "connected";
+    this.error = null;
     this.device = device;
+    this.batteryLevel = batteryLevel;
+  };
+
+  private readonly reset = (error: string | null = null) => {
+    this.device = null;
+    this.status = "disconnected";
     this.error = error;
-    this.batteryLevel = status === "connected" ? batteryLevel : null;
+    this.batteryLevel = null;
   };
 
   connect = async () => {
@@ -59,7 +67,9 @@ class UsbM {
     this.#currentConnectionId++;
     const connectionId = this.#currentConnectionId;
 
-    this.updateState("connecting");
+    this.status = "connecting";
+    this.error = null;
+    this.batteryLevel = null;
 
     try {
       const result = await this.#strategy.connect(
@@ -72,14 +82,14 @@ class UsbM {
         return;
       }
 
-      this.updateState("connected", result.device, null, result.batteryLevel);
+      this.setConnected(result);
     } catch (err) {
       if (connectionId !== this.#currentConnectionId) return;
 
       await this.#strategy.disconnect().catch(() => {});
 
       const errMsg = getErrorMessage(err, "Ошибка подключения по USB");
-      this.updateState("disconnected", null, errMsg);
+      this.reset(errMsg);
     }
   };
 
@@ -88,7 +98,8 @@ class UsbM {
       return;
 
     const wasConnecting = this.isConnecting;
-    this.updateState("disconnecting");
+    this.status = "disconnecting";
+    this.error = null;
 
     this.#currentConnectionId++;
 
@@ -101,41 +112,36 @@ class UsbM {
     } catch (err) {
       console.warn("Физическое отключение USB не завершилось штатно:", err);
     } finally {
-      this.updateState(
-        "disconnected",
-        null,
-        wasConnecting ? "Подключение отменено" : null,
-      );
+      this.reset(wasConnecting ? "Подключение отменено" : null);
     }
   };
 
-  getBatteryLevel = async () => {
-    if (!this.isConnected) return null;
+  refreshBattery = async () => {
+    if (!this.isConnected) return;
 
     try {
       const battery = await this.#strategy.getBatteryLevel();
-      this.batteryLevel = battery;
-      return battery;
-    } catch (err) {
-      if (!this.isConnected) return null;
 
-      this.updateState(
-        this.status,
-        this.device,
-        getErrorMessage(err, "Не удалось обновить заряд батареи USB"),
-        this.batteryLevel,
+      if (!this.isConnected) return;
+
+      this.batteryLevel = battery;
+    } catch (err) {
+      if (!this.isConnected) return;
+
+      this.error = getErrorMessage(
+        err,
+        "Не удалось обновить заряд батареи USB",
       );
     }
-
-    return null;
   };
 
   private readonly handleDisconnect = () => {
-    this.updateState(
-      "disconnected",
-      null,
-      "Устройство было физически извлечено из USB-порта.",
-    );
+    this.#currentConnectionId++;
+    if (this.status === "disconnecting") {
+      this.reset();
+    } else {
+      this.reset("Устройство было физически извлечено из USB-порта.");
+    }
   };
 }
 
