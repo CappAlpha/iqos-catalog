@@ -59,13 +59,10 @@
 }
 
 .chevron {
-  position: absolute;
-  right: 12px;
-  top: 50%;
+  @include absolute(40%, 12px, $transform: translateY(-40%) rotate(45deg));
   width: 10px;
   height: 10px;
   pointer-events: none;
-  transform: translateY(-50%) rotate(45deg);
   border-right: 2px solid var(--gray);
   border-bottom: 2px solid var(--gray);
   transition: all 0.3s ease-in-out;
@@ -77,10 +74,7 @@
 
 .options {
   pointer-events: none;
-  position: absolute;
-  top: 98%;
-  left: 0;
-  right: 0;
+  @include absolute(98%, 0, $left: 0, $transform: translateY(-10px));
   background: var(--white);
   border: 1px solid var(--gray-border);
   border-top: none;
@@ -91,7 +85,6 @@
   overflow-x: hidden;
   opacity: 0;
   visibility: hidden;
-  transform: translateY(-10px);
   transition: all 0.3s ease-in-out;
 
   &.open {
@@ -137,6 +130,5 @@
 }
 
 .disabled {
-  opacity: 0.6;
-  pointer-events: none;
+  @include disabled;
 }

@@ -1,8 +1,7 @@
 .root {
+  @include overlay;
   opacity: 0;
   transition: opacity 0.3s ease;
-  position: fixed;
-  inset: 0;
   z-index: 1000;
   pointer-events: none;
   display: flex;
@@ -10,24 +9,18 @@
 }
 
 .overlay {
-  position: absolute;
-  inset: 0;
-  background: var(--opacity-colors-black-40);
+  @include overlay;
   opacity: 0;
   transition: opacity 0.3s ease;
 }
 
 .drawer {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  right: 0;
+  @include absolute(0, 0, 0, $transform: translateX(100%));
   display: flex;
   flex-direction: column;
   width: 400px;
   height: 100dvh;
   border-radius: 20px 0 0 0;
-  transform: translateX(100%);
   background: var(--white);
   transition: transform 0.3s ease-in-out;
 
@@ -36,10 +29,10 @@
     bottom: 0;
     left: 0;
     right: 0;
+    transform: translateY(100%);
     width: 100dvw;
     height: 85dvh;
     border-radius: 20px 20px 0 0;
-    transform: translateY(100%);
   }
 }
 
@@ -73,15 +66,9 @@
 }
 
 .closeIconBtn {
-  @include expandableArea;
-  --clickable-area-expandable-ratio: 16px;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  @include closeIconBtn;
   padding: 8px;
   margin: -8px;
-  font-size: 24px;
 }
 
 .body {
@@ -111,9 +98,7 @@
 }
 
 .activeBadge {
-  position: absolute;
-  top: -4px;
-  right: -4px;
+  @include absolute(-4px, -4px);
   width: 10px;
   height: 10px;
   background-color: var(--additional-red);

@@ -65,9 +65,7 @@
   }
 
   &.disabled {
-    opacity: 0.6;
-    pointer-events: none;
-    user-select: none;
+    @include disabled;
   }
 
   &.loading {
@@ -78,10 +76,8 @@
 
     &::after {
       display: block;
+      @include absolute($top: calc(50% - 12px), $left: calc(50% - 12px));
       content: "";
-      position: absolute;
-      top: calc(50% - 12px);
-      left: calc(50% - 12px);
       width: 20px;
       height: 20px;
       border-radius: 50%;

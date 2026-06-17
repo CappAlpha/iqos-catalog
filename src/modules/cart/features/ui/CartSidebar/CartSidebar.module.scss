@@ -22,7 +22,7 @@
   flex-direction: column;
   gap: 15px;
 
-  @include hoverDevice {
+  @include hoverDevice($cursor: normal) {
     outline-color: var(--accent-color);
   }
 }

@@ -10,7 +10,7 @@
   outline: solid 1px var(--gray-border);
   transition: outline 0.3s ease-in-out;
 
-  @include hoverDevice {
+  @include hoverDevice($cursor: normal) {
     outline-color: var(--accent-color);
   }
 
@@ -101,9 +101,7 @@
   user-select: none;
 
   @include breakpoint(mobile-s) {
-    position: absolute;
-    top: 10px;
-    right: 10px;
+    @include absolute(10px, 10px);
   }
 
   @include hoverDevice {

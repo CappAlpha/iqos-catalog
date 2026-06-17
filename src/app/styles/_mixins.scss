@@ -170,20 +170,57 @@ $breakpoints: (
   border-bottom: 1px solid var(--light-gray-border);
 }
 
-@mixin hoverDevice {
-  &:hover {
-    @media (hover: hover) and (pointer: fine) {
-      cursor: pointer;
+@mixin hoverDevice($cursor: pointer) {
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      cursor: $cursor;
       @content;
     }
   }
 }
 
 @mixin lineClamp($lines: 2) {
-  display: -moz-box;
   display: -webkit-box;
-  line-clamp: $lines;
   -webkit-line-clamp: $lines;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  overflow-wrap: anywhere;
+}
+
+@mixin closeIconBtn {
+  @include expandableArea;
+  --clickable-area-expandable-ratio: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+}
+
+@mixin overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--opacity-colors-black-40);
+}
+
+@mixin disabled {
+  opacity: 0.6;
+  pointer-events: none;
+  user-select: none;
+}
+
+@mixin absolute(
+  $top: auto,
+  $right: auto,
+  $bottom: auto,
+  $left: auto,
+  $transform: none,
+  $z-index: 0
+) {
+  position: absolute;
+  top: $top;
+  right: $right;
+  bottom: $bottom;
+  left: $left;
+  transform: $transform;
+  z-index: $z-index;
 }

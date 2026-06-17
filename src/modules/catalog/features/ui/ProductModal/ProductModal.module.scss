@@ -1,7 +1,5 @@
 .root {
-  position: fixed;
-  inset: 0;
-  background: var(--opacity-colors-black-40);
+  @include overlay;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -26,9 +24,7 @@
 }
 
 .closeBtn {
-  position: absolute;
-  top: 12px;
-  right: 12px;
+  @include absolute(12px, 12px);
   width: 24px;
   height: 24px;
   font-size: 24px;
@@ -145,8 +141,7 @@
 }
 
 .imgSkeleton {
-  z-index: 10;
-  position: absolute;
+  @include absolute($z-index: 10);
   inset: 0;
 }
 

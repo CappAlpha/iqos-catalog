@@ -57,9 +57,7 @@
 
 .moreColorsBtn {
   @include expandableArea;
-  position: absolute;
-  right: -34px;
-  top: -3px;
+  @include absolute(-3px, -34px);
 
   min-width: 32px;
   width: 32px;
