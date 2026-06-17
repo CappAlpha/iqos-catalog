@@ -8,15 +8,12 @@
   outline: solid 1px var(--gray-border);
   transition: all 0.3s ease-in-out;
 
-  &:hover {
-    @media (hover: hover) and (pointer: fine) {
-      cursor: pointer;
-      outline-color: var(--accent-color);
-      box-shadow: 0 0 10px 0.1px var(--accent-color);
+  @include hoverDevice {
+    outline-color: var(--accent-color);
+    box-shadow: 0 0 10px 0.1px var(--accent-color);
 
-      img {
-        scale: 1.1;
-      }
+    img {
+      scale: 1.1;
     }
   }
 }
@@ -70,12 +67,7 @@
 
 .title,
 .titleSkeleton {
-  display: -moz-box;
-  display: -webkit-box;
-  line-clamp: 2;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+  @include lineClamp(2);
   font-size: 20px;
   font-weight: 700;
   line-height: 1.2;

@@ -10,10 +10,8 @@
   outline: solid 1px var(--gray-border);
   transition: outline 0.3s ease-in-out;
 
-  &:hover {
-    @media (hover: hover) and (pointer: fine) {
-      outline-color: var(--accent-color);
-    }
+  @include hoverDevice {
+    outline-color: var(--accent-color);
   }
 
   @include breakpoint(mobile-s) {
@@ -108,10 +106,8 @@
     right: 10px;
   }
 
-  &:hover {
-    @media (hover: hover) and (pointer: fine) {
-      color: var(--additional-red) !important;
-    }
+  @include hoverDevice {
+    color: var(--additional-red) !important;
   }
 }
 

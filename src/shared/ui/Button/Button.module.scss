@@ -21,12 +21,9 @@
     transition: all 0.3s ease-in-out;
   }
 
-  &:hover {
-    @media (hover: hover) and (pointer: fine) {
-      color: var(--black);
-      background: var(--accent-color);
-      cursor: pointer;
-    }
+  @include hoverDevice {
+    color: var(--black);
+    background: var(--accent-color);
   }
 
   &.color {
@@ -35,11 +32,9 @@
       color: var(--dark-gray);
       fill: var(--dark-gray);
 
-      &:hover {
-        @media (hover: hover) and (pointer: fine) {
-          color: var(--accent-color);
-          fill: var(--accent-color);
-        }
+      @include hoverDevice {
+        color: var(--accent-color);
+        fill: var(--accent-color);
       }
     }
 
@@ -49,12 +44,10 @@
       outline: 1px solid var(--gray-border);
       fill: var(--dark-gray);
 
-      &:hover {
-        @media (hover: hover) and (pointer: fine) {
-          background: var(--accent-color);
-          color: var(--white);
-          fill: var(--white);
-        }
+      @include hoverDevice {
+        background: var(--accent-color);
+        color: var(--white);
+        fill: var(--white);
       }
     }
 
@@ -64,11 +57,9 @@
       fill: var(--additional-red);
       border: 1px solid var(--additional-red);
 
-      &:hover {
-        @media (hover: hover) and (pointer: fine) {
-          color: var(--white);
-          background: var(--additional-red);
-        }
+      @include hoverDevice {
+        color: var(--white);
+        background: var(--additional-red);
       }
     }
   }

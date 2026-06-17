@@ -27,18 +27,16 @@
     animation: toZeroWidth 0.4s ease-in-out;
   }
 
-  &:hover {
-    @media (hover: hover) and (pointer: fine) {
-      &::after {
-        content: "";
-        opacity: 1;
-        width: 100%;
-        height: 1px;
-        background: var(--gray-border);
-        position: absolute;
-        bottom: 0;
-        animation: fromZeroWidth 0.4s ease-in-out;
-      }
+  @include hoverDevice {
+    &::after {
+      content: "";
+      opacity: 1;
+      width: 100%;
+      height: 1px;
+      background: var(--gray-border);
+      position: absolute;
+      bottom: 0;
+      animation: fromZeroWidth 0.4s ease-in-out;
     }
   }
 }

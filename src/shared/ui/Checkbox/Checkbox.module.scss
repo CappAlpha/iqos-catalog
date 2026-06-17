@@ -8,17 +8,13 @@
   line-height: 1.2;
   transition: all 0.3s ease-in-out;
 
-  &:hover {
-    @media (hover: hover) and (pointer: fine) {
-      cursor: pointer;
+  @include hoverDevice {
+    .box {
+      border-color: var(--accent-color);
+    }
 
-      .box {
-        border-color: var(--accent-color);
-      }
-
-      .label {
-        color: var(--accent-color);
-      }
+    .label {
+      color: var(--accent-color);
     }
   }
 }

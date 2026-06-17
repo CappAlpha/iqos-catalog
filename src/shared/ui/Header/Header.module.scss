@@ -46,14 +46,12 @@
     display: none;
   }
 
-  &:hover {
-    @media (hover: hover) and (pointer: fine) {
-      fill: var(--accent-color);
+  @include hoverDevice {
+    fill: var(--accent-color);
 
-      svg {
-        &:first-child {
-          border-color: var(--accent-color);
-        }
+    svg {
+      &:first-child {
+        border-color: var(--accent-color);
       }
     }
   }
@@ -98,11 +96,9 @@
   padding: 8px 12px;
   border-radius: 10px;
 
-  &:hover {
-    @media (hover: hover) and (pointer: fine) {
-      color: var(--accent-color);
-      background: var(--light-gray);
-    }
+  @include hoverDevice {
+    color: var(--accent-color);
+    background: var(--light-gray);
   }
 
   &.active {

@@ -10,10 +10,8 @@
   border-radius: 10px;
   transition: all 0.4s ease-in-out;
 
-  &:hover {
-    @media (hover: hover) and (pointer: fine) {
-      outline-color: var(--accent-color);
-    }
+  @include hoverDevice {
+    outline-color: var(--accent-color);
   }
 
   @include breakpoint(desktop-s) {

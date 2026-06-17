@@ -99,7 +99,7 @@ export class NativeBluetooth implements IBluetoothStrategy {
       this.deviceId = null;
 
       await BleClient.disconnect(idToDisconnect).catch((err) => {
-        console.warn("Ошибка при закрытии физического соединения:", err);
+        console.warn("Ошибка при закрытии соединения:", err);
       });
     }
     this.onDisconnectCallback = null;

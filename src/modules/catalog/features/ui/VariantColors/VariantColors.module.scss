@@ -42,11 +42,8 @@
     margin-bottom: 0;
   }
 
-  &:hover {
-    @media (hover: hover) and (pointer: fine) {
-      cursor: pointer;
-      transform: scale(1.15);
-    }
+  @include hoverDevice {
+    transform: scale(1.15);
   }
 
   &.activeColor {
@@ -86,11 +83,8 @@
     margin-bottom: 0;
   }
 
-  &:hover {
-    @media (hover: hover) and (pointer: fine) {
-      cursor: pointer;
-      background: var(--light-gray);
-      color: var(--accent-color);
-    }
+  @include hoverDevice {
+    background: var(--light-gray);
+    color: var(--accent-color);
   }
 }

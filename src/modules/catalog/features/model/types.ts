@@ -1,5 +1,3 @@
-export type Status = "loading" | "success" | "error";
-
 export type SortKey = "nameAsc" | "nameDesc" | "priceAsc" | "priceDesc";
 
 export type FilterGroupKey = "devices" | "sticks" | "accessories";
