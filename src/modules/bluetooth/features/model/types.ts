@@ -1,8 +1,8 @@
-export type IBluetoothConnectionResult = {
+export interface IBluetoothConnectionResult {
   device: Partial<BluetoothDevice> | null;
   services: string[];
   batteryLevel: number | null;
-};
+}
 
 export interface IBluetoothDeviceConfig {
   services: string[];

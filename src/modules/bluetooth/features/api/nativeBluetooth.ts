@@ -56,13 +56,8 @@ export class NativeBluetooth implements IBluetoothStrategy {
         console.warn("Не удалось прочитать сервисы устройства:", e);
       }
 
-      const mappedDevice = {
-        ...device,
-        id: device.deviceId,
-      };
-
       return {
-        device: mappedDevice,
+        device: { ...device, id: device.deviceId },
         services,
         batteryLevel,
       };

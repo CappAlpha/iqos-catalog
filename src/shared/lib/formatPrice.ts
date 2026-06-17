@@ -8,5 +8,5 @@ const RUB = (value: number) =>
   });
 
 export const formatPrice = (price: number, quantity?: number) => {
-  return RUB((price ?? 0) * (quantity ?? 1)).format() + " ₽";
+  return RUB(price * (quantity ?? 1)).format() + " ₽";
 };
