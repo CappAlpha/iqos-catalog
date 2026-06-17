@@ -1,9 +1,10 @@
-import js from "@eslint/js";
 import reactPlugin from "@eslint-react/eslint-plugin";
+import js from "@eslint/js";
 import prettierConfig from "eslint-config-prettier";
+import pluginMobx from "eslint-plugin-mobx";
+import reactCompiler from "eslint-plugin-react-compiler";
 import reactHooksPlugin from "eslint-plugin-react-hooks";
 import reactRefreshPlugin from "eslint-plugin-react-refresh";
-import pluginMobx from "eslint-plugin-mobx"
 import globals from "globals";
 import tsEslint from "typescript-eslint";
 
@@ -35,12 +36,14 @@ export default [
       "@eslint-react": reactPlugin,
       "react-hooks": reactHooksPlugin,
       "react-refresh": reactRefreshPlugin,
+      "react-compiler": reactCompiler,
       mobx: pluginMobx,
     },
     rules: {
       ...reactPlugin.configs.recommended.rules,
       ...reactHooksPlugin.configs.recommended.rules,
       ...reactRefreshPlugin.configs.recommended.rules,
+      ...reactCompiler.configs.recommended.rules,
       ...pluginMobx.configs.recommended.rules,
       "react-refresh/only-export-components": [
         "warn",
