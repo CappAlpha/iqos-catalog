@@ -50,7 +50,8 @@ allprojects {
 
 Если уже есть этот блок кода в файле, то важно добавить туда именно `maven { url 'https://jitpack.io' }`
 
-И в android/app/src/main/AndroidManifest.xml добавить в самом верху:
+Если Bluetooth требует геолокацию.
+В android/app/src/main/AndroidManifest.xml добавить в самом верху:
 
 ```
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
