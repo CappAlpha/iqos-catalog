@@ -1,12 +1,20 @@
 import { toast, type ToastT } from "sonner";
 
-export const customToastTemplate = (
-  title: string,
-  type?: ToastT["type"],
-  description?: string,
-  buttonLabel?: string,
-  action?: () => void,
-) => {
+interface ToastOptions {
+  title: string;
+  type?: ToastT["type"];
+  description?: string;
+  buttonLabel?: string;
+  action?: () => void;
+}
+
+export const customToastTemplate = ({
+  title,
+  type,
+  description,
+  buttonLabel,
+  action,
+}: ToastOptions) => {
   const options: Parameters<typeof toast>[1] = {};
 
   if (description) {

@@ -165,7 +165,11 @@ class CartM {
       onStart: () => this.items.push({ product, quantity: 1 }),
     });
 
-    customToastTemplate("Товар добавлен в корзину", "success", product.name);
+    customToastTemplate({
+      title: "Товар добавлен в корзину",
+      type: "success",
+      description: product.name,
+    });
   };
 
   private returnItemToCart(productId: string, item: CartItem) {
@@ -187,13 +191,13 @@ class CartM {
       onEnd: () => {
         this.items = this.items.filter((i) => i.product.id !== productId);
 
-        customToastTemplate(
-          "Товар убран",
-          "success",
-          item.product.name,
-          "Вернуть",
-          () => this.returnItemToCart(productId, item),
-        );
+        customToastTemplate({
+          title: "Товар убран",
+          type: "success",
+          description: item.product.name,
+          buttonLabel: "Вернуть",
+          action: () => this.returnItemToCart(productId, item),
+        });
       },
     });
   };
@@ -218,7 +222,7 @@ class CartM {
 
     this.runGlobalTransition("clear", () => {
       this.items = [];
-      customToastTemplate("Корзина очищена", "success");
+      customToastTemplate({ title: "Корзина очищена", type: "success" });
     });
   };
 
@@ -244,7 +248,10 @@ class CartM {
           "add",
           {
             onStart: () =>
-              customToastTemplate("Заказ успешно оформлен", "success"),
+              customToastTemplate({
+                title: "Заказ успешно оформлен",
+                type: "success",
+              }),
           },
           600,
         );

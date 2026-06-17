@@ -10,7 +10,7 @@ import tsEslint from "typescript-eslint";
 
 export default [
   {
-    ignores: ["dist/**", "node_modules/**", "android"],
+    ignores: ["dist/**", "node_modules/**", "android/**", "ios/**"],
   },
 
   // base js

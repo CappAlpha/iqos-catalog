@@ -30,10 +30,7 @@
     "noUncheckedSideEffectImports": true,
     "isolatedModules": true,
     "noEmitOnError": true,
-    "forceConsistentCasingInFileNames": true,
-    "declaration": true,
-    "declarationMap": true,
-    "sourceMap": true
+    "forceConsistentCasingInFileNames": true
   },
   "include": ["src", "capacitor.config.ts", "knip.config.ts"]
 }

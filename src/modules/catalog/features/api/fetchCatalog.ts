@@ -66,10 +66,10 @@ export async function fetchCatalog({
     );
 
     if (globalThis.window !== undefined) {
-      customToastTemplate(
-        `Ошибка основного фида (${feedUrl}), берём резервный...`,
-        "warning",
-      );
+      customToastTemplate({
+        title: `Ошибка основного фида (${feedUrl}), берём резервный...`,
+        type: "warning",
+      });
     }
 
     try {

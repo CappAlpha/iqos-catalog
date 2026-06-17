@@ -51,7 +51,7 @@ export function formatError(
   const fullMessage = `${messagePrefix}${errorMessage}`;
 
   if (showToast) {
-    customToastTemplate(fullMessage, "error");
+    customToastTemplate({ title: fullMessage, type: "error" });
   }
 
   return error instanceof Error

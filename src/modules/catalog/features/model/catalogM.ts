@@ -2,8 +2,6 @@ import { makeAutoObservable, observable, runInAction } from "mobx";
 import { Query } from "mobx-tanstack-query";
 import { queryClient } from "mobx-tanstack-query/preset";
 
-import { clamp } from "@/shared/lib/math";
-
 import { fetchCatalog } from "../api/fetchCatalog";
 import { getComparator } from "../lib/comparators";
 import {
@@ -208,7 +206,7 @@ class CatalogM {
   }
 
   get safePage() {
-    return clamp(this.page, 1, this.totalPages);
+    return Math.min(Math.max(this.page, 1), this.totalPages);
   }
 
   get showSkeleton() {

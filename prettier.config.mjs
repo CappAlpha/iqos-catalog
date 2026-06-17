@@ -1,6 +1,7 @@
 export default {
   plugins: ["@trivago/prettier-plugin-sort-imports"],
   tabWidth: 2,
+  trailingComma: "all",
   importOrder: [
     "^@/(.*)$",
     "^[./].*(?<!\\.module\\.scss)$",
@@ -10,9 +11,6 @@ export default {
   overrides: [
     {
       files: ["*.json", "*.md", "*.scss", "*.yml", "*.yaml"],
-      options: {
-        singleQuote: false,
-      },
     },
     {
       files: ["*.ts", "*.tsx"],
