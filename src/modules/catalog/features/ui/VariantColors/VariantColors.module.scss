@@ -31,6 +31,7 @@
   border: 2px solid transparent;
   transition: all 0.2s ease;
   outline: solid 1px var(--gray-border);
+  -webkit-tap-highlight-color: transparent;
 
   margin-right: 10px;
   margin-bottom: 10px;

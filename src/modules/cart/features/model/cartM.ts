@@ -142,6 +142,10 @@ class CartM {
     return this.items.reduce((sum, item) => sum + item.quantity, 0);
   }
 
+  get uniqueItemsCount() {
+    return this.items.length;
+  }
+
   get totalPrice() {
     return this.items.reduce(
       (sum, item) => sum + (item.product.price ?? 0) * item.quantity,

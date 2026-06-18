@@ -34,14 +34,14 @@ $breakpoints: (
   }
 }
 
-@mixin scrollbar {
+@mixin scrollbar($scrollbar-width: 6px, $border-radius: 6px) {
   &::-webkit-scrollbar {
-    width: var(--scrollbar-width);
+    width: $scrollbar-width;
   }
 
   &::-webkit-scrollbar-thumb {
     background-color: var(--dark-gray);
-    border-radius: 6px;
+    border-radius: $border-radius;
     transition: background-color 0.3s ease-in-out;
 
     &:hover {
@@ -50,6 +50,10 @@ $breakpoints: (
         cursor: pointer;
       }
     }
+  }
+
+  &::-webkit-scrollbar-track {
+    background: var(--light-gray);
   }
 }
 

@@ -141,6 +141,10 @@
   justify-content: center;
   padding: 0 4px;
   border: 2px solid var(--white);
+
+  @include breakpoint(mobile-m) {
+    right: -16px;
+  }
 }
 
 .cartInitial {

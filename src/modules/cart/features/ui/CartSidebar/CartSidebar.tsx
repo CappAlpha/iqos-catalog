@@ -9,7 +9,8 @@ import { cartM } from "../../model/cartM";
 import s from "./CartSidebar.module.scss";
 
 export const CartSidebar = observer(() => {
-  const { totalPrice, totalItems, checkout, isCartUpdating } = cartM;
+  const { totalPrice, uniqueItemsCount, totalItems, checkout, isCartUpdating } =
+    cartM;
 
   return (
     <aside className={s.sidebar}>
@@ -17,11 +18,19 @@ export const CartSidebar = observer(() => {
         <h3 className={s.summaryTitle}>Сумма заказа</h3>
         <div className={s.summaryRow}>
           <p>
-            Товары (
+            <span className={cn(isCartUpdating && s.updatingText)}>
+              {uniqueItemsCount}
+            </span>{" "}
+            {uniqueItemsCount === 1
+              ? "товар"
+              : uniqueItemsCount < 5
+                ? "товара"
+                : "товаров"}
+            ,{" "}
             <span className={cn(isCartUpdating && s.updatingText)}>
               {totalItems}
             </span>{" "}
-            шт.)
+            шт.
           </p>
           <p>
             <span className={cn(isCartUpdating && s.updatingText)}>

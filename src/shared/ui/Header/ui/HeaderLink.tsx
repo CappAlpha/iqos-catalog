@@ -10,7 +10,7 @@ import s from "../Header.module.scss";
 
 export const HeaderLink = observer(
   ({ to, text, Icon, isCart }: INavLinkItem) => {
-    const { isCartUpdating, totalItems, isEmpty } = cartM;
+    const { isCartUpdating, uniqueItemsCount, isEmpty } = cartM;
 
     return (
       <TransitionNavLink
@@ -24,11 +24,11 @@ export const HeaderLink = observer(
           {isCart && !isEmpty && (
             <b
               className={cn(s.badge, {
-                [s.cartInitial]: totalItems === 1,
-                [s.updatingBadge]: totalItems > 1 && isCartUpdating,
+                [s.cartInitial]: uniqueItemsCount === 1,
+                [s.updatingBadge]: uniqueItemsCount > 1 && isCartUpdating,
               })}
             >
-              {totalItems}
+              {uniqueItemsCount}
             </b>
           )}
         </div>
