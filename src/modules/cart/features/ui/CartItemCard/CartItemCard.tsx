@@ -48,7 +48,9 @@ export const CartItemCard = observer(({ item }: Props) => {
 
       <div className={s.info}>
         <div className={s.header}>
-          <h5 className={s.title}>{name}</h5>
+          <h5 className={s.title}>
+            <b>{name}</b>
+          </h5>
           {categoryTitle && <p className={s.category}>{categoryTitle}</p>}
         </div>
 

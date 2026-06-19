@@ -12,7 +12,9 @@ export const FiltersDesktop = observer(() => {
 
   return (
     <div className={s.root}>
-      <h3 className={s.title}>Фильтры</h3>
+      <h3 className={s.title}>
+        <b>Фильтры</b>
+      </h3>
 
       <FiltersGroup />
 

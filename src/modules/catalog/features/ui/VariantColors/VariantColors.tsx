@@ -55,7 +55,7 @@ export const VariantsColors = ({
 
       {hasMore && (
         <Button className={s.moreColorsBtn} onClick={onExpand}>
-          +{variants.length - MAX_VISIBLE_COLORS}
+          <b>+{variants.length - MAX_VISIBLE_COLORS}</b>
         </Button>
       )}
     </div>

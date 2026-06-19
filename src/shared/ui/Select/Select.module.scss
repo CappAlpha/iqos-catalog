@@ -94,22 +94,10 @@
     transform: translateY(0);
   }
 
-  &::-webkit-scrollbar {
-    width: 6px;
-  }
+  @include scrollbar;
 
   &::-webkit-scrollbar-track {
-    background: var(--light-gray);
     border-radius: 0 0 10px 0;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background: var(--gray-border);
-    border-radius: 3px;
-
-    @include hoverDevice {
-      background: var(--gray);
-    }
   }
 }
 

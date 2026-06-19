@@ -37,7 +37,7 @@ export const Pagination = ({ page, totalPages, onChange }: Props) => {
             return (
               /* eslint-disable-next-line @eslint-react/no-array-index-key */
               <li key={`dots-${i}`} className={s.dots} aria-hidden="true">
-                …
+                <b>…</b>
               </li>
             );
           }
@@ -51,7 +51,7 @@ export const Pagination = ({ page, totalPages, onChange }: Props) => {
                 aria-label={`Страница ${item.value}`}
                 aria-current={isActive ? "page" : undefined}
               >
-                {item.value}
+                <b>{item.value}</b>
               </button>
             </li>
           );

@@ -14,9 +14,10 @@
   position: relative;
   overflow-y: auto;
   background: var(--white);
-  border-radius: 16px;
+  border-radius: 5px;
   box-shadow: 0 10px 40px var(--opacity-colors-black-40);
   animation: slideUp 0.3s ease-out;
+  @include scrollbar(3px, 3px);
 
   @include breakpoint(desktop-s) {
     width: 85dvw;
@@ -24,8 +25,11 @@
 }
 
 .closeBtn {
-  @include absolute(12px, 12px);
-  width: 24px;
+  position: sticky;
+  justify-content: flex-end;
+  top: 12px;
+  padding-right: 12px;
+  width: 100%;
   height: 24px;
   font-size: 24px;
 }

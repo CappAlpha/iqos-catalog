@@ -15,7 +15,9 @@ export const CartSidebar = observer(() => {
   return (
     <aside className={s.sidebar}>
       <div className={s.summaryBox}>
-        <h3 className={s.summaryTitle}>Сумма заказа</h3>
+        <h3 className={s.summaryTitle}>
+          <b>Сумма заказа</b>
+        </h3>
         <div className={s.summaryRow}>
           <p>
             <span className={cn(isCartUpdating && s.updatingText)}>
@@ -39,10 +41,12 @@ export const CartSidebar = observer(() => {
           </p>
         </div>
         <div className={s.summaryTotal}>
-          <p>Итого</p>
+          <p>
+            <b>Итого</b>
+          </p>
           <p>
             <span className={cn(isCartUpdating && s.updatingText)}>
-              {formatPrice(totalPrice)}
+              <b>{formatPrice(totalPrice)}</b>
             </span>{" "}
           </p>
         </div>

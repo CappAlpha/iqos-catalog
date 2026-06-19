@@ -56,7 +56,9 @@ export const ProductCard = observer(
           </div>
 
           <div className={s.textWrap}>
-            <h5 className={s.title}>{baseName}</h5>
+            <h5 className={s.title}>
+              <b>{baseName}</b>
+            </h5>
             {type === "color" && variants.length > 1 && (
               <h6 className={s.selectedColorName}>
                 <span className={cn(isPending && s.selectedSkeleton)} />

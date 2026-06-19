@@ -21,7 +21,9 @@ export const FiltersGroup = observer(({ className }: Props) => {
 
         return (
           <div key={key} className={cn(s.root, className)}>
-            <h4 className={s.title}>{title}</h4>
+            <h4 className={s.title}>
+              <b>{title}</b>
+            </h4>
             <div className={s.categories}>
               {categories.map(({ id, title }) => (
                 <Checkbox

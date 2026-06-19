@@ -21,7 +21,9 @@ export const CatalogGrid = observer(() => {
   if (error)
     return (
       <div className={s.errorWrap}>
-        <div className={s.errorTitle}>Не удалось загрузить каталог</div>
+        <div className={s.errorTitle}>
+          <b>Не удалось загрузить каталог</b>
+        </div>
         <div className={s.errorText}>
           Проверьте подключение к интернету или попробуйте позже
         </div>

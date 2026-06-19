@@ -6,7 +6,6 @@
   background: rgba(255, 255, 255, 0.85);
   backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--gray-border);
-  transition: background-color 0.3s ease;
 
   @include breakpoint(mobile-m) {
     position: fixed;
@@ -35,7 +34,7 @@
 
 .logo,
 .logo svg {
-  transition: all 0.3s ease-in-out;
+  transition: all 0.4s ease-in-out;
 }
 
 .logo {
@@ -92,7 +91,7 @@
   gap: 8px;
   color: var(--gray);
   font-size: 16px;
-  transition: color 0.2s ease-in-out;
+  transition: all 0.4s ease-in-out;
   padding: 8px 12px;
   border-radius: 10px;
 
@@ -132,7 +131,6 @@
   background: var(--additional-red);
   color: var(--white);
   font-size: 12px;
-  font-weight: 700;
   min-width: 18px;
   height: 18px;
   border-radius: 50%;
@@ -148,7 +146,7 @@
 }
 
 .cartInitial {
-  animation: pop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  animation: pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .updatingBadge {

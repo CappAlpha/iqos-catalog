@@ -19,11 +19,6 @@
   }
 }
 
-.title {
-  font-size: 28px;
-  font-weight: 700;
-}
-
 .resetBtn {
   @include expandableArea;
   --clickable-area-expandable-ratio: 12px;
