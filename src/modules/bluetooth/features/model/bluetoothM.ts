@@ -47,6 +47,10 @@ class BluetoothM {
     return this.status === "disconnecting";
   }
 
+  get isSupported() {
+    return typeof navigator !== "undefined" && !!navigator.bluetooth;
+  }
+
   private readonly setConnected = ({
     services,
     batteryLevel,

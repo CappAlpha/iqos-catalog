@@ -13,13 +13,14 @@ export const BluetoothConnect = observer(() => {
     isConnected,
     isConnecting,
     isDisconnecting,
+    isSupported,
     error,
     disconnect,
     connect,
     cancelIfConnecting,
   } = bluetoothM;
 
-  const isPending = isConnecting || isDisconnecting;
+  const isDisabled = isConnecting || isDisconnecting || !isSupported;
 
   const handleConnect = () => {
     void connect();
@@ -49,7 +50,7 @@ export const BluetoothConnect = observer(() => {
       <div className={s.controls}>
         <Button
           onClick={handleConnect}
-          disabled={isPending}
+          disabled={isDisabled}
           className={s.btnConnect}
         >
           {buttonText}
@@ -77,6 +78,14 @@ export const BluetoothConnect = observer(() => {
           >
             &#10006;
           </Button>
+        </div>
+      )}
+      {!isSupported && (
+        <div className={s.errorWrap}>
+          <p>
+            Bluetooth не поддерживается вашим браузером. Используйте Chrome,
+            Edge или Opera.
+          </p>
         </div>
       )}
     </section>

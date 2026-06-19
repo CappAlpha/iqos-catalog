@@ -39,6 +39,10 @@ class UsbM {
     return this.status === "disconnecting";
   }
 
+  get isSupported() {
+    return typeof navigator !== "undefined" && !!navigator.usb;
+  }
+
   private readonly setConnected = ({
     device,
     batteryLevel,

@@ -13,12 +13,13 @@ export const UsbConnect = observer(() => {
     isConnected,
     isConnecting,
     isDisconnecting,
+    isSupported,
     error,
     connect,
     disconnect,
   } = usbM;
 
-  const isPending = isConnecting || isDisconnecting;
+  const isDisabled = isConnecting || isDisconnecting || !isSupported;
 
   const handleConnect = () => {
     void connect();
@@ -43,7 +44,7 @@ export const UsbConnect = observer(() => {
         <div className={s.controls}>
           <Button
             onClick={handleConnect}
-            disabled={isPending}
+            disabled={isDisabled}
             className={s.btnConnect}
           >
             {buttonText}
@@ -71,6 +72,14 @@ export const UsbConnect = observer(() => {
             >
               &#10006;
             </Button>
+          </div>
+        )}
+        {!isSupported && (
+          <div className={s.errorWrap}>
+            <p>
+              USB не поддерживается вашим браузером. Используйте Chrome, Edge
+              или Opera.
+            </p>
           </div>
         )}
       </div>

@@ -71,10 +71,7 @@ export class WebUsb implements IUsbStrategy {
   private readonly configureWebUsbDevice = async (device: USBDevice) => {
     await device.open();
     try {
-      if (
-        device.configuration === null ||
-        device.configuration.configurationValue !== DEFAULT_CONFIGURATION
-      ) {
+      if (device.configuration?.configurationValue !== DEFAULT_CONFIGURATION) {
         await device.selectConfiguration(DEFAULT_CONFIGURATION);
       }
     } catch (err) {
