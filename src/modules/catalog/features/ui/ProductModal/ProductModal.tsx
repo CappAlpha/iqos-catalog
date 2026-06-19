@@ -86,24 +86,6 @@ export const ProductModal = ({
               forceShowAllColors
             />
 
-            <div>
-              <AddCartButton
-                className={s.btn}
-                selectedProduct={selectedProduct}
-                isPending={isPending}
-              />
-
-              {price && (
-                <p className={s.price}>
-                  Цена:{" "}
-                  <b className={cn(isPending && s.priceSkeleton)}>
-                    {formatPrice(price)}
-                  </b>{" "}
-                  шт.
-                </p>
-              )}
-            </div>
-
             {description && (
               <div className={s.descriptionWrap}>
                 <h4>Описание</h4>
@@ -112,6 +94,23 @@ export const ProductModal = ({
               </div>
             )}
           </div>
+        </div>
+
+        <div className={s.stickyFooter}>
+          {price && (
+            <div className={s.priceWrap}>
+              <span className={s.priceLabel}>Цена:</span>
+              <b className={cn(s.priceValue, isPending && s.priceSkeleton)}>
+                {formatPrice(price)}
+              </b>
+              <span className={s.priceUnit}>шт.</span>
+            </div>
+          )}
+          <AddCartButton
+            className={s.btn}
+            selectedProduct={selectedProduct}
+            isPending={isPending}
+          />
         </div>
       </div>
     </div>

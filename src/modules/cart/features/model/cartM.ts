@@ -3,6 +3,7 @@ import { makeAutoObservable, autorun, runInAction, toJS } from "mobx";
 
 import type { Product } from "@/modules/catalog/features/model/types";
 import { customToastTemplate } from "@/shared/lib/customToastTemplate";
+import { parseSafe } from "@/shared/lib/parseSafe";
 
 import { CART_STORAGE_KEY, ORDERS_STORAGE_KEY } from "./constants";
 import type { CartItem, Order } from "./types";
@@ -66,11 +67,11 @@ class CartM {
     const currentTimer = this.#cartItemsTimers.get(productId);
     if (currentTimer) clearTimeout(currentTimer);
 
-    if (callbacks.onStart) callbacks.onStart();
+    callbacks.onStart?.();
 
     const timer = setTimeout(() => {
       runInAction(() => {
-        if (callbacks.onEnd) callbacks.onEnd();
+        callbacks.onEnd?.();
         this.activeTransitions.delete(productId);
         this.#cartItemsTimers.delete(productId);
       });
@@ -86,19 +87,9 @@ class CartM {
         Preferences.get({ key: ORDERS_STORAGE_KEY }),
       ]);
 
-      const parseSafe = <T>(data: string | null): T | [] => {
-        if (!data) return [];
-        try {
-          return JSON.parse(data) as T;
-        } catch (e) {
-          console.error(`Ошибка парсинга данных хранилища - ${data}`, e);
-          return [];
-        }
-      };
-
       runInAction(() => {
-        this.items = parseSafe<CartItem[]>(cart);
-        this.orderHistory = parseSafe<Order[]>(orders);
+        this.items = parseSafe<CartItem[]>(cart, []);
+        this.orderHistory = parseSafe<Order[]>(orders, []);
         this.isInitialized = true;
       });
     } catch (e) {

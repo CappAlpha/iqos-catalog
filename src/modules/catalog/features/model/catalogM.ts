@@ -256,7 +256,9 @@ class CatalogM {
       }
     };
 
-    rootIds.forEach(collect);
+    for (const rootId of rootIds) {
+      collect(rootId);
+    }
     return result;
   }
 

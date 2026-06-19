@@ -24,6 +24,49 @@
   }
 }
 
+.stickyFooter {
+  position: sticky;
+  bottom: -1px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 20px;
+  backdrop-filter: blur(20px);
+  z-index: 10;
+
+  @include breakpoint(mobile-m) {
+    padding: 15px 20px;
+  }
+}
+
+.priceWrap {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin-left: 8dvw;
+
+  @include breakpoint(mobile-m) {
+    margin-left: 0;
+  }
+}
+
+.priceLabel {
+  font-size: 14px;
+  color: var(--gray);
+}
+
+.priceValue {
+  font-size: 20px;
+  color: var(--black);
+}
+
+.priceUnit {
+  font-size: 14px;
+  color: var(--gray);
+}
+
 .closeBtn {
   position: sticky;
   justify-content: flex-end;
@@ -128,11 +171,6 @@
       font-size: 14px;
     }
   }
-}
-
-.price {
-  display: flex;
-  gap: 4px;
 }
 
 .imgSkeleton,

@@ -12,12 +12,9 @@ const comparePrices = (
   b: number | null | undefined,
   isDesc = false,
 ) => {
-  const aIsNull = a === null || a === undefined;
-  const bIsNull = b === null || b === undefined;
-
-  if (aIsNull && bIsNull) return 0;
-  if (aIsNull) return 1;
-  if (bIsNull) return -1;
+  if (a == null && b == null) return 0;
+  if (a == null) return 1;
+  if (b == null) return -1;
 
   return isDesc ? b - a : a - b;
 };
@@ -32,7 +29,4 @@ const COMPARATORS: Record<SortKey, (a: Product, b: Product) => number> = {
     comparePrices(a.price, b.price, true) || compareText(a.name, b.name),
 };
 
-const defaultComparator = () => 0;
-
-export const getComparator = (key: SortKey) =>
-  COMPARATORS[key] ?? defaultComparator;
+export const getComparator = (key: SortKey) => COMPARATORS[key] ?? (() => 0);
