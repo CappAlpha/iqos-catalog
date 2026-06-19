@@ -37,23 +37,31 @@ $breakpoints: (
 @mixin scrollbar($scrollbar-width: 6px, $border-radius: 6px) {
   &::-webkit-scrollbar {
     width: $scrollbar-width;
+    height: $scrollbar-width;
   }
 
   &::-webkit-scrollbar-thumb {
     background-color: var(--dark-gray);
     border-radius: $border-radius;
-    transition: background-color 0.3s ease-in-out;
 
-    &:hover {
-      @media (hover: hover) and (pointer: fine) {
-        background-color: var(--accent-color);
-        cursor: pointer;
-      }
+    @include hoverDevice {
+      background-color: var(--accent-color);
+      cursor: pointer;
     }
   }
 
   &::-webkit-scrollbar-track {
-    background: var(--light-gray);
+    background-color: var(--light-gray);
+    border-radius: $border-radius;
+  }
+
+  @supports not selector(::-webkit-scrollbar) {
+    scrollbar-color: var(--dark-gray) var(--light-gray);
+    scrollbar-width: thin;
+
+    @include hoverDevice {
+      scrollbar-color: var(--accent-color) var(--light-gray);
+    }
   }
 }
 
