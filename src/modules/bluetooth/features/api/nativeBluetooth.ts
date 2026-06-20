@@ -12,6 +12,7 @@ import type {
 export class NativeBluetooth implements IBluetoothStrategy {
   private deviceId: string | null = null;
   private onDisconnectCallback: (() => void) | null = null;
+  private isDisconnecting = false;
 
   connect = async (
     config: IBluetoothDeviceConfig,
@@ -62,7 +63,7 @@ export class NativeBluetooth implements IBluetoothStrategy {
         batteryLevel,
       };
     } catch (error) {
-      await this.cleanup();
+      await this.cleanup(false);
       const message = getErrorMessage(
         error,
         "Не удалось подключиться через Bluetooth.",
@@ -72,7 +73,7 @@ export class NativeBluetooth implements IBluetoothStrategy {
   };
 
   disconnect = async () => {
-    await this.cleanup();
+    await this.cleanup(true);
   };
 
   getBatteryLevel = async () => {
@@ -93,21 +94,35 @@ export class NativeBluetooth implements IBluetoothStrategy {
     }
   };
 
-  private readonly cleanup = async () => {
-    if (this.deviceId) {
-      const idToDisconnect = this.deviceId;
-      this.deviceId = null;
+  private readonly cleanup = async (triggerCallback = false) => {
+    if (this.isDisconnecting) return;
+    this.isDisconnecting = true;
 
-      await BleClient.disconnect(idToDisconnect).catch((err) => {
-        console.warn("Ошибка при закрытии соединения:", err);
-      });
-    }
+    const callback = this.onDisconnectCallback;
+    const idToDisconnect = this.deviceId;
+
+    const wasConnected = !!idToDisconnect;
+
+    this.deviceId = null;
     this.onDisconnectCallback = null;
+
+    if (idToDisconnect) {
+      try {
+        await BleClient.disconnect(idToDisconnect);
+      } catch (err) {
+        console.warn("Ошибка при закрытии соединения Bluetooth:", err);
+      }
+    }
+
+    this.isDisconnecting = false;
+
+    if (triggerCallback && wasConnected) {
+      callback?.();
+    }
   };
 
   private readonly handleDisconnect = async () => {
-    const callback = this.onDisconnectCallback;
-    await this.cleanup();
-    callback?.();
+    if (this.isDisconnecting) return;
+    await this.cleanup(true);
   };
 }

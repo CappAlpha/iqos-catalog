@@ -1,5 +1,11 @@
 import { makeAutoObservable, observable } from "mobx";
 
+import {
+  IS_ANDROID,
+  IS_CAPACITOR,
+  IS_PLUGIN_AVAILABLE_USB,
+  IS_WEB_SUPPORTED,
+} from "@/shared/constants/constants";
 import { actionPromiseWithTimeout } from "@/shared/lib/actionPromiseWithTimeout";
 import { getErrorMessage } from "@/shared/lib/getErrorMessage";
 
@@ -40,7 +46,11 @@ class UsbM {
   }
 
   get isSupported() {
-    return typeof navigator !== "undefined" && !!navigator.usb;
+    if (IS_CAPACITOR) {
+      return IS_ANDROID && IS_PLUGIN_AVAILABLE_USB;
+    }
+
+    return IS_WEB_SUPPORTED;
   }
 
   private readonly setConnected = ({

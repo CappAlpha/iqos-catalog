@@ -11,6 +11,7 @@ import type {
 export class AndroidNativeUsb implements IUsbStrategy {
   private activePortKey: string | null = null;
   private onDisconnectCallback: (() => void) | null = null;
+  private isDisconnecting = false;
 
   connect = async (
     config: IUsbDeviceConfig,
@@ -53,7 +54,7 @@ export class AndroidNativeUsb implements IUsbStrategy {
         batteryLevel: null,
       };
     } catch (error) {
-      await this.cleanup();
+      await this.cleanup(false);
       const message = getErrorMessage(
         error,
         "Не удалось подключиться к устройству по USB.",
@@ -63,28 +64,43 @@ export class AndroidNativeUsb implements IUsbStrategy {
   };
 
   disconnect = async () => {
-    const callback = this.onDisconnectCallback;
-    await this.cleanup();
-    callback?.();
+    await this.cleanup(true);
   };
 
   getBatteryLevel = (): Promise<number | null> => {
     return Promise.resolve(null);
   };
 
-  private readonly cleanup = async () => {
-    if (this.activePortKey) {
+  private readonly cleanup = async (triggerCallback = false) => {
+    if (this.isDisconnecting) return;
+    this.isDisconnecting = true;
+
+    const callback = this.onDisconnectCallback;
+    const portKeyToClose = this.activePortKey;
+
+    const wasConnected = !!portKeyToClose;
+
+    this.activePortKey = null;
+    this.onDisconnectCallback = null;
+
+    if (portKeyToClose) {
       try {
-        await UsbSerial.endConnection({ key: this.activePortKey });
+        await UsbSerial.endConnection({ key: portKeyToClose });
       } catch (e) {
         console.warn("Ошибка при закрытии USB порта:", e);
       }
-      this.activePortKey = null;
     } else {
-      await UsbSerial.endConnections().catch((e) => {
+      try {
+        await UsbSerial.endConnections();
+      } catch (e) {
         console.warn("Ошибка при закрытии USB соединений:", e);
-      });
+      }
     }
-    this.onDisconnectCallback = null;
+
+    this.isDisconnecting = false;
+
+    if (triggerCallback && wasConnected) {
+      callback?.();
+    }
   };
 }

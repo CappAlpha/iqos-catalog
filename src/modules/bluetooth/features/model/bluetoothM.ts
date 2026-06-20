@@ -1,5 +1,10 @@
 import { makeAutoObservable, observable } from "mobx";
 
+import {
+  IS_CAPACITOR,
+  IS_PLUGIN_AVAILABLE_BLUETOOTH,
+  IS_WEB_SUPPORTED,
+} from "@/shared/constants/constants";
 import { actionPromiseWithTimeout } from "@/shared/lib/actionPromiseWithTimeout";
 import { getErrorMessage } from "@/shared/lib/getErrorMessage";
 
@@ -48,7 +53,11 @@ class BluetoothM {
   }
 
   get isSupported() {
-    return typeof navigator !== "undefined" && !!navigator.bluetooth;
+    if (IS_CAPACITOR) {
+      return IS_PLUGIN_AVAILABLE_BLUETOOTH;
+    }
+
+    return IS_WEB_SUPPORTED;
   }
 
   private readonly setConnected = ({
