@@ -64,9 +64,7 @@ class UsbM {
   };
 
   connect = async () => {
-    if (this.status === "connecting" || this.status === "disconnecting") {
-      return;
-    }
+    if (this.status === "connecting" || this.status === "disconnecting") return;
 
     this.#currentConnectionId++;
     const connectionId = this.#currentConnectionId;
@@ -76,9 +74,10 @@ class UsbM {
     this.batteryLevel = null;
 
     try {
-      const result = await this.#strategy.connect(
-        this.deviceConfig,
-        this.handleDisconnect,
+      const result = await actionPromiseWithTimeout(
+        this.#strategy.connect(this.deviceConfig, this.handleDisconnect),
+        20000,
+        "Подключения по USB не удалось, попробуйте ещё раз.",
       );
 
       if (connectionId !== this.#currentConnectionId) {
@@ -92,8 +91,17 @@ class UsbM {
 
       await this.#strategy.disconnect().catch(() => {});
 
-      const errMsg = getErrorMessage(err, "Ошибка подключения по USB");
+      const errMsg = getErrorMessage(err, "Ошибка подключения по USB.");
       this.reset(errMsg);
+    }
+  };
+
+  private readonly handleDisconnect = () => {
+    this.#currentConnectionId++;
+    if (this.status === "disconnecting") {
+      this.reset();
+    } else {
+      this.reset("Устройство было физически извлечено из USB-порта.");
     }
   };
 
@@ -116,7 +124,7 @@ class UsbM {
     } catch (err) {
       console.warn("Физическое отключение USB не завершилось штатно:", err);
     } finally {
-      this.reset(wasConnecting ? "Подключение отменено" : null);
+      this.reset(wasConnecting ? "Подключение отменено." : null);
     }
   };
 
@@ -134,17 +142,8 @@ class UsbM {
 
       this.error = getErrorMessage(
         err,
-        "Не удалось обновить заряд батареи USB",
+        "Не удалось обновить заряд батареи USB.",
       );
-    }
-  };
-
-  private readonly handleDisconnect = () => {
-    this.#currentConnectionId++;
-    if (this.status === "disconnecting") {
-      this.reset();
-    } else {
-      this.reset("Устройство было физически извлечено из USB-порта.");
     }
   };
 }

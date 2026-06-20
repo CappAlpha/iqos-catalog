@@ -11,6 +11,8 @@
   width: 60dvw;
   max-width: 1400px;
   max-height: 90vh;
+  max-height: calc(var(--vh, 1vh) * 90);
+  max-height: 90dvh;
   position: relative;
   overflow-y: auto;
   background: var(--white);
@@ -108,6 +110,8 @@
   @include breakpoint(mobile-m) {
     img,
     .imgSkeleton {
+      max-height: 20vh;
+      max-height: calc(var(--vh, 1vh) * 20);
       max-height: 20dvh;
     }
   }

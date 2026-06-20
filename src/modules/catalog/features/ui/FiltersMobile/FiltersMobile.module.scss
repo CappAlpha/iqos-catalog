@@ -19,6 +19,8 @@
   display: flex;
   flex-direction: column;
   width: 400px;
+  height: 100vh;
+  height: calc(var(--vh, 1vh) * 100);
   height: 100dvh;
   border-radius: 20px 0 0 0;
   background: var(--white);
@@ -31,6 +33,8 @@
     right: 0;
     transform: translateY(100%);
     width: 100dvw;
+    height: 85vh;
+    height: calc(var(--vh, 1vh) * 85);
     height: 85dvh;
     border-radius: 20px 20px 0 0;
   }

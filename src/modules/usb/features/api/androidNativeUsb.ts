@@ -56,7 +56,7 @@ export class AndroidNativeUsb implements IUsbStrategy {
       await this.cleanup();
       const message = getErrorMessage(
         error,
-        "Не удалось подключиться к устройству по USB через плагин.",
+        "Не удалось подключиться к устройству по USB.",
       );
       throw new Error(message, { cause: error });
     }

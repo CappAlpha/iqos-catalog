@@ -6,7 +6,10 @@ export const actionPromiseWithTimeout = <T>(
   let timeoutId: ReturnType<typeof setTimeout> | undefined;
 
   const timeoutPromise = new Promise<never>((_, reject) => {
-    timeoutId = globalThis.setTimeout(() => reject(new Error(errorMsg)), ms);
+    timeoutId = globalThis.window.setTimeout(
+      () => reject(new Error(errorMsg)),
+      ms,
+    );
   });
 
   return Promise.race([promise, timeoutPromise]).finally(() => {

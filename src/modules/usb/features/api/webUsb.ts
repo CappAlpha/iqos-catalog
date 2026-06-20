@@ -18,10 +18,6 @@ export class WebUsb implements IUsbStrategy {
     config: IUsbDeviceConfig,
     onDisconnect: () => void,
   ): Promise<IUsbConnectionResult> => {
-    if (typeof navigator === "undefined" || !navigator.usb) {
-      throw new Error("WebUSB не поддерживается вашим браузером.");
-    }
-
     const device = await navigator.usb.requestDevice({
       // TODO: remove comment on release
       filters: [
@@ -60,10 +56,7 @@ export class WebUsb implements IUsbStrategy {
         return result.data.getUint8(0);
       }
     } catch (error) {
-      console.warn(
-        "Ошибка при низкоуровневом чтении заряда устройства:",
-        error,
-      );
+      console.warn("Ошибка при чтении заряда устройства:", error);
     }
     return null;
   };
@@ -99,9 +92,7 @@ export class WebUsb implements IUsbStrategy {
 
   private readonly cleanup = async () => {
     if (this.device) {
-      if (typeof navigator !== "undefined" && navigator.usb) {
-        navigator.usb.removeEventListener("disconnect", this.handleDisconnect);
-      }
+      navigator.usb.removeEventListener("disconnect", this.handleDisconnect);
       await this.device.close().catch((err) => {
         console.warn("Ошибка при закрытии WebUSB устройства:", err);
       });

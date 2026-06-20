@@ -52,15 +52,15 @@ class BluetoothM {
   }
 
   private readonly setConnected = ({
+    device,
     services,
     batteryLevel,
-    device,
   }: IBluetoothConnectionResult) => {
     this.status = "connected";
     this.error = null;
+    this.device = device;
     this.services = services;
     this.batteryLevel = batteryLevel;
-    this.device = device;
   };
 
   private readonly reset = (error: string | null = null) => {
@@ -72,9 +72,7 @@ class BluetoothM {
   };
 
   connect = async () => {
-    if (this.status === "connecting" || this.status === "disconnecting") {
-      return;
-    }
+    if (this.status === "connecting" || this.status === "disconnecting") return;
 
     this.#currentConnectionId++;
     const connectionId = this.#currentConnectionId;
@@ -85,9 +83,10 @@ class BluetoothM {
     this.services = [];
 
     try {
-      const result = await this.#strategy.connect(
-        this.deviceConfig,
-        this.handleDisconnect,
+      const result = await actionPromiseWithTimeout(
+        this.#strategy.connect(this.deviceConfig, this.handleDisconnect),
+        20000,
+        "Подключения по Bluetooth не удалось, попробуйте ещё раз.",
       );
 
       if (connectionId !== this.#currentConnectionId) {
@@ -101,7 +100,7 @@ class BluetoothM {
 
       await this.#strategy.disconnect().catch(() => {});
 
-      const errMsg = getErrorMessage(err, "Ошибка подключения по Bluetooth");
+      const errMsg = getErrorMessage(err, "Ошибка подключения по Bluetooth.");
       this.reset(errMsg);
     }
   };
@@ -114,22 +113,6 @@ class BluetoothM {
       this.reset(
         "Соединение разорвано: устройство отключено или вышло из зоны действия.",
       );
-    }
-  };
-
-  refreshBattery = async () => {
-    if (!this.isConnected) return;
-
-    try {
-      const battery = await this.#strategy.getBatteryLevel();
-
-      if (!this.isConnected) return;
-
-      this.batteryLevel = battery;
-    } catch (err) {
-      if (!this.isConnected) return;
-
-      this.error = getErrorMessage(err, "Не удалось обновить заряд батареи");
     }
   };
 
@@ -155,7 +138,23 @@ class BluetoothM {
         err,
       );
     } finally {
-      this.reset(wasConnecting ? "Подключение отменено" : null);
+      this.reset(wasConnecting ? "Подключение отменено." : null);
+    }
+  };
+
+  refreshBattery = async () => {
+    if (!this.isConnected) return;
+
+    try {
+      const battery = await this.#strategy.getBatteryLevel();
+
+      if (!this.isConnected) return;
+
+      this.batteryLevel = battery;
+    } catch (err) {
+      if (!this.isConnected) return;
+
+      this.error = getErrorMessage(err, "Не удалось обновить заряд батареи.");
     }
   };
 

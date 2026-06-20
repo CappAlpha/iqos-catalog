@@ -25,6 +25,8 @@ body {
   font-weight: 400;
   font-size: 14px;
   user-select: text;
+  min-height: 100vh;
+  min-height: calc(var(--vh, 1vh) * 100);
   min-height: 100dvh;
   min-width: 320px;
   scroll-padding-top: 100px;

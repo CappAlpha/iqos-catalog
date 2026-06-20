@@ -19,11 +19,11 @@ export const useMedia = (query: string, defaultState: boolean = false) => {
   const [subscribe, getSnapshot] = useMemo(() => {
     return [
       (callback: () => void) => {
-        const matchMedia = globalThis.matchMedia(query);
+        const matchMedia = globalThis.window.matchMedia(query);
         matchMedia.addEventListener("change", callback);
         return () => matchMedia.removeEventListener("change", callback);
       },
-      () => globalThis.matchMedia(query).matches,
+      () => globalThis.window.matchMedia(query).matches,
     ];
   }, [query]);
 

@@ -1,14 +1,27 @@
-export const pluralize = (
-  count: number,
+const pluralRules = new Intl.PluralRules("ru-RU");
+
+/**
+ * Возвращает функцию выбора формы множественного числа слова.
+ *
+ * @example
+ * let pluralizeFiles = pluralize('файл', 'файла', 'файлов');
+ * console.log(`Выбрано 23 ${pluralizeFiles(23)}`) // → Выбрано 23 файла
+ */
+export function pluralize(
   one: string,
   few: string,
-  many: string,
-): string => {
-  const mod10 = count % 10;
-  const mod100 = count % 100;
+  many: string = few,
+): (n: number) => string {
+  return (n) => {
+    const rule = pluralRules.select(n);
 
-  if (mod10 >= 2 && mod10 <= 4) return few;
-  if (mod10 === 1) return one;
-  if (mod100 >= 11 && mod100 <= 19) return many;
-  return many;
-};
+    switch (rule) {
+      case "one":
+        return one;
+      case "few":
+        return few;
+      default:
+        return many;
+    }
+  };
+}

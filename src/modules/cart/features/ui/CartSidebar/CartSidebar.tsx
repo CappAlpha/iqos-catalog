@@ -14,7 +14,7 @@ export const CartSidebar = observer(() => {
     cartM;
 
   const priceText = formatPrice(totalPrice);
-  const itemsText = pluralize(uniqueItemsCount, "товар", "товара", "товаров");
+  const pluralizeItems = pluralize("товар", "товара", "товаров");
 
   return (
     <aside className={s.sidebar}>
@@ -27,7 +27,7 @@ export const CartSidebar = observer(() => {
             <span className={cn(isCartUpdating && s.updatingText)}>
               {uniqueItemsCount}
             </span>{" "}
-            {itemsText},{" "}
+            {pluralizeItems(uniqueItemsCount)},{" "}
             <span className={cn(isCartUpdating && s.updatingText)}>
               {totalItems}
             </span>{" "}

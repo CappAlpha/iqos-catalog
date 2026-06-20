@@ -65,7 +65,7 @@ export class NativeBluetooth implements IBluetoothStrategy {
       await this.cleanup();
       const message = getErrorMessage(
         error,
-        "Не удалось подключиться через Capacitor Bluetooth LE.",
+        "Не удалось подключиться через Bluetooth.",
       );
       throw new Error(message, { cause: error });
     }

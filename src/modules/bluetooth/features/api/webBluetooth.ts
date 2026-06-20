@@ -15,12 +15,6 @@ export class WebBluetooth implements IBluetoothStrategy {
     config: IBluetoothDeviceConfig,
     onDisconnect: () => void,
   ): Promise<IBluetoothConnectionResult> => {
-    if (typeof navigator === "undefined" || !navigator.bluetooth) {
-      throw new Error(
-        "Web Bluetooth не поддерживается вашей платформой или браузером.",
-      );
-    }
-
     const selectedDevice = await navigator.bluetooth.requestDevice({
       // TODO: remove comment and acceptAllDevices on release
       // filters: [{ services: config.services }],
@@ -100,10 +94,7 @@ export class WebBluetooth implements IBluetoothStrategy {
       const value = await characteristic.readValue();
       return value.getUint8(0);
     } catch (error) {
-      console.warn(
-        "Не удалось прочитать заряд батареи Bluetooth-устройства:",
-        error,
-      );
+      console.warn("Ошибка при чтении заряда устройства:", error);
       return null;
     }
   };

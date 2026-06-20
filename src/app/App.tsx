@@ -7,12 +7,15 @@ import "@/app/styles/_reset.scss";
 import "@/app/styles/colors.scss";
 import "@/app/styles/global.scss";
 import { cartM } from "@/modules/cart/features/model/cartM";
+import { useVH } from "@/shared/lib/useVh";
 
 import { AppLayout } from "./layout/AppLayout";
 import { AppRoutes } from "./routes/AppRoutes";
 
 function App() {
   const routerBasename = Capacitor.isNativePlatform() ? "/" : "/iqos-catalog/";
+
+  useVH();
 
   useEffect(() => {
     void cartM.initStore();
