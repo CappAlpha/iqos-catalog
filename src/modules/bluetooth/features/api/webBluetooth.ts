@@ -36,10 +36,6 @@ export class WebBluetooth implements IBluetoothStrategy {
 
     this.device = selectedDevice;
     this.onDisconnectCallback = onDisconnect;
-    this.device.addEventListener(
-      "gattserverdisconnected",
-      this.handleDisconnect,
-    );
 
     try {
       await actionPromiseWithTimeout(
@@ -51,6 +47,11 @@ export class WebBluetooth implements IBluetoothStrategy {
       this.cleanup();
       throw err;
     }
+
+    this.device.addEventListener(
+      "gattserverdisconnected",
+      this.handleDisconnect,
+    );
 
     const batteryLevel = await this.getBatteryLevel();
 
