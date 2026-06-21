@@ -1,0 +1,2 @@
+const __vite__mapDeps=(i,m=__vite__mapDeps,d=(m.f||(m.f=["web-IgaMlGya.js","dist-BMVroa0a.js"])))=>i.map(i=>d[i]);
+import{o as e}from"./index-rIWNlBBC.js";import{r as t}from"./dist-BMVroa0a.js";var n=t(`Preferences`,{web:()=>e(()=>import(`./web-IgaMlGya.js`).then(e=>new e.PreferencesWeb),__vite__mapDeps([0,1]))});export{n as Preferences};
