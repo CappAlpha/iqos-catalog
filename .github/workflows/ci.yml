@@ -29,6 +29,10 @@ jobs:
         continue-on-error: true
       - run: npm run build
 
+      # Fix 404 error on page update
+      - name: Create 404 fallback for SPA routing
+        run: cp dist/index.html dist/404.html
+
       - name: Deploy to GitHub Pages
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         uses: peaceiris/actions-gh-pages@v4
