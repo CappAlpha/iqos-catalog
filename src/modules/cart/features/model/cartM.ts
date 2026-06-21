@@ -1,10 +1,10 @@
-import { Preferences } from "@capacitor/preferences";
 import { makeAutoObservable, autorun, runInAction, toJS } from "mobx";
 
 import type { Product } from "@/modules/catalog/features/model/types";
 import { customToastTemplate } from "@/shared/lib/customToastTemplate";
 import { parseSafe } from "@/shared/lib/parseSafe";
 
+import { storage } from "../lib/getStorage";
 import { CART_STORAGE_KEY, ORDERS_STORAGE_KEY } from "./constants";
 import type { CartItem, Order } from "./types";
 
@@ -28,13 +28,13 @@ class CartM {
     autorun(async () => {
       if (!this.isInitialized) return;
       const value = JSON.stringify(toJS(this.items));
-      await Preferences.set({ key: CART_STORAGE_KEY, value });
+      await storage.set(CART_STORAGE_KEY, value);
     });
 
     autorun(async () => {
       if (!this.isInitialized) return;
       const value = JSON.stringify(toJS(this.orderHistory));
-      await Preferences.set({ key: ORDERS_STORAGE_KEY, value });
+      await storage.set(ORDERS_STORAGE_KEY, value);
     });
   }
 
@@ -83,8 +83,8 @@ class CartM {
   initStore = async () => {
     try {
       const [{ value: cart }, { value: orders }] = await Promise.all([
-        Preferences.get({ key: CART_STORAGE_KEY }),
-        Preferences.get({ key: ORDERS_STORAGE_KEY }),
+        storage.get(CART_STORAGE_KEY),
+        storage.get(ORDERS_STORAGE_KEY),
       ]);
 
       runInAction(() => {

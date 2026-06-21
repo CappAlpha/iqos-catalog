@@ -3,7 +3,7 @@ import { useNavigate } from "react-router";
 
 import { UsbConnect } from "@/modules/usb/features/ui/UsbConnect";
 import { UsbInfo } from "@/modules/usb/features/ui/UsbInfo";
-import { IS_IOS } from "@/shared/constants/constants";
+import { IS_IOS } from "@/shared/config/platform";
 
 import s from "./UsbPage.module.scss";
 

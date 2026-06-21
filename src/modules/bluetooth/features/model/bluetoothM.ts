@@ -4,16 +4,16 @@ import {
   IS_CAPACITOR,
   IS_PLUGIN_AVAILABLE_BLUETOOTH,
   IS_WEB_SUPPORTED,
-} from "@/shared/constants/constants";
+} from "@/shared/config/platform";
 import { actionPromiseWithTimeout } from "@/shared/lib/actionPromiseWithTimeout";
 import { getErrorMessage } from "@/shared/lib/getErrorMessage";
 
 import { getBluetoothStrategy } from "../lib/getBluetoothStrategy";
 import { SERVICE_UUIDS } from "./constants";
 import type {
-  IBluetoothConnectionResult,
-  IBluetoothStrategy,
   IBluetoothDeviceConfig,
+  IBluetoothStrategy,
+  IBluetoothConnectionResult,
 } from "./types";
 
 type BluetoothStatus =
@@ -32,11 +32,13 @@ class BluetoothM {
     services: Object.values(SERVICE_UUIDS),
   };
 
-  readonly #strategy: IBluetoothStrategy;
+  readonly #getStrategy: () => Promise<IBluetoothStrategy>;
+
+  #strategy: IBluetoothStrategy | null = null;
   #currentConnectionId = 0;
 
-  constructor(getStrategy: () => IBluetoothStrategy) {
-    this.#strategy = getStrategy();
+  constructor(getStrategy: () => Promise<IBluetoothStrategy>) {
+    this.#getStrategy = getStrategy;
     makeAutoObservable(this, {
       device: observable.ref,
     });
@@ -56,7 +58,6 @@ class BluetoothM {
     if (IS_CAPACITOR) {
       return IS_PLUGIN_AVAILABLE_BLUETOOTH;
     }
-
     return IS_WEB_SUPPORTED;
   }
 
@@ -92,6 +93,8 @@ class BluetoothM {
     this.services = [];
 
     try {
+      this.#strategy ??= await this.#getStrategy();
+
       const result = await actionPromiseWithTimeout(
         this.#strategy.connect(this.deviceConfig, this.handleDisconnect),
         20000,
@@ -107,7 +110,7 @@ class BluetoothM {
     } catch (err) {
       if (connectionId !== this.#currentConnectionId) return;
 
-      await this.#strategy.disconnect().catch(() => {});
+      await this.#strategy?.disconnect().catch(() => {});
 
       const errMsg = getErrorMessage(err, "Ошибка подключения по Bluetooth.");
       this.reset(errMsg);
@@ -137,7 +140,7 @@ class BluetoothM {
 
     try {
       await actionPromiseWithTimeout(
-        this.#strategy.disconnect(),
+        this.#strategy?.disconnect() ?? Promise.resolve(),
         3000,
         "Таймаут физического отключения",
       );
@@ -155,11 +158,11 @@ class BluetoothM {
     if (!this.isConnected) return;
 
     try {
-      const battery = await this.#strategy.getBatteryLevel();
+      const battery = await this.#strategy?.getBatteryLevel();
 
       if (!this.isConnected) return;
 
-      this.batteryLevel = battery;
+      this.batteryLevel = battery ?? null;
     } catch (err) {
       if (!this.isConnected) return;
 

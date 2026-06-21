@@ -5,7 +5,7 @@ import {
   IS_CAPACITOR,
   IS_PLUGIN_AVAILABLE_USB,
   IS_WEB_SUPPORTED,
-} from "@/shared/constants/constants";
+} from "@/shared/config/platform";
 import { actionPromiseWithTimeout } from "@/shared/lib/actionPromiseWithTimeout";
 import { getErrorMessage } from "@/shared/lib/getErrorMessage";
 
@@ -25,11 +25,13 @@ class UsbM {
     productId: USB_CONFIG.PRODUCT_ID,
   };
 
-  readonly #strategy: IUsbStrategy;
+  readonly #getStrategy: () => Promise<IUsbStrategy>;
+
+  #strategy: IUsbStrategy | null = null;
   #currentConnectionId = 0;
 
-  constructor(getStrategy: () => IUsbStrategy) {
-    this.#strategy = getStrategy();
+  constructor(getStrategy: () => Promise<IUsbStrategy>) {
+    this.#getStrategy = getStrategy;
     makeAutoObservable(this, {
       device: observable.ref,
     });
@@ -49,7 +51,6 @@ class UsbM {
     if (IS_CAPACITOR) {
       return IS_ANDROID && IS_PLUGIN_AVAILABLE_USB;
     }
-
     return IS_WEB_SUPPORTED;
   }
 
@@ -84,6 +85,8 @@ class UsbM {
     this.batteryLevel = null;
 
     try {
+      this.#strategy ??= await this.#getStrategy();
+
       const result = await actionPromiseWithTimeout(
         this.#strategy.connect(this.deviceConfig, this.handleDisconnect),
         20000,
@@ -99,7 +102,7 @@ class UsbM {
     } catch (err) {
       if (connectionId !== this.#currentConnectionId) return;
 
-      await this.#strategy.disconnect().catch(() => {});
+      await this.#strategy?.disconnect().catch(() => {});
 
       const errMsg = getErrorMessage(err, "Ошибка подключения по USB.");
       this.reset(errMsg);
@@ -127,7 +130,7 @@ class UsbM {
 
     try {
       await actionPromiseWithTimeout(
-        this.#strategy.disconnect(),
+        this.#strategy?.disconnect() ?? Promise.resolve(),
         3000,
         "Таймаут физического отключения",
       );
@@ -142,11 +145,11 @@ class UsbM {
     if (!this.isConnected) return;
 
     try {
-      const battery = await this.#strategy.getBatteryLevel();
+      const battery = await this.#strategy?.getBatteryLevel();
 
       if (!this.isConnected) return;
 
-      this.batteryLevel = battery;
+      this.batteryLevel = battery ?? null;
     } catch (err) {
       if (!this.isConnected) return;
 

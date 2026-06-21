@@ -1,3 +1,4 @@
+import type { CapacitorGlobal } from "@capacitor/core";
 import type { FunctionComponent, SVGProps } from "react";
 
 export {};
@@ -11,4 +12,8 @@ declare global {
       descId?: string;
     }
   >;
+
+  interface Window {
+    Capacitor?: CapacitorGlobal;
+  }
 }

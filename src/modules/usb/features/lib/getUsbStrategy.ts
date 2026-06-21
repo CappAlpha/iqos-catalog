@@ -1,13 +1,19 @@
-import { IS_ANDROID } from "@/shared/constants/constants";
+import { IS_ANDROID } from "@/shared/config/platform";
 
-import { AndroidNativeUsb } from "../api/androidNativeUsb";
-import { WebUsb } from "../api/webUsb";
 import type { IUsbStrategy } from "../model/types";
 
 let USB_INSTANCE: IUsbStrategy | null = null;
 
-export const getUsbStrategy = (): IUsbStrategy => {
-  USB_INSTANCE ??= IS_ANDROID ? new AndroidNativeUsb() : new WebUsb();
+export const getUsbStrategy = async (): Promise<IUsbStrategy> => {
+  if (!USB_INSTANCE) {
+    if (IS_ANDROID) {
+      const { AndroidNativeUsb } = await import("../api/androidNativeUsb");
+      USB_INSTANCE = new AndroidNativeUsb();
+    } else {
+      const { WebUsb } = await import("../api/webUsb");
+      USB_INSTANCE = new WebUsb();
+    }
+  }
 
   return USB_INSTANCE;
 };

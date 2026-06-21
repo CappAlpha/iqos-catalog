@@ -6,7 +6,7 @@ import {
   LogoLil,
   USBIcon,
 } from "@/assets/icons";
-import { IS_IOS } from "@/shared/constants/constants";
+import { IS_IOS } from "@/shared/config/platform";
 import { useMobile, useMobileM } from "@/shared/hooks/useBreakpoint";
 
 import { TransitionNavLink } from "../../TransitionNavLink";
