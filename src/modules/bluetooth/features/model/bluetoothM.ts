@@ -1,8 +1,8 @@
-import { makeAutoObservable, observable } from "mobx";
+import { makeAutoObservable, observable, runInAction } from "mobx";
 
 import {
   IS_CAPACITOR,
-  IS_PLUGIN_AVAILABLE_BLUETOOTH,
+  IS_NATIVE_BLUETOOTH_AVAILABLE,
   IS_WEB_SUPPORTED,
 } from "@/shared/config/platform";
 import { actionPromiseWithTimeout } from "@/shared/lib/actionPromiseWithTimeout";
@@ -28,7 +28,7 @@ class BluetoothM {
   error: string | null = null;
   services: string[] = [];
   batteryLevel: number | null = null;
-  deviceConfig: IBluetoothDeviceConfig = {
+  readonly deviceConfig: IBluetoothDeviceConfig = {
     services: Object.values(SERVICE_UUIDS),
   };
 
@@ -41,6 +41,7 @@ class BluetoothM {
     this.#getStrategy = getStrategy;
     makeAutoObservable(this, {
       device: observable.ref,
+      deviceConfig: false,
     });
   }
 
@@ -55,10 +56,7 @@ class BluetoothM {
   }
 
   get isSupported() {
-    if (IS_CAPACITOR) {
-      return IS_PLUGIN_AVAILABLE_BLUETOOTH;
-    }
-    return IS_WEB_SUPPORTED;
+    return IS_CAPACITOR ? IS_NATIVE_BLUETOOTH_AVAILABLE : IS_WEB_SUPPORTED;
   }
 
   private readonly setConnected = ({
@@ -82,15 +80,17 @@ class BluetoothM {
   };
 
   connect = async () => {
-    if (this.status === "connecting" || this.status === "disconnecting") return;
+    if (this.isConnecting || this.isDisconnecting) return;
 
     this.#currentConnectionId++;
     const connectionId = this.#currentConnectionId;
 
-    this.status = "connecting";
-    this.error = null;
-    this.batteryLevel = null;
-    this.services = [];
+    runInAction(() => {
+      this.status = "connecting";
+      this.error = null;
+      this.batteryLevel = null;
+      this.services = [];
+    });
 
     try {
       this.#strategy ??= await this.#getStrategy();
@@ -119,7 +119,8 @@ class BluetoothM {
 
   private readonly handleDisconnect = () => {
     this.#currentConnectionId++;
-    if (this.status === "disconnecting") {
+
+    if (this.isDisconnecting) {
       this.reset();
     } else {
       this.reset(
@@ -133,8 +134,11 @@ class BluetoothM {
       return;
 
     const wasConnecting = this.isConnecting;
-    this.status = "disconnecting";
-    this.error = null;
+
+    runInAction(() => {
+      this.status = "disconnecting";
+      this.error = null;
+    });
 
     this.#currentConnectionId++;
 
@@ -162,11 +166,15 @@ class BluetoothM {
 
       if (!this.isConnected) return;
 
-      this.batteryLevel = battery ?? null;
+      runInAction(() => {
+        this.batteryLevel = battery ?? null;
+      });
     } catch (err) {
       if (!this.isConnected) return;
 
-      this.error = getErrorMessage(err, "Не удалось обновить заряд батареи.");
+      runInAction(() => {
+        this.error = getErrorMessage(err, "Не удалось обновить заряд батареи.");
+      });
     }
   };
 

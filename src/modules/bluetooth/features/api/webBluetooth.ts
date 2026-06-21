@@ -15,11 +15,13 @@ export class WebBluetooth implements IBluetoothStrategy {
     config: IBluetoothDeviceConfig,
     onDisconnect: () => void,
   ): Promise<IBluetoothConnectionResult> => {
+    this.cleanup();
+
     const selectedDevice = await navigator.bluetooth.requestDevice({
       // TODO: remove comment and acceptAllDevices on release
       // filters: [{ services: config.services }],
       acceptAllDevices: true,
-      optionalServices: [SERVICE_UUIDS.BATTERY_SERVICE],
+      optionalServices: [SERVICE_UUIDS.BATTERY_SERVICE, ...config.services],
     });
 
     const gatt = selectedDevice.gatt;
@@ -43,14 +45,14 @@ export class WebBluetooth implements IBluetoothStrategy {
       await actionPromiseWithTimeout(
         gatt.connect(),
         10000,
-        "Превышено время ожидания ответа от устройства (таймаут).",
+        "Превышено время ожидания ответа от устройства (таймаут GATT).",
       );
     } catch (err) {
       this.cleanup();
       throw err;
     }
 
-    const batteryLevel = await this.getDeviceBattery(gatt);
+    const batteryLevel = await this.getBatteryLevel();
 
     let services: string[] = [];
     try {
@@ -111,7 +113,9 @@ export class WebBluetooth implements IBluetoothStrategy {
         "gattserverdisconnected",
         this.handleDisconnect,
       );
-      this.device.gatt?.disconnect();
+      if (this.device.gatt?.connected) {
+        this.device.gatt.disconnect();
+      }
       this.device = null;
     }
     this.onDisconnectCallback = null;

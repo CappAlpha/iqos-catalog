@@ -1,9 +1,9 @@
-import { makeAutoObservable, observable } from "mobx";
+import { makeAutoObservable, observable, runInAction } from "mobx";
 
 import {
   IS_ANDROID,
   IS_CAPACITOR,
-  IS_PLUGIN_AVAILABLE_USB,
+  IS_NATIVE_USB_AVAILABLE,
   IS_WEB_SUPPORTED,
 } from "@/shared/config/platform";
 import { actionPromiseWithTimeout } from "@/shared/lib/actionPromiseWithTimeout";
@@ -20,7 +20,7 @@ class UsbM {
   status: UsbStatus = "disconnected";
   error: string | null = null;
   batteryLevel: number | null = null;
-  deviceConfig: IUsbDeviceConfig = {
+  readonly deviceConfig: IUsbDeviceConfig = {
     vendorId: USB_CONFIG.VENDOR_ID,
     productId: USB_CONFIG.PRODUCT_ID,
   };
@@ -34,6 +34,7 @@ class UsbM {
     this.#getStrategy = getStrategy;
     makeAutoObservable(this, {
       device: observable.ref,
+      deviceConfig: false,
     });
   }
 
@@ -48,10 +49,9 @@ class UsbM {
   }
 
   get isSupported() {
-    if (IS_CAPACITOR) {
-      return IS_ANDROID && IS_PLUGIN_AVAILABLE_USB;
-    }
-    return IS_WEB_SUPPORTED;
+    return IS_CAPACITOR && IS_ANDROID
+      ? IS_NATIVE_USB_AVAILABLE
+      : IS_WEB_SUPPORTED;
   }
 
   private readonly setConnected = ({
@@ -75,14 +75,16 @@ class UsbM {
   };
 
   connect = async () => {
-    if (this.status === "connecting" || this.status === "disconnecting") return;
+    if (this.isConnecting || this.isDisconnecting) return;
 
     this.#currentConnectionId++;
     const connectionId = this.#currentConnectionId;
 
-    this.status = "connecting";
-    this.error = null;
-    this.batteryLevel = null;
+    runInAction(() => {
+      this.status = "connecting";
+      this.error = null;
+      this.batteryLevel = null;
+    });
 
     try {
       this.#strategy ??= await this.#getStrategy();
@@ -111,10 +113,13 @@ class UsbM {
 
   private readonly handleDisconnect = () => {
     this.#currentConnectionId++;
-    if (this.status === "disconnecting") {
+
+    if (this.isDisconnecting) {
       this.reset();
     } else {
-      this.reset("Устройство было физически извлечено из USB-порта.");
+      this.reset(
+        "Соединение разорвано: устройство отключено или извлечено из USB-порта.",
+      );
     }
   };
 
@@ -123,8 +128,11 @@ class UsbM {
       return;
 
     const wasConnecting = this.isConnecting;
-    this.status = "disconnecting";
-    this.error = null;
+
+    runInAction(() => {
+      this.status = "disconnecting";
+      this.error = null;
+    });
 
     this.#currentConnectionId++;
 
@@ -149,14 +157,15 @@ class UsbM {
 
       if (!this.isConnected) return;
 
-      this.batteryLevel = battery ?? null;
+      runInAction(() => {
+        this.batteryLevel = battery ?? null;
+      });
     } catch (err) {
       if (!this.isConnected) return;
 
-      this.error = getErrorMessage(
-        err,
-        "Не удалось обновить заряд батареи USB.",
-      );
+      runInAction(() => {
+        this.error = getErrorMessage(err, "Не удалось обновить заряд батареи.");
+      });
     }
   };
 }

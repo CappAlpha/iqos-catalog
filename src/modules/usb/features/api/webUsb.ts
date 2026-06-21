@@ -13,11 +13,14 @@ import type {
 export class WebUsb implements IUsbStrategy {
   private device: USBDevice | null = null;
   private onDisconnectCallback: (() => void) | null = null;
+  private isInterfaceClaimed = false;
 
   connect = async (
     config: IUsbDeviceConfig,
     onDisconnect: () => void,
   ): Promise<IUsbConnectionResult> => {
+    await this.cleanup();
+
     const device = await navigator.usb.requestDevice({
       // TODO: remove comment on release
       filters: [
@@ -44,7 +47,7 @@ export class WebUsb implements IUsbStrategy {
   };
 
   getBatteryLevel = async () => {
-    if (!this.device) return null;
+    if (!this.device || !this.isInterfaceClaimed) return null;
 
     try {
       const result = await this.device.controlTransferIn(
@@ -74,7 +77,9 @@ export class WebUsb implements IUsbStrategy {
 
     try {
       await device.claimInterface(DEFAULT_INTERFACE);
+      this.isInterfaceClaimed = true;
     } catch (err) {
+      this.isInterfaceClaimed = false;
       console.warn(
         "Интерфейс занят ОС или заблокирован браузером. Продолжаем в режиме чтения метаданных.",
         err,
@@ -91,13 +96,22 @@ export class WebUsb implements IUsbStrategy {
   };
 
   private readonly cleanup = async () => {
-    if (this.device) {
-      navigator.usb.removeEventListener("disconnect", this.handleDisconnect);
-      await this.device.close().catch((err) => {
-        console.warn("Ошибка при закрытии WebUSB устройства:", err);
-      });
-      this.device = null;
-    }
+    const deviceToClose = this.device;
+    this.device = null;
     this.onDisconnectCallback = null;
+    this.isInterfaceClaimed = false;
+
+    if (deviceToClose) {
+      navigator.usb.removeEventListener("disconnect", this.handleDisconnect);
+      await deviceToClose.close().catch((err: unknown) => {
+        const errorMessage = err instanceof Error ? err.message : String(err);
+        if (
+          !errorMessage.includes("disconnected") &&
+          !errorMessage.includes("NotFound")
+        ) {
+          console.warn("Ошибка при закрытии WebUSB устройства:", err);
+        }
+      });
+    }
   };
 }
