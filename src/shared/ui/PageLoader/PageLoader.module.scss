@@ -1,0 +1,26 @@
+@use "@/app/styles/animations.scss" as *;
+
+.root {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100vh;
+  height: calc(var(--vh, 1vh) * 100);
+  height: 100dvh;
+  position: fixed;
+  top: 0;
+  left: 0;
+  background-color: transparent;
+  z-index: 9999;
+}
+
+.loader {
+  display: inline-block;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 3px solid var(--black);
+  border-top-color: transparent;
+  animation: loaderSpin 1s linear infinite;
+}

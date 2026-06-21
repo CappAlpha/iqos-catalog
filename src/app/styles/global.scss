@@ -112,3 +112,14 @@ body[data-no-scroll="true"] {
   [data-description] {
   text-wrap: balance;
 }
+
+#nprogress .bar {
+  background: var(--accent-color) !important;
+  height: 3px !important;
+}
+
+#nprogress .peg {
+  box-shadow:
+    0 0 10px var(--accent-color),
+    0 0 5px var(--accent-color) !important;
+}

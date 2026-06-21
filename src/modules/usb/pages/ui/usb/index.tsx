@@ -7,7 +7,7 @@ import { IS_IOS } from "@/shared/config/platform";
 
 import s from "./UsbPage.module.scss";
 
-export const UsbPage = () => {
+const UsbPage = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -32,3 +32,5 @@ export const UsbPage = () => {
     </div>
   );
 };
+
+export default UsbPage;

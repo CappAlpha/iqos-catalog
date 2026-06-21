@@ -13,7 +13,7 @@ import { useTablet } from "@/shared/hooks/useBreakpoint";
 
 import s from "./CatalogPage.module.scss";
 
-export const CatalogPage = observer(() => {
+const CatalogPage = observer(() => {
   const topRef = useRef<HTMLDivElement | null>(null);
 
   const { isLoading, error, totalPages, safePage, setPage } = catalogM;
@@ -53,3 +53,5 @@ export const CatalogPage = observer(() => {
     </div>
   );
 });
+
+export default CatalogPage;

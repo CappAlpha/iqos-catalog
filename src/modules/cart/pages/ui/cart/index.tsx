@@ -4,7 +4,7 @@ import { CartHistory } from "@/modules/cart/features/ui/CartHistory";
 
 import s from "./CartPage.module.scss";
 
-export const CartPage = () => {
+const CartPage = () => {
   return (
     <div className={s.root}>
       <CartHeader />
@@ -13,3 +13,5 @@ export const CartPage = () => {
     </div>
   );
 };
+
+export default CartPage;

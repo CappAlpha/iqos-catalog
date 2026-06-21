@@ -30,6 +30,11 @@ export default defineConfig(({ mode }) => {
       minify: true,
       rollupOptions: {
         output: {
+          manualChunks(id) {
+            if (id.includes("node_modules")) {
+              return "vendor";
+            }
+          },
           assetFileNames: (assetInfo) => {
             const assetName = assetInfo.names?.[0] ?? "";
 

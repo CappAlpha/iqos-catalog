@@ -3,7 +3,7 @@ import { BluetoothInfo } from "@/modules/bluetooth/features/ui/BluetoothInfo";
 
 import s from "./BluetoothPage.module.scss";
 
-export const BluetoothPage = () => {
+const BluetoothPage = () => {
   return (
     <div className={s.root}>
       <div className={s.header}>
@@ -18,3 +18,5 @@ export const BluetoothPage = () => {
     </div>
   );
 };
+
+export default BluetoothPage;
