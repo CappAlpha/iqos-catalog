@@ -28,13 +28,11 @@
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  border: 2px solid transparent;
+  border: solid 1px var(--gray-border);
   transition: all 0.2s ease;
-  outline: solid 1px var(--gray-border);
-  -webkit-tap-highlight-color: transparent;
-
   margin-right: 10px;
   margin-bottom: 10px;
+  -webkit-tap-highlight-color: transparent;
 
   @include breakpoint(mobile-m) {
     min-width: 24px;
