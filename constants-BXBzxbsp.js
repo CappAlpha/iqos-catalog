@@ -1,0 +1,1 @@
+var e={VENDOR_ID:10073,PRODUCT_ID:3},t={requestType:`vendor`,recipient:`device`,request:1,value:0,index:0};export{e as n,t};

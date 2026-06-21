@@ -1,0 +1,1 @@
+var e=(e,t)=>e instanceof Error?e.message:t,t=(e,t,n)=>{let r,i=new Promise((e,i)=>{r=globalThis.window.setTimeout(()=>i(Error(n)),t)});return Promise.race([e,i]).finally(()=>{r!==void 0&&clearTimeout(r)})};export{e as n,t};
