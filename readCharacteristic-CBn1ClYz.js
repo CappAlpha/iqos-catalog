@@ -1,0 +1,1 @@
+var e=new TextDecoder(`utf-8`),t=async t=>{try{let n=await t();return n.byteLength===0?null:e.decode(n)}catch{return null}};export{t};
