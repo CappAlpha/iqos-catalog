@@ -1,7 +1,16 @@
+export interface IBluetoothDeviceInfo {
+  manufacturerName: string | null;
+  modelNumber: string | null;
+  serialNumber: string | null;
+  hardwareRevision: string | null;
+  firmwareRevision: string | null;
+  softwareRevision: string | null;
+}
+
 export interface IBluetoothConnectionResult {
   device: Partial<BluetoothDevice> | null;
-  services: string[];
   batteryLevel: number | null;
+  deviceInfo: IBluetoothDeviceInfo;
 }
 
 export interface IBluetoothDeviceConfig {

@@ -20,3 +20,9 @@
     line-height: 1.2;
   }
 }
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}

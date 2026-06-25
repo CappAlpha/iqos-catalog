@@ -1,11 +1,22 @@
 import { actionPromiseWithTimeout } from "@/shared/lib/actionPromiseWithTimeout";
 
-import { SERVICE_UUIDS, BATTERY_CHARACTERISTIC } from "../model/constants";
+import { readStringSafely } from "../lib/readCharacteristic";
+import { readDeviceInfo, getEmptyDeviceInfo } from "../lib/readDeviceInfo";
+import { GAP, BATTERY } from "../model/constants";
 import type {
   IBluetoothStrategy,
   IBluetoothConnectionResult,
   IBluetoothDeviceConfig,
 } from "../model/types";
+
+const readChar =
+  (gatt: BluetoothRemoteGATTServer) =>
+  (serviceUuid: string, charUuid: string) =>
+    readStringSafely(async () => {
+      const service = await gatt.getPrimaryService(serviceUuid);
+      const characteristic = await service.getCharacteristic(charUuid);
+      return characteristic.readValue();
+    });
 
 export class WebBluetooth implements IBluetoothStrategy {
   private device: BluetoothDevice | null = null;
@@ -21,16 +32,16 @@ export class WebBluetooth implements IBluetoothStrategy {
       // TODO: remove comment and acceptAllDevices on release
       // filters: [{ services: config.services }],
       acceptAllDevices: true,
-      optionalServices: [SERVICE_UUIDS.BATTERY_SERVICE, ...config.services],
+      optionalServices: [BATTERY.SERVICE, ...config.services],
     });
 
     const gatt = selectedDevice.gatt;
     if (!gatt) {
       console.warn("Не удалось получить GATT устройства:", selectedDevice.name);
       return {
-        services: [],
         batteryLevel: null,
-        device: selectedDevice,
+        device: { id: selectedDevice.id, name: selectedDevice.name },
+        deviceInfo: getEmptyDeviceInfo(),
       };
     }
 
@@ -53,24 +64,20 @@ export class WebBluetooth implements IBluetoothStrategy {
       this.handleDisconnect,
     );
 
-    const batteryLevel = await this.getBatteryLevel();
-
-    let services: string[] = [];
-    try {
-      const activeServices = await gatt.getPrimaryServices();
-      services = activeServices
-        .map((service) => service.uuid)
-        .filter((uuid) => config.services.includes(uuid));
-
-      console.log("Получен список сервисов устройства:", services);
-    } catch (error) {
-      console.warn("Не удалось получить список сервисов устройства:", error);
-    }
+    const read = readChar(gatt);
+    const [batteryLevel, deviceInfo, connectedName] = await Promise.all([
+      this.getBatteryLevel(),
+      readDeviceInfo(read),
+      read(GAP.SERVICE, GAP.DEVICE_NAME),
+    ]);
 
     return {
-      services,
       batteryLevel,
-      device: selectedDevice,
+      device: {
+        id: selectedDevice.id,
+        name: connectedName || selectedDevice.name,
+      },
+      deviceInfo,
     };
   };
 
@@ -88,12 +95,8 @@ export class WebBluetooth implements IBluetoothStrategy {
   ) => {
     if (!gatt?.connected) return null;
     try {
-      const service = await gatt.getPrimaryService(
-        SERVICE_UUIDS.BATTERY_SERVICE,
-      );
-      const characteristic = await service.getCharacteristic(
-        BATTERY_CHARACTERISTIC,
-      );
+      const service = await gatt.getPrimaryService(BATTERY.SERVICE);
+      const characteristic = await service.getCharacteristic(BATTERY.LEVEL);
       const value = await characteristic.readValue();
       return value.getUint8(0);
     } catch (error) {

@@ -9,11 +9,13 @@ import { actionPromiseWithTimeout } from "@/shared/lib/actionPromiseWithTimeout"
 import { getErrorMessage } from "@/shared/lib/getErrorMessage";
 
 import { getBluetoothStrategy } from "../lib/getBluetoothStrategy";
-import { SERVICE_UUIDS } from "./constants";
+import { getEmptyDeviceInfo } from "../lib/readDeviceInfo";
+import { GAP, BATTERY, DEVICE_INFO, DEVICE_CONTROL } from "./constants";
 import type {
   IBluetoothDeviceConfig,
   IBluetoothStrategy,
   IBluetoothConnectionResult,
+  IBluetoothDeviceInfo,
 } from "./types";
 
 type BluetoothStatus =
@@ -26,10 +28,15 @@ class BluetoothM {
   device: Partial<BluetoothDevice> | null = null;
   status: BluetoothStatus = "disconnected";
   error: string | null = null;
-  services: string[] = [];
   batteryLevel: number | null = null;
+  deviceInfo: IBluetoothDeviceInfo = getEmptyDeviceInfo();
   readonly deviceConfig: IBluetoothDeviceConfig = {
-    services: Object.values(SERVICE_UUIDS),
+    services: [
+      GAP.SERVICE,
+      BATTERY.SERVICE,
+      DEVICE_INFO.SERVICE,
+      DEVICE_CONTROL.SERVICE,
+    ],
   };
 
   readonly #getStrategy: () => Promise<IBluetoothStrategy>;
@@ -61,22 +68,22 @@ class BluetoothM {
 
   private readonly setConnected = ({
     device,
-    services,
     batteryLevel,
+    deviceInfo,
   }: IBluetoothConnectionResult) => {
     this.status = "connected";
     this.error = null;
     this.device = device;
-    this.services = services;
     this.batteryLevel = batteryLevel;
+    this.deviceInfo = deviceInfo;
   };
 
   private readonly reset = (error: string | null = null) => {
     this.device = null;
     this.status = "disconnected";
     this.error = error;
-    this.services = [];
     this.batteryLevel = null;
+    this.deviceInfo = getEmptyDeviceInfo();
   };
 
   connect = async () => {
@@ -89,7 +96,7 @@ class BluetoothM {
       this.status = "connecting";
       this.error = null;
       this.batteryLevel = null;
-      this.services = [];
+      this.deviceInfo = getEmptyDeviceInfo();
     });
 
     try {

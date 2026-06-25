@@ -2,12 +2,18 @@ import { BleClient } from "@capacitor-community/bluetooth-le";
 
 import { getErrorMessage } from "@/shared/lib/getErrorMessage";
 
-import { BATTERY_CHARACTERISTIC, SERVICE_UUIDS } from "../model/constants";
+import { readStringSafely } from "../lib/readCharacteristic";
+import { readDeviceInfo } from "../lib/readDeviceInfo";
+import { GAP, BATTERY } from "../model/constants";
 import type {
   IBluetoothStrategy,
   IBluetoothConnectionResult,
   IBluetoothDeviceConfig,
 } from "../model/types";
+
+const readChar =
+  (deviceId: string) => (serviceUuid: string, charUuid: string) =>
+    readStringSafely(() => BleClient.read(deviceId, serviceUuid, charUuid));
 
 export class NativeBluetooth implements IBluetoothStrategy {
   private deviceId: string | null = null;
@@ -29,7 +35,7 @@ export class NativeBluetooth implements IBluetoothStrategy {
       const device = await BleClient.requestDevice({
         // TODO: remove comment on release
         // services: config.services,
-        optionalServices: [SERVICE_UUIDS.BATTERY_SERVICE],
+        optionalServices: [BATTERY.SERVICE, ...config.services],
       });
 
       this.deviceId = device.deviceId;
@@ -39,28 +45,17 @@ export class NativeBluetooth implements IBluetoothStrategy {
         void this.handleDisconnect();
       });
 
-      const batteryLevel = await this.getBatteryLevel();
-
-      let services: string[] = [];
-      try {
-        if (this.deviceId) {
-          const discoveredServices = await BleClient.getServices(
-            device.deviceId,
-          );
-          services = discoveredServices
-            .map((s) => s.uuid)
-            .filter((uuid) => config.services.includes(uuid));
-
-          console.log("Доступные сервисы устройства:", services);
-        }
-      } catch (e) {
-        console.warn("Не удалось прочитать сервисы устройства:", e);
-      }
+      const read = readChar(device.deviceId);
+      const [batteryLevel, deviceInfo, connectedName] = await Promise.all([
+        this.getBatteryLevel(),
+        readDeviceInfo(read),
+        read(GAP.SERVICE, GAP.DEVICE_NAME),
+      ]);
 
       return {
-        device: { ...device, id: device.deviceId },
-        services,
+        device: { id: device.deviceId, name: connectedName || device.name },
         batteryLevel,
+        deviceInfo,
       };
     } catch (error) {
       await this.cleanup(false);
@@ -82,8 +77,8 @@ export class NativeBluetooth implements IBluetoothStrategy {
     try {
       const batteryLevel = await BleClient.read(
         this.deviceId,
-        SERVICE_UUIDS.BATTERY_SERVICE,
-        BATTERY_CHARACTERISTIC,
+        BATTERY.SERVICE,
+        BATTERY.LEVEL,
       );
 
       if (batteryLevel.byteLength === 0) return null;
@@ -100,7 +95,6 @@ export class NativeBluetooth implements IBluetoothStrategy {
 
     const callback = this.onDisconnectCallback;
     const idToDisconnect = this.deviceId;
-
     const wasConnected = !!idToDisconnect;
 
     this.deviceId = null;
