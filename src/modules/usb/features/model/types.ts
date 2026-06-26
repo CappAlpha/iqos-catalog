@@ -1,11 +1,19 @@
+export interface IUsbDeviceInfo {
+  manufacturerName: string | null;
+  productName: string | null;
+  vendorId: number | null;
+  productId: number | null;
+  configuration?: USBConfiguration | null;
+}
+
 export interface IUsbConnectionResult {
-  device: Partial<USBDevice> | null;
+  device: IUsbDeviceInfo;
   batteryLevel: number | null;
 }
 
 export interface IUsbDeviceConfig {
-  vendorId?: number;
-  productId?: number;
+  vendorId: number;
+  productId: number;
 }
 
 export interface IUsbStrategy {

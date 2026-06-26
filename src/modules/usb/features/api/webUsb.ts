@@ -37,7 +37,13 @@ export class WebUsb implements IUsbStrategy {
     const batteryLevel = await this.getBatteryLevel();
 
     return {
-      device,
+      device: {
+        manufacturerName: device.manufacturerName ?? null,
+        productName: device.productName ?? null,
+        vendorId: device.vendorId ?? null,
+        productId: device.productId ?? null,
+        configuration: device.configuration ?? null,
+      },
       batteryLevel,
     };
   };

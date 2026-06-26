@@ -49,7 +49,6 @@ export class AndroidNativeUsb implements IUsbStrategy {
           productId,
           productName: targetDevice.deviceName ?? "USB устройство",
           manufacturerName: "Generic USB Device",
-          opened: true,
         },
         batteryLevel: null,
       };
@@ -71,7 +70,7 @@ export class AndroidNativeUsb implements IUsbStrategy {
     return Promise.resolve(null);
   };
 
-  private readonly cleanup = async (triggerCallback = false) => {
+  private readonly cleanup = async (isPhysicalDisconnect = false) => {
     if (this.isDisconnecting) return;
     this.isDisconnecting = true;
 
@@ -99,7 +98,7 @@ export class AndroidNativeUsb implements IUsbStrategy {
 
     this.isDisconnecting = false;
 
-    if (triggerCallback && wasConnected) {
+    if (isPhysicalDisconnect && wasConnected) {
       callback?.();
     }
   };

@@ -11,12 +11,17 @@ import { getErrorMessage } from "@/shared/lib/getErrorMessage";
 
 import { getUsbStrategy } from "../lib/getUsbStrategy";
 import { USB_CONFIG } from "./constants";
-import type { IUsbStrategy, IUsbDeviceConfig } from "./types";
+import type {
+  IUsbStrategy,
+  IUsbDeviceConfig,
+  IUsbConnectionResult,
+  IUsbDeviceInfo,
+} from "./types";
 
 type UsbStatus = "disconnected" | "connecting" | "connected" | "disconnecting";
 
 class UsbM {
-  device: Partial<USBDevice> | null = null;
+  device: IUsbDeviceInfo | null = null;
   status: UsbStatus = "disconnected";
   error: string | null = null;
   batteryLevel: number | null = null;
@@ -57,10 +62,7 @@ class UsbM {
   private readonly setConnected = ({
     device,
     batteryLevel,
-  }: {
-    device: Partial<USBDevice> | null;
-    batteryLevel: number | null;
-  }) => {
+  }: IUsbConnectionResult) => {
     this.status = "connected";
     this.error = null;
     this.device = device;
