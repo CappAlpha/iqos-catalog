@@ -1,4 +1,4 @@
-import { UsbSerial } from "capacitor-usb-serial";
+import { UsbSerial } from "@leeskies/capacitor-usb-serial";
 
 import { getErrorMessage } from "@/shared/lib/getErrorMessage";
 
@@ -26,7 +26,7 @@ export class AndroidNativeUsb implements IUsbStrategy {
     }
 
     try {
-      const { devices } = await UsbSerial.getDeviceConnections();
+      const { devices } = await UsbSerial.listDevices();
 
       const targetDevice = devices.find(
         (d) => d.vendorId === vendorId && d.productId === productId,
@@ -36,11 +36,18 @@ export class AndroidNativeUsb implements IUsbStrategy {
         throw new Error("Не удалось подключиться к устройству по USB.");
       }
 
-      const connection = await UsbSerial.openConnection({
+      if (!targetDevice.hasPermission) {
+        const { granted } = await UsbSerial.requestPermission({
+          deviceId: targetDevice.deviceId,
+        });
+        if (!granted) throw new Error("Отказано в доступе");
+      }
+
+      const connection = await UsbSerial.open({
         deviceId: targetDevice.deviceId,
       });
 
-      this.activePortKey = connection.portKey;
+      this.activePortKey = connection.portId;
       this.onDisconnectCallback = onDisconnect;
 
       return {
@@ -84,15 +91,9 @@ export class AndroidNativeUsb implements IUsbStrategy {
 
     if (portKeyToClose) {
       try {
-        await UsbSerial.endConnection({ key: portKeyToClose });
+        await UsbSerial.close({ portId: portKeyToClose });
       } catch (e) {
         console.warn("Ошибка при закрытии USB порта:", e);
-      }
-    } else {
-      try {
-        await UsbSerial.endConnections();
-      } catch (e) {
-        console.warn("Ошибка при закрытии USB соединений:", e);
       }
     }
 
