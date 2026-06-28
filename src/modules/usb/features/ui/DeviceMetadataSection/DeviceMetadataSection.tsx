@@ -16,8 +16,8 @@ interface IMetadataField {
 }
 
 const METADATA_FIELDS: IMetadataField[] = [
-  { key: "manufacturerName", label: "Производитель" },
-  { key: "productName", label: "Продукт" },
+  { key: "manufacturerName", label: "Имя производителя" },
+  { key: "productName", label: "Имя продукта" },
   { key: "vendorId", label: "Vendor ID" },
   { key: "productId", label: "Product ID" },
 ];
