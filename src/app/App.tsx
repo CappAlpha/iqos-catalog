@@ -7,7 +7,7 @@ import "@/app/styles/colors.scss";
 import "@/app/styles/global.scss";
 import { cartM } from "@/modules/cart/features/model/cartM";
 import { IS_CAPACITOR } from "@/shared/config/platform";
-import { useVH } from "@/shared/lib/useVh";
+import { useVH } from "@/shared/hooks/useVh";
 import { PageLoader } from "@/shared/ui/PageLoader";
 
 import { AppLayout } from "./layout/AppLayout";
