@@ -4,15 +4,15 @@ export const useVH = () => {
   useEffect(() => {
     if (typeof CSS !== "undefined" && CSS.supports("height: 100dvh")) return;
 
-    let lastWidth = globalThis.innerWidth;
+    let lastWidth = globalThis.window.innerWidth;
 
     const setVH = () => {
-      const vh = globalThis.innerHeight * 0.01;
+      const vh = globalThis.window.innerHeight * 0.01;
       document.documentElement.style.setProperty("--vh", `${vh}px`);
     };
 
     const handleResize = () => {
-      const currentWidth = globalThis.innerWidth;
+      const currentWidth = globalThis.window.innerWidth;
       if (currentWidth !== lastWidth) {
         lastWidth = currentWidth;
         setVH();
@@ -20,10 +20,10 @@ export const useVH = () => {
     };
 
     setVH();
-    globalThis.addEventListener("resize", handleResize);
+    globalThis.window.addEventListener("resize", handleResize);
 
     return () => {
-      globalThis.removeEventListener("resize", handleResize);
+      globalThis.window.removeEventListener("resize", handleResize);
     };
   }, []);
 };
