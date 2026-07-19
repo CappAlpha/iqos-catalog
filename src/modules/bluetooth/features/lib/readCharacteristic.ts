@@ -1,6 +1,6 @@
 const decoder = new TextDecoder("utf-8");
 
-export const readStringSafely = async (
+const readStringSafely = async (
   readValue: () => Promise<DataView>,
 ): Promise<string | null> => {
   try {
@@ -11,3 +11,8 @@ export const readStringSafely = async (
     return null;
   }
 };
+
+export const createCharReader =
+  (readRaw: (serviceUuid: string, charUuid: string) => Promise<DataView>) =>
+  (serviceUuid: string, charUuid: string): Promise<string | null> =>
+    readStringSafely(() => readRaw(serviceUuid, charUuid));

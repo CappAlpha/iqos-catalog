@@ -7,8 +7,13 @@ export interface IBluetoothDeviceInfo {
   softwareRevision: string | null;
 }
 
+export interface IBluetoothDevice {
+  id: string;
+  name: string | null;
+}
+
 export interface IBluetoothConnectionResult {
-  device: Partial<BluetoothDevice> | null;
+  device: IBluetoothDevice;
   batteryLevel: number | null;
   deviceInfo: IBluetoothDeviceInfo;
 }
@@ -21,6 +26,7 @@ export interface IBluetoothStrategy {
   connect(
     config: IBluetoothDeviceConfig,
     onDisconnect: () => void,
+    signal?: AbortSignal,
   ): Promise<IBluetoothConnectionResult>;
   disconnect(): Promise<void>;
   getBatteryLevel(): Promise<number | null>;

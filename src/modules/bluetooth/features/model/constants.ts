@@ -1,3 +1,5 @@
+import type { IBluetoothDeviceConfig } from "./types";
+
 export const GAP = {
   SERVICE: "00001800-0000-1000-8000-00805f9b34fb",
   DEVICE_NAME: "00002a00-0000-1000-8000-00805f9b34fb",
@@ -18,6 +20,13 @@ export const DEVICE_INFO = {
   SOFTWARE_REVISION: "00002a28-0000-1000-8000-00805f9b34fb",
 } as const;
 
-export const DEVICE_CONTROL = {
+const DEVICE_CONTROL = {
   SERVICE: "daebb240-b041-11e4-9e45-0002a5d5c51b",
 } as const;
+
+export const DEVICE_CONFIG: IBluetoothDeviceConfig = {
+  services: [BATTERY.SERVICE, DEVICE_INFO.SERVICE, DEVICE_CONTROL.SERVICE],
+};
+
+export const CONNECT_TIMEOUT = 20_000;
+export const DISCONNECT_TIMEOUT = 3_000;

@@ -45,7 +45,12 @@
 }
 
 .error {
+  max-width: 60dvw;
   padding-right: 2rem;
+
+  @include breakpoint(tablet) {
+    max-width: none;
+  }
 }
 
 .closeIconBtn {

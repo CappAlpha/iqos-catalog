@@ -108,7 +108,15 @@ class UsbM {
 
       await this.#strategy?.disconnect().catch(() => {});
 
-      const errMsg = getErrorMessage(err, "Ошибка подключения по USB.");
+      let errMsg = getErrorMessage(err, "Ошибка подключения по USB.");
+
+      if (
+        errMsg ===
+        "Failed to execute 'requestDevice' on 'USB': No device selected."
+      ) {
+        errMsg = "Вы отменили выбор устройства.";
+      }
+
       this.reset(errMsg);
     }
   };
