@@ -3,8 +3,9 @@ import { actionPromiseWithTimeout } from "@/shared/lib/actionPromiseWithTimeout"
 import { getErrorMessage } from "@/shared/lib/getErrorMessage";
 
 import { createCharReader } from "../lib/readCharacteristic";
-import { readDeviceInfo, getEmptyDeviceInfo } from "../lib/readDeviceInfo";
-import { GAP, BATTERY } from "../model/constants";
+import { getEmptyDeviceInfo } from "../lib/readDeviceInfo";
+import { readInitialMetadata } from "../lib/readInitialMetadata";
+import { BATTERY } from "../model/constants";
 import type {
   IBluetoothStrategy,
   IBluetoothConnectionResult,
@@ -20,206 +21,73 @@ export class WebBluetooth implements IBluetoothStrategy {
     onDisconnect: () => void,
     signal?: AbortSignal,
   ): Promise<IBluetoothConnectionResult> => {
-    logsM.info(
-      "[WebBluetooth] Сброс предыдущего состояния перед новым подключением.",
-    );
     this.cleanup();
 
-    logsM.info(
-      "[WebBluetooth] Запуск системного диалога выбора Bluetooth-устройства...",
-    );
-    let selectedDevice: BluetoothDevice;
     try {
-      selectedDevice = await navigator.bluetooth.requestDevice({
-        // TODO: remove comment and acceptAllDevices on release
-        // filters: [{ services: config.services }],
-        acceptAllDevices: true,
-        optionalServices: [BATTERY.SERVICE, ...config.services],
-      });
+      const selectedDevice: BluetoothDevice =
+        await navigator.bluetooth.requestDevice({
+          // TODO: remove comment and acceptAllDevices on release
+          // filters: [{ services: config.services }],
+          acceptAllDevices: true,
+          optionalServices: [BATTERY.SERVICE, ...config.services],
+        });
 
-      if (signal?.aborted) {
+      signal?.throwIfAborted();
+
+      const gatt = selectedDevice.gatt;
+      if (!gatt) {
         logsM.warn(
-          "[WebBluetooth] Устройство выбрано, но таймаут сопряжения в сторе уже истек. Сброс.",
+          `[WebBluetooth] У выбранного устройства "${selectedDevice.name}" отсутствует GATT-сервер.`,
         );
-        this.cleanup();
-        throw new Error("Connection aborted by timeout");
+        return {
+          device: { id: selectedDevice.id, name: selectedDevice.name ?? null },
+          deviceInfo: getEmptyDeviceInfo(),
+          batteryLevel: null,
+        };
       }
 
-      logsM.success(
-        `[WebBluetooth] Устройство успешно выбрано пользователем: "${selectedDevice.name ?? "Без имени"}" (ID: ${selectedDevice.id})`,
-      );
-    } catch (err) {
-      logsM.error(
-        "[WebBluetooth] Ошибка при выборе устройства в диалоговом окне (возможно, выбор отменен)",
-        err,
-      );
-      throw err;
-    }
+      this.device = selectedDevice;
+      this.onDisconnectCallback = onDisconnect;
 
-    const gatt = selectedDevice.gatt;
-    if (!gatt) {
-      logsM.warn(
-        `[WebBluetooth] У выбранного устройства "${selectedDevice.name}" отсутствует GATT-сервер.`,
-      );
-      return {
-        device: { id: selectedDevice.id, name: selectedDevice.name ?? null },
-        deviceInfo: getEmptyDeviceInfo(),
-        batteryLevel: null,
-      };
-    }
-
-    this.device = selectedDevice;
-    this.onDisconnectCallback = onDisconnect;
-
-    try {
-      logsM.info(
-        "[WebBluetooth] Попытка физического подключения к GATT-серверу...",
-      );
       await actionPromiseWithTimeout(
         gatt.connect(),
         10000,
         "Превышено время ожидания ответа от устройства (таймаут GATT).",
       );
 
-      if (signal?.aborted) {
-        logsM.warn(
-          "[WebBluetooth] Соединение установлено, но таймаут стора истек. Принудительный разрыв.",
-        );
-        this.cleanup();
-        throw new Error("Connection aborted by timeout");
-      }
+      signal?.throwIfAborted();
 
-      logsM.success(
-        "[WebBluetooth] Физическое подключение к GATT-серверу успешно установлено.",
+      this.device.addEventListener(
+        "gattserverdisconnected",
+        this.handleDisconnect,
       );
-    } catch (err) {
-      logsM.error(
-        "[WebBluetooth] Ошибка физического подключения к GATT-серверу",
-        err,
-      );
-      this.cleanup();
-      throw err;
-    }
 
-    this.device.addEventListener(
-      "gattserverdisconnected",
-      this.handleDisconnect,
-    );
-
-    const read = createCharReader(async (svc, chr) => {
-      try {
+      const read = createCharReader(async (svc, chr) => {
         const service = await gatt.getPrimaryService(svc);
         const characteristic = await service.getCharacteristic(chr);
         return await characteristic.readValue();
-      } catch (err) {
-        const errMsg = getErrorMessage(
-          err,
-          "[WebBluetooth] Ошибка чтения характеристики.",
-        );
-        logsM.warn(
-          `[WebBluetooth] Ошибка чтения характеристики. Service: ${svc}, Char: ${chr} [ERROR]: ${errMsg}`,
-        );
-        throw err;
-      }
-    });
+      });
 
-    logsM.info(
-      "[WebBluetooth] Запуск параллельного чтения базовых характеристик (Имя, Информация об устройстве, Батарея)...",
-    );
-    const [nameResult, infoResult, batteryResult] = await Promise.allSettled([
-      read(GAP.SERVICE, GAP.DEVICE_NAME),
-      readDeviceInfo(read),
-      this.getBatteryLevel(),
-    ]);
+      const { deviceName, deviceInfo, batteryLevel } =
+        await readInitialMetadata(
+          read,
+          () => this.getBatteryLevel(),
+          selectedDevice.name ?? null,
+          signal,
+        );
 
-    if (signal?.aborted) {
-      logsM.warn(
-        "[WebBluetooth] Характеристики прочитаны, но таймаут сопряжения уже истек. Разрыв связи.",
-      );
+      return {
+        device: {
+          id: selectedDevice.id,
+          name: deviceName,
+        },
+        deviceInfo,
+        batteryLevel,
+      };
+    } catch (err) {
       this.cleanup();
-      throw new Error("Connection aborted by timeout");
+      throw err;
     }
-
-    let connectedName: string | null = null;
-    if (nameResult.status === "fulfilled" && nameResult.value !== null) {
-      connectedName = nameResult.value;
-      logsM.info(
-        `[WebBluetooth] Имя устройства из GAP-сервиса успешно прочитано: "${connectedName}"`,
-      );
-    } else {
-      const reasonStr =
-        nameResult.status === "rejected"
-          ? nameResult.reason instanceof Error
-            ? nameResult.reason.message
-            : typeof nameResult.reason === "string"
-              ? nameResult.reason
-              : "Неизвестная ошибка"
-          : "Характеристика заблокирована браузером Chrome или отсутствует на устройстве";
-
-      logsM.warn(
-        `[WebBluetooth] Не удалось получить имя из GAP-сервиса. Причина: ${reasonStr}`,
-      );
-    }
-
-    const deviceName: string | null =
-      connectedName ?? selectedDevice.name ?? null;
-
-    let deviceInfo = getEmptyDeviceInfo();
-    if (
-      infoResult.status === "fulfilled" &&
-      infoResult.value.manufacturerName !== null
-    ) {
-      deviceInfo = infoResult.value;
-      logsM.success(
-        `[WebBluetooth] Информация об устройстве (DeviceInfo) успешно прочитана: ${JSON.stringify(deviceInfo)}`,
-      );
-    } else {
-      const reasonStr =
-        infoResult.status === "rejected"
-          ? infoResult.reason instanceof Error
-            ? infoResult.reason.message
-            : typeof infoResult.reason === "string"
-              ? infoResult.reason
-              : "Неизвестная ошибка"
-          : "Сервис DeviceInfo отсутствует на устройстве или заблокирован браузером";
-      logsM.warn(
-        `[WebBluetooth] Не удалось прочитать DeviceInfo. Причина: ${reasonStr}`,
-      );
-    }
-
-    let batteryLevel: number | null = null;
-    if (batteryResult.status === "fulfilled" && batteryResult.value !== null) {
-      batteryLevel = batteryResult.value;
-      logsM.info(
-        `[WebBluetooth] Уровень заряда батареи успешно прочитан: ${batteryLevel}%`,
-      );
-    } else {
-      const reasonStr =
-        batteryResult.status === "rejected"
-          ? batteryResult.reason instanceof Error
-            ? batteryResult.reason.message
-            : typeof batteryResult.reason === "string"
-              ? batteryResult.reason
-              : "Неизвестная ошибка"
-          : "Сервис батареи отсутствует на устройстве или заблокирован браузером";
-
-      logsM.warn(
-        `[WebBluetooth] Не удалось получить заряд батареи на этапе сопряжения. Причина: ${reasonStr}`,
-      );
-    }
-
-    logsM.success(
-      `[WebBluetooth] Процесс сопряжения и инициализации завершен для "${deviceName}"`,
-    );
-
-    return {
-      device: {
-        id: selectedDevice.id,
-        name: deviceName,
-      },
-      deviceInfo,
-      batteryLevel,
-    };
   };
 
   disconnect = () => {

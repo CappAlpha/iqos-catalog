@@ -4,6 +4,7 @@ import prettierConfig from "eslint-config-prettier";
 import pluginMobx from "eslint-plugin-mobx";
 import reactHooksPlugin from "eslint-plugin-react-hooks";
 import reactRefreshPlugin from "eslint-plugin-react-refresh";
+import reactYouMightNotNeedAnEffect from "eslint-plugin-react-you-might-not-need-an-effect";
 import globals from "globals";
 import tsEslint from "typescript-eslint";
 
@@ -35,6 +36,7 @@ export default [
       "@eslint-react": reactPlugin,
       "react-hooks": reactHooksPlugin,
       "react-refresh": reactRefreshPlugin,
+      "react-you-might-not-need-an-effect": reactYouMightNotNeedAnEffect,
       mobx: pluginMobx,
     },
     rules: {
@@ -42,6 +44,7 @@ export default [
       ...reactHooksPlugin.configs.recommended.rules,
       ...reactRefreshPlugin.configs.recommended.rules,
       ...pluginMobx.configs.recommended.rules,
+      ...reactYouMightNotNeedAnEffect.configs.recommended.rules,
       "react-refresh/only-export-components": [
         "warn",
         { allowConstantExport: true },

@@ -13,6 +13,7 @@ ios/
 dist-ssr
 *.local
 *.docx
+*.txt
 
 # Editor directories and files
 .vscode/*

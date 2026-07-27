@@ -4,7 +4,7 @@ export const useVH = () => {
   useEffect(() => {
     if (typeof CSS !== "undefined" && CSS.supports("height: 100dvh")) return;
 
-    let lastWidth = globalThis.window.innerWidth;
+    let lastWidth = globalThis.window.innerWidth ?? 0;
 
     const setVH = () => {
       const vh = globalThis.window.innerHeight * 0.01;
