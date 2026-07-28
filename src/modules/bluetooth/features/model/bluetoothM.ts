@@ -5,7 +5,7 @@ import type { IAppLogger } from "@/modules/logs/features/model/types";
 import {
   IS_CAPACITOR,
   IS_NATIVE_BLUETOOTH_AVAILABLE,
-  IS_WEB_SUPPORTED,
+  IS_WEB_BLUETOOTH_SUPPORTED,
 } from "@/shared/config/platform";
 import { actionPromiseWithTimeout } from "@/shared/lib/actionPromiseWithTimeout";
 import { getErrorMessage } from "@/shared/lib/getErrorMessage";
@@ -65,7 +65,9 @@ class BluetoothM {
   }
 
   get isSupported() {
-    return IS_CAPACITOR ? IS_NATIVE_BLUETOOTH_AVAILABLE : IS_WEB_SUPPORTED;
+    return IS_CAPACITOR
+      ? IS_NATIVE_BLUETOOTH_AVAILABLE
+      : IS_WEB_BLUETOOTH_SUPPORTED;
   }
 
   private readonly setConnected = ({

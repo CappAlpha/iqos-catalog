@@ -9,5 +9,7 @@ export const IS_NATIVE_USB_AVAILABLE =
 export const IS_NATIVE_BLUETOOTH_AVAILABLE =
   IS_CAPACITOR && cap?.isPluginAvailable?.("BluetoothLe");
 
-export const IS_WEB_SUPPORTED =
+export const IS_WEB_USB_SUPPORTED =
   typeof navigator !== "undefined" && !!navigator.usb;
+export const IS_WEB_BLUETOOTH_SUPPORTED =
+  typeof navigator !== "undefined" && !!navigator.bluetooth;

@@ -4,7 +4,7 @@ import {
   IS_ANDROID,
   IS_CAPACITOR,
   IS_NATIVE_USB_AVAILABLE,
-  IS_WEB_SUPPORTED,
+  IS_WEB_USB_SUPPORTED,
 } from "@/shared/config/platform";
 import { actionPromiseWithTimeout } from "@/shared/lib/actionPromiseWithTimeout";
 import { getErrorMessage } from "@/shared/lib/getErrorMessage";
@@ -56,7 +56,7 @@ class UsbM {
   get isSupported() {
     return IS_CAPACITOR && IS_ANDROID
       ? IS_NATIVE_USB_AVAILABLE
-      : IS_WEB_SUPPORTED;
+      : IS_WEB_USB_SUPPORTED;
   }
 
   private readonly setConnected = ({
