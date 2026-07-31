@@ -58,49 +58,49 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./dist
 
-  # build-apk:
-  #   runs-on: ubuntu-latest
-  #   needs: build-and-test
-  #   if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-  #   permissions:
-  #     contents: write
-  #   steps:
-  #     - uses: actions/checkout@v5
+  build-apk:
+    runs-on: ubuntu-latest
+    needs: build-and-test
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v5
 
-  #     - uses: actions/setup-node@v5
-  #       with:
-  #         node-version: 24
-  #         cache: "npm"
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: "npm"
 
-  #     - name: Set up Java JDK
-  #       uses: actions/setup-java@v4
-  #       with:
-  #         distribution: "zulu"
-  #         java-version: "17"
+      - name: Set up Java JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: "zulu"
+          java-version: "17"
 
-  #     - run: npm ci --legacy-peer-deps
+      - run: npm ci --legacy-peer-deps
 
-  #     - run: npm run build:capacitor
+      - run: npm run build:capacitor
 
-  #     - name: Make gradlew executable
-  #       run: chmod +x android/gradlew
+      - name: Make gradlew executable
+        run: chmod +x android/gradlew
 
-  #     - name: Build Android APK
-  #       run: |
-  #         cd android
-  #         ./gradlew assembleDebug
+      - name: Build Android APK
+        run: |
+          cd android
+          ./gradlew assembleDebug
 
-  #     - name: Upload APK Artifact
-  #       uses: actions/upload-artifact@v4
-  #       with:
-  #         name: app-debug.apk
-  #         path: android/app/build/outputs/apk/debug/app-debug.apk
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-debug.apk
+          path: android/app/build/outputs/apk/debug/app-debug.apk
 
-  #     - name: Create GitHub Release
-  #       uses: softprops/action-gh-release@v2
-  #       with:
-  #         tag_name: v1.0.${{ github.run_number }}
-  #         name: Release v1.0.${{ github.run_number }}
-  #         files: android/app/build/outputs/apk/debug/app-debug.apk
-  #       env:
-  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v1.0.${{ github.run_number }}
+          name: Release v1.0.${{ github.run_number }}
+          files: android/app/build/outputs/apk/debug/app-debug.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
