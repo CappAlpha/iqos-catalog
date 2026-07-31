@@ -29,9 +29,13 @@
   "dependencies": {
     "@capacitor-community/bluetooth-le": "^8.2.0",
     "@capacitor/android": "^8.4.2",
+    "@capacitor/app": "^8.1.1",
     "@capacitor/core": "^8.4.2",
+    "@capacitor/file-transfer": "^2.0.4",
+    "@capacitor/filesystem": "^8.1.2",
     "@capacitor/ios": "^8.4.2",
     "@capacitor/preferences": "^8.0.1",
+    "@capawesome-team/capacitor-file-opener": "^8.0.1",
     "@leeskies/capacitor-usb-serial": "^0.1.0",
     "@tanstack/query-core": "^5.101.4",
     "axios": "^1.19.0",

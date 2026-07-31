@@ -8,6 +8,7 @@ import "@/app/styles/global.scss";
 import { cartM } from "@/modules/cart/features/model/cartM";
 import { IS_CAPACITOR } from "@/shared/config/platform";
 import { useVH } from "@/shared/hooks/useVh";
+import { LazyApkUpdaterToast } from "@/shared/ui/ApkUpdaterToast";
 import { PageLoader } from "@/shared/ui/PageLoader";
 
 import { AppLayout } from "./layout/AppLayout";
@@ -28,6 +29,7 @@ function App() {
         <Suspense fallback={<PageLoader />}>
           <AppRoutes />
         </Suspense>
+        <LazyApkUpdaterToast />
         <Toaster position="top-center" richColors className="toast-root" />
       </AppLayout>
     </BrowserRouter>

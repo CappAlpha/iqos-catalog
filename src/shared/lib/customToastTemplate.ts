@@ -6,16 +6,23 @@ interface ToastOptions {
   description?: string;
   buttonLabel?: string;
   action?: () => void;
+  duration?: ToastT["duration"];
+  position?: ToastT["position"];
 }
 
 export const customToastTemplate = ({
   title,
-  type,
+  type = "default",
   description,
   buttonLabel,
   action,
+  duration = 5000,
+  position,
 }: ToastOptions) => {
-  const options: Parameters<typeof toast>[1] = {};
+  const options: Parameters<typeof toast>[1] = {
+    duration,
+    position,
+  };
 
   if (description) {
     options.description = description;
