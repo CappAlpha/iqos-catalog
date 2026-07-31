@@ -54,12 +54,6 @@ export class NativeBluetooth extends BaseBluetoothStrategy {
         }
       }
 
-      if (IS_ANDROID && !(await BleClient.isLocationEnabled())) {
-        throw new Error(
-          "Для поиска Bluetooth-устройств включите геолокацию в настройках телефона.",
-        );
-      }
-
       const device = await BleClient.requestDevice({
         // TODO: remove comment on release
         // services: config.services,
