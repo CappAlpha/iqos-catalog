@@ -1,5 +1,3 @@
-@use "@/app/styles/animations.scss" as *;
-
 .root {
   @include devicePanel;
 }
@@ -47,7 +45,7 @@
   .status[data-status="connecting"] &,
   .status[data-status="disconnecting"] & {
     background: var(--accent-color);
-    animation: statusPulse 1.2s ease-in-out infinite;
+    @include statusPulse;
   }
 }
 

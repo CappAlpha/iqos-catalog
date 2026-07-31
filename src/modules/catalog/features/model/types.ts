@@ -48,5 +48,4 @@ export type FeedResult = {
 };
 
 export type PaginationItem =
-  | { type: "page"; value: number }
-  | { type: "dots"; side: "left" | "right" };
+  { type: "page"; value: number } | { type: "dots"; side: "left" | "right" };

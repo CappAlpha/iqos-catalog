@@ -12,7 +12,7 @@
 }
 
 .cardIntro {
-  animation: 0.6s focusIn ease-in-out;
+  @include focusIn;
 }
 
 .left {

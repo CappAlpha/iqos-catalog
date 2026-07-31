@@ -1,60 +1,96 @@
-@keyframes showOpacity {
-  0% {
-    opacity: 0;
-    visibility: hidden;
-  }
+@mixin showOpacity($duration: 0.4s, $timing-function: ease-in-out) {
+  animation: $duration $timing-function showOpacity;
 
-  100% {
-    opacity: 1;
-    visibility: visible;
-  }
-}
+  @keyframes showOpacity {
+    0% {
+      opacity: 0;
+      visibility: hidden;
+    }
 
-@keyframes hideOpacity {
-  0% {
-    opacity: 1;
-    visibility: visible;
-  }
-
-  100% {
-    opacity: 0;
-    visibility: hidden;
+    100% {
+      opacity: 1;
+      visibility: visible;
+    }
   }
 }
 
-@keyframes loaderSpin {
-  100% {
-    rotate: 360deg;
+@mixin hideOpacity($duration: 0.4s, $timing-function: ease-in-out) {
+  animation: $duration $timing-function hideOpacity;
+
+  @keyframes hideOpacity {
+    0% {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    100% {
+      opacity: 0;
+      visibility: hidden;
+    }
   }
 }
 
-@keyframes skeleton {
-  0% {
-    background-position: 200% 0;
-  }
+@mixin loaderSpin(
+  $duration: 1s,
+  $timing-function: linear,
+  $iteration-count: infinite
+) {
+  animation: $duration $timing-function $iteration-count loaderSpin;
 
-  100% {
-    background-position: -200% 0;
-  }
-}
-
-@keyframes focusIn {
-  0% {
-    -webkit-filter: blur(6px);
-    filter: blur(6px);
-    opacity: 0;
-  }
-
-  100% {
-    -webkit-filter: blur(0px);
-    filter: blur(0px);
-    opacity: 1;
+  @keyframes loaderSpin {
+    100% {
+      rotate: 360deg;
+    }
   }
 }
 
-@keyframes statusPulse {
-  50% {
-    opacity: 0.5;
-    transform: scale(0.75);
+@mixin skeletonAnimation(
+  $duration: 1.5s,
+  $timing-function: linear,
+  $iteration-count: infinite
+) {
+  animation: $duration $timing-function $iteration-count skeleton;
+
+  @keyframes skeleton {
+    0% {
+      background-position: 200% 0;
+    }
+
+    100% {
+      background-position: -200% 0;
+    }
+  }
+}
+
+@mixin focusIn($duration: 0.6s, $timing-function: ease-in-out) {
+  animation: $duration $timing-function focusIn;
+
+  @keyframes focusIn {
+    0% {
+      -webkit-filter: blur(6px);
+      filter: blur(6px);
+      opacity: 0;
+    }
+
+    100% {
+      -webkit-filter: blur(0px);
+      filter: blur(0px);
+      opacity: 1;
+    }
+  }
+}
+
+@mixin statusPulse(
+  $duration: 1.2s,
+  $timing-function: ease-in-out,
+  $iteration-count: infinite
+) {
+  animation: $duration $timing-function $iteration-count statusPulse;
+
+  @keyframes statusPulse {
+    50% {
+      opacity: 0.5;
+      transform: scale(0.75);
+    }
   }
 }

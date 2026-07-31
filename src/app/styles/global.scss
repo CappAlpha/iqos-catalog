@@ -107,17 +107,15 @@ body[data-no-scroll="true"] {
 
 ::view-transition-old(root),
 ::view-transition-new(root) {
-  animation-duration: 0.4s;
-  animation-timing-function: ease-in-out;
   mix-blend-mode: normal;
 }
 
 ::view-transition-old(root) {
-  animation-name: hideOpacity;
+  @include hideOpacity;
 }
 
 ::view-transition-new(root) {
-  animation-name: showOpacity;
+  @include showOpacity;
 }
 
 [data-rich-colors="true"][data-sonner-toast][data-styled="true"]
