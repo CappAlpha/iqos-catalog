@@ -1,4 +1,4 @@
-import { makeAutoObservable, observable, runInAction } from "mobx";
+import { makeAutoObservable, observableRef, runInAction } from "mobx";
 
 import {
   IS_ANDROID,
@@ -38,7 +38,7 @@ class UsbM {
   constructor(getStrategy: () => Promise<IUsbStrategy>) {
     this.#getStrategy = getStrategy;
     makeAutoObservable(this, {
-      device: observable.ref,
+      device: observableRef,
       deviceConfig: false,
     });
   }

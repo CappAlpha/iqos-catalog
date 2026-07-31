@@ -18,8 +18,8 @@ export const useCatalogUrlSync = () => {
     runInAction(() => {
       if (catalogM.selectedCategoriesQuery !== urlCatsStr) {
         catalogM.selectedCategoryIds.clear();
-        if (urlCatRaw) {
-          urlCatRaw.split(",").forEach((id) => catalogM.setCategory(id));
+        if (urlCatsStr) {
+          urlCatsStr.split(",").forEach((id) => catalogM.setCategory(id));
         }
       }
 

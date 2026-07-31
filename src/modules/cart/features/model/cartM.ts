@@ -21,22 +21,32 @@ class CartM {
 
   #globalTimer: ReturnType<typeof setTimeout> | null = null;
   readonly #cartItemsTimers = new Map<string, ReturnType<typeof setTimeout>>();
+  #storageWriteQueue: Promise<void> = Promise.resolve();
 
   constructor() {
     makeAutoObservable(this);
 
-    autorun(async () => {
+    autorun(() => {
       if (!this.isInitialized) return;
       const value = JSON.stringify(toJS(this.items));
-      await storage.set(CART_STORAGE_KEY, value);
+      this.persist(CART_STORAGE_KEY, value);
     });
 
-    autorun(async () => {
+    autorun(() => {
       if (!this.isInitialized) return;
       const value = JSON.stringify(toJS(this.orderHistory));
-      await storage.set(ORDERS_STORAGE_KEY, value);
+      this.persist(ORDERS_STORAGE_KEY, value);
     });
   }
+
+  private readonly persist = (key: string, value: string) => {
+    this.#storageWriteQueue = this.#storageWriteQueue
+      .catch(() => {})
+      .then(() => storage.set(key, value))
+      .catch((error: unknown) => {
+        console.error(`Ошибка сохранения данных (${key})`, error);
+      });
+  };
 
   private runGlobalTransition(
     action: GlobalActionType,

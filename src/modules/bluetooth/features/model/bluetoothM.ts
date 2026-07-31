@@ -1,4 +1,4 @@
-import { makeAutoObservable, observable, runInAction } from "mobx";
+import { makeAutoObservable, observableRef, runInAction } from "mobx";
 
 import { logsM } from "@/modules/logs/features/model/logsM";
 import type { IAppLogger } from "@/modules/logs/features/model/types";
@@ -50,8 +50,8 @@ class BluetoothM {
     this.#logsM = logsM;
 
     makeAutoObservable(this, {
-      device: observable.ref,
-      deviceInfo: observable.ref,
+      device: observableRef,
+      deviceInfo: observableRef,
     });
   }
 

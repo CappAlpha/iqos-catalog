@@ -1,4 +1,4 @@
-import { makeAutoObservable, observable } from "mobx";
+import { makeAutoObservable, observableShallow } from "mobx";
 
 import type { IAppLogger, ILogEntry, LogType } from "./types";
 
@@ -22,7 +22,7 @@ class LogsM implements IAppLogger {
 
   constructor() {
     makeAutoObservable(this, {
-      logs: observable.shallow,
+      logs: observableShallow,
     });
   }
 
