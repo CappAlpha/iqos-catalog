@@ -1,54 +1,81 @@
 import { BleClient } from "@capacitor-community/bluetooth-le";
 
 import { logsM } from "@/modules/logs/features/model/logsM";
-import { IS_ANDROID } from "@/shared/config/platform";
+import { IS_ANDROID, IS_IOS } from "@/shared/config/platform";
 import { getErrorMessage } from "@/shared/lib/getErrorMessage";
 
 import { createCharReader } from "../lib/readCharacteristic";
 import { readInitialMetadata } from "../lib/readInitialMetadata";
-import { BATTERY } from "../model/constants";
+import { BATTERY, REQUIRED_SERVICES } from "../model/constants";
 import type {
-  IBluetoothStrategy,
   IBluetoothConnectionResult,
   IBluetoothDeviceConfig,
 } from "../model/types";
+import { BaseBluetoothStrategy } from "./baseBluetoothStrategy";
 
-export class NativeBluetooth implements IBluetoothStrategy {
+const LOG_PREFIX = "[NativeBluetooth]";
+
+/**
+ * Реализация {@link BaseBluetoothStrategy} поверх нативного плагина
+ * @capacitor-community/bluetooth-le (Android / iOS).
+ *
+ * Физическое подключение/отключение и чтение характеристик делегируются BleClient.
+ * Системное событие разрыва приходит через колбэк `BleClient.connect` и
+ * транслируется в `notifyDisconnected()` базового класса.
+ */
+export class NativeBluetooth extends BaseBluetoothStrategy {
+  protected readonly logPrefix = LOG_PREFIX;
+
+  // ID выбранного устройства. Обнуляется в doDisconnect при разрыве.
   private deviceId: string | null = null;
-  private onDisconnectCallback: (() => void) | null = null;
-  private isDisconnecting = false;
 
+  /**
+   * Подключение к устройству: проверка состояния Bluetooth → выбор устройства →
+   * физическое соединение → чтение начальных метаданных.
+   *
+   * withDisconnectCallback регистрирует onDisconnect ДО action и гарантирует
+   * очистку ресурсов при ошибке подключения (без вызова колбэка — об ошибке
+   * сообщит сам reject).
+   */
   connect = async (
     config: IBluetoothDeviceConfig,
     onDisconnect: () => void,
     signal?: AbortSignal,
   ): Promise<IBluetoothConnectionResult> => {
-    await this.cleanup(false);
-
-    try {
+    return this.withDisconnectCallback(onDisconnect, async () => {
       const isBluetoothEnabled = await BleClient.isEnabled();
-      if (!isBluetoothEnabled && IS_ANDROID) {
-        // TODO: on IOS request not working?
-        await BleClient.requestEnable();
+      if (!isBluetoothEnabled) {
+        if (IS_ANDROID) {
+          await BleClient.requestEnable();
+        } else if (IS_IOS) {
+          throw new Error(
+            "Bluetooth выключен. Включите его в настройках устройства.",
+          );
+        }
+      }
+
+      if (IS_ANDROID && !(await BleClient.isLocationEnabled())) {
+        throw new Error(
+          "Для поиска Bluetooth-устройств включите геолокацию в настройках телефона.",
+        );
       }
 
       const device = await BleClient.requestDevice({
         // TODO: remove comment on release
         // services: config.services,
-        optionalServices: [BATTERY.SERVICE, ...config.services],
+        optionalServices: [...REQUIRED_SERVICES],
       });
 
       signal?.throwIfAborted();
 
       logsM.success(
-        `[NativeBluetooth] Устройство успешно выбрано: "${device.name ?? "Без имени"}" (ID: ${device.deviceId})`,
+        `${LOG_PREFIX} Устройство выбрано: "${device.name ?? "Без имени"}" (ID: ${device.deviceId})`,
       );
 
       this.deviceId = device.deviceId;
-      this.onDisconnectCallback = onDisconnect;
 
       await BleClient.connect(device.deviceId, () => {
-        void this.handleDisconnect();
+        this.handlePluginDisconnect();
       });
 
       signal?.throwIfAborted();
@@ -73,99 +100,52 @@ export class NativeBluetooth implements IBluetoothStrategy {
         deviceInfo,
         batteryLevel,
       };
-    } catch (err) {
-      await this.cleanup(false);
-
-      const message = getErrorMessage(
-        err,
-        "Не удалось подключиться через Bluetooth.",
-      );
-      throw new Error(message, { cause: err });
-    }
+    });
   };
 
-  disconnect = async () => {
-    logsM.info("[NativeBluetooth] Вызван ручной метод disconnect.");
-    await this.cleanup();
-  };
-
-  getBatteryLevel = async () => {
+  /** Чтение уровня заряда батареи (Battery Service 0x180F, характеристика 0x2A19). */
+  getBatteryLevel = async (): Promise<number | null> => {
     if (!this.deviceId) {
-      logsM.warn(
-        "[NativeBluetooth] Запрос чтения батареи отклонен: ID устройства отсутствует.",
-      );
+      logsM.warn(`${LOG_PREFIX} Чтение батареи отклонено: нет ID устройства.`);
       return null;
     }
 
+    logsM.info(`${LOG_PREFIX} Чтение уровня заряда батареи...`);
+
     try {
-      logsM.info("[NativeBluetooth] Чтение уровня заряда батареи...");
-      const batteryLevel = await BleClient.read(
+      const value = await BleClient.read(
         this.deviceId,
         BATTERY.SERVICE,
         BATTERY.LEVEL,
       );
-
-      if (batteryLevel.byteLength === 0) {
-        logsM.warn(
-          "[NativeBluetooth] Прочитано пустое значение батареи (byteLength === 0).",
-        );
-        return null;
-      }
-
-      const level = batteryLevel.getUint8(0);
-      logsM.info(`[NativeBluetooth] Прочитано значение батареи: ${level}%`);
+      if (value.byteLength === 0) return null;
+      const level = value.getUint8(0);
+      logsM.info(`${LOG_PREFIX} Заряд батареи: ${level}%`);
       return level;
     } catch (err) {
-      const errMsg = getErrorMessage(
-        err,
-        "[NativeBluetooth] Ошибка при чтении заряда батареи.",
-      );
       logsM.warn(
-        `[NativeBluetooth] Ошибка при чтении заряда батареи. Причина: ${errMsg}`,
+        `${LOG_PREFIX} Ошибка чтения заряда: ${getErrorMessage(err, "неизвестная")}`,
       );
       return null;
     }
   };
 
-  private readonly cleanup = async (triggerCallback = false) => {
-    if (this.isDisconnecting) return;
-    this.isDisconnecting = true;
-
-    const callback = this.onDisconnectCallback;
+  /** Физический разрыв: обнуляем ID и просим плагин разорвать соединение. */
+  protected doDisconnect = async (): Promise<void> => {
     const idToDisconnect = this.deviceId;
-    const wasConnected = !!idToDisconnect;
-
     this.deviceId = null;
-    this.onDisconnectCallback = null;
-
     if (idToDisconnect) {
-      try {
-        logsM.info(
-          `[NativeBluetooth] Отправка запроса на отключение GATT-сервера (BleClient.disconnect) для ID: ${idToDisconnect}...`,
-        );
-        await BleClient.disconnect(idToDisconnect);
-      } catch (err) {
-        const errMsg = getErrorMessage(
-          err,
-          "[NativeBluetooth] Ошибка при закрытии соединения Bluetooth.",
-        );
-        logsM.warn(
-          `[NativeBluetooth] Ошибка при закрытии соединения Bluetooth. Причина: ${errMsg}`,
-        );
-      }
+      await BleClient.disconnect(idToDisconnect);
     }
-
-    if (triggerCallback && wasConnected) {
-      callback?.();
-    }
-    this.isDisconnecting = false;
   };
 
-  private readonly handleDisconnect = async () => {
-    if (this.isDisconnecting) return;
-    logsM.warn(
-      "[NativeBluetooth] Получено системное событие отключения от плагина (handleDisconnect).",
-    );
-    await this.cleanup(true);
+  /**
+   * Системное событие разрыва от плагина @capacitor-community/bluetooth-le
+   * (колбэк BleClient.connect). Транслируется в notifyDisconnected() базового
+   * класса, который вызовет onDisconnect-колбэк стора.
+   */
+  private readonly handlePluginDisconnect = (): void => {
+    logsM.warn(`${LOG_PREFIX} Системное событие отключения от плагина.`);
+    this.notifyDisconnected();
   };
 }

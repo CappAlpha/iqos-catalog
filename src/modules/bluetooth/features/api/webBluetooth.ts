@@ -5,39 +5,60 @@ import { getErrorMessage } from "@/shared/lib/getErrorMessage";
 import { createCharReader } from "../lib/readCharacteristic";
 import { getEmptyDeviceInfo } from "../lib/readDeviceInfo";
 import { readInitialMetadata } from "../lib/readInitialMetadata";
-import { BATTERY } from "../model/constants";
+import { BATTERY, REQUIRED_SERVICES } from "../model/constants";
 import type {
-  IBluetoothStrategy,
   IBluetoothConnectionResult,
   IBluetoothDeviceConfig,
 } from "../model/types";
+import { BaseBluetoothStrategy } from "./baseBluetoothStrategy";
 
-export class WebBluetooth implements IBluetoothStrategy {
+const LOG_PREFIX = "[WebBluetooth]";
+const GATT_CONNECT_TIMEOUT = 10_000;
+
+/**
+ * Реализация {@link BaseBluetoothStrategy} поверх Web Bluetooth API (браузер).
+ *
+ * Физическое подключение/отключение и чтение характеристик делегируются navigator.bluetooth.
+ * Системное событие разрыва приходит через `gattserverdisconnected` и транслируется
+ * в `notifyDisconnected()` базового класса.
+ */
+export class WebBluetooth extends BaseBluetoothStrategy {
+  protected readonly logPrefix = LOG_PREFIX;
+
   private device: BluetoothDevice | null = null;
-  private onDisconnectCallback: (() => void) | null = null;
 
+  /**
+   * Подключение к устройству: выбор устройства → физическое GATT-соединение →
+   * чтение начальных метаданных.
+   *
+   * withDisconnectCallback регистрирует onDisconnect ДО action и гарантирует
+   * очистку ресурсов при ошибке подключения (без вызова колбэка — об ошибке
+   * сообщит сам reject).
+   */
   connect = async (
     config: IBluetoothDeviceConfig,
     onDisconnect: () => void,
     signal?: AbortSignal,
   ): Promise<IBluetoothConnectionResult> => {
-    this.cleanup();
-
-    try {
+    return this.withDisconnectCallback(onDisconnect, async () => {
       const selectedDevice: BluetoothDevice =
         await navigator.bluetooth.requestDevice({
           // TODO: remove comment and acceptAllDevices on release
           // filters: [{ services: config.services }],
           acceptAllDevices: true,
-          optionalServices: [BATTERY.SERVICE, ...config.services],
+          optionalServices: [...REQUIRED_SERVICES],
         });
 
       signal?.throwIfAborted();
 
+      logsM.success(
+        `${LOG_PREFIX} Устройство выбрано: "${selectedDevice.name ?? "Без имени"}" (ID: ${selectedDevice.id})`,
+      );
+
       const gatt = selectedDevice.gatt;
       if (!gatt) {
         logsM.warn(
-          `[WebBluetooth] У выбранного устройства "${selectedDevice.name}" отсутствует GATT-сервер.`,
+          `${LOG_PREFIX} У устройства "${selectedDevice.name ?? "Без имени"}" нет GATT-сервера.`,
         );
         return {
           device: { id: selectedDevice.id, name: selectedDevice.name ?? null },
@@ -47,19 +68,18 @@ export class WebBluetooth implements IBluetoothStrategy {
       }
 
       this.device = selectedDevice;
-      this.onDisconnectCallback = onDisconnect;
 
       await actionPromiseWithTimeout(
         gatt.connect(),
-        10000,
+        GATT_CONNECT_TIMEOUT,
         "Превышено время ожидания ответа от устройства (таймаут GATT).",
       );
 
       signal?.throwIfAborted();
 
-      this.device.addEventListener(
+      selectedDevice.addEventListener(
         "gattserverdisconnected",
-        this.handleDisconnect,
+        this.handleGattDisconnect,
       );
 
       const read = createCharReader(async (svc, chr) => {
@@ -84,88 +104,60 @@ export class WebBluetooth implements IBluetoothStrategy {
         deviceInfo,
         batteryLevel,
       };
-    } catch (err) {
-      this.cleanup();
-      throw err;
-    }
+    });
   };
 
-  disconnect = () => {
-    logsM.info("[WebBluetooth] Вызван ручной метод disconnect.");
-    this.cleanup();
-    return Promise.resolve();
-  };
-
-  getBatteryLevel = async () => {
+  /** Чтение уровня заряда батареи (Battery Service 0x180F, характеристика 0x2A19). */
+  getBatteryLevel = async (): Promise<number | null> => {
     const gatt = this.device?.gatt;
     if (!gatt?.connected) {
       logsM.warn(
-        "[WebBluetooth] Запрос чтения батареи отклонен: GATT-сервер не подключен.",
+        `${LOG_PREFIX} Чтение батареи отклонено: GATT-сервер не подключён.`,
       );
       return null;
     }
+
+    logsM.info(`${LOG_PREFIX} Чтение уровня заряда батареи...`);
 
     try {
-      logsM.info("[WebBluetooth] Чтение уровня заряда батареи...");
       const service = await gatt.getPrimaryService(BATTERY.SERVICE);
       const characteristic = await service.getCharacteristic(BATTERY.LEVEL);
-      const value = await characteristic.readValue();
-      const level = value.getUint8(0);
-
-      logsM.info(`[WebBluetooth] Прочитано значение батареи: ${level}%`);
+      const level = (await characteristic.readValue()).getUint8(0);
+      logsM.info(`${LOG_PREFIX} Заряд батареи: ${level}%`);
       return level;
     } catch (err) {
-      const errMsg = getErrorMessage(
-        err,
-        "[WebBluetooth] Ошибка при чтении уровня заряда батареи.",
-      );
       logsM.warn(
-        `[WebBluetooth] Ошибка при чтении уровня заряда батареи. Причина: ${errMsg}`,
+        `${LOG_PREFIX} Ошибка чтения заряда: ${getErrorMessage(err, "неизвестная")}`,
       );
       return null;
     }
   };
 
-  private readonly handleDisconnect = () => {
-    logsM.warn(
-      "[WebBluetooth] Сработало системное событие отключения GATT-сервера (gattserverdisconnected).",
+  /**
+   * Снять слушатели/обнулить ссылки ПЕРЕД физическим disconnect (хук базового класса).
+   */
+  protected override readonly beforeDisconnect = () => {
+    if (!this.device) return;
+    this.device.removeEventListener(
+      "gattserverdisconnected",
+      this.handleGattDisconnect,
     );
-    const callback = this.onDisconnectCallback;
-    this.cleanup();
-    callback?.();
   };
 
-  private readonly cleanup = () => {
-    this.onDisconnectCallback = null;
-
-    if (this.device) {
-      logsM.info(
-        "[WebBluetooth] Освобождение системных ресурсов и удаление обработчиков...",
-      );
-      logsM.info(
-        `[WebBluetooth] Удаление слушателя 'gattserverdisconnected' для "${this.device.name ?? "Без имени"}"`,
-      );
-      this.device.removeEventListener(
-        "gattserverdisconnected",
-        this.handleDisconnect,
-      );
-
-      if (this.device.gatt?.connected) {
-        logsM.info(
-          "[WebBluetooth] Отправка запроса на отключение GATT-сервера (gatt.disconnect)...",
-        );
-        this.device.gatt.disconnect();
-        logsM.info(
-          "[WebBluetooth] Запрос gatt.disconnect() выполнен. Физическое закрытие радиоканала BLE контролируется браузером и операционной системой (может занять до 15 секунд).",
-        );
-      }
-      this.device = null;
-    } else {
-      logsM.info(
-        "[WebBluetooth] Очистка локальных ссылок (соединение не было установлено).",
-      );
+  /** Физический разрыв: просим GATT-сервер отключиться, затем обнуляем ссылку. */
+  protected doDisconnect = () => {
+    if (this.device?.gatt?.connected) {
+      this.device.gatt.disconnect();
     }
+    this.device = null;
+  };
 
-    logsM.info("[WebBluetooth] Очистка ресурсов WebBluetooth завершена.");
+  /**
+   * Системное событие разрыва GATT (gattserverdisconnected). Транслируется в
+   * notifyDisconnected() базового класса, который вызовет onDisconnect-колбэк стора.
+   */
+  private readonly handleGattDisconnect = () => {
+    logsM.warn(`${LOG_PREFIX} Системное событие gattserverdisconnected.`);
+    this.notifyDisconnected();
   };
 }

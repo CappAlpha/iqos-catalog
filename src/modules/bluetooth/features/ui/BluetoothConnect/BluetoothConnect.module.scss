@@ -6,9 +6,47 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
+  gap: 5px;
   background-color: var(--light-bg-gray);
   padding: 0.5rem 1rem;
   border-bottom: 1px solid var(--light-gray-border);
+}
+
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--gray);
+  font-size: 0.95rem;
+  white-space: nowrap;
+
+  &[data-status="connected"] {
+    color: var(--dark-gray);
+  }
+
+  &[data-status="connecting"],
+  &[data-status="disconnecting"] {
+    color: var(--accent-color);
+  }
+}
+
+.statusDot {
+  width: 9px;
+  height: 9px;
+  flex: 0 0 9px;
+  border-radius: 50%;
+  background: var(--gray);
+
+  .status[data-status="connected"] & {
+    background: var(--accent-color);
+  }
+
+  .status[data-status="connecting"] &,
+  .status[data-status="disconnecting"] & {
+    background: var(--accent-color);
+    animation: bluetoothStatusPulse 1.2s ease-in-out infinite;
+  }
 }
 
 .controls {
@@ -42,6 +80,7 @@
   outline: solid 1px var(--additional-red);
   border-radius: 1rem;
   color: var(--additional-red);
+  animation: bluetoothPanelIn 0.25s ease-out;
 }
 
 .error {
@@ -57,4 +96,30 @@
   @include closeIconBtn;
   @include absolute(50%, 0, $transform: translateY(-50%));
   color: var(--gray);
+}
+
+@keyframes bluetoothStatusPulse {
+  50% {
+    opacity: 0.35;
+    transform: scale(0.75);
+  }
+}
+
+@keyframes bluetoothPanelIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .statusDot,
+  .errorWrap {
+    animation: none;
+  }
 }

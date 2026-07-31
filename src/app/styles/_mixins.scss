@@ -249,3 +249,9 @@ $breakpoints: (
   white-space: nowrap !important;
   border: 0 !important;
 }
+
+@media (prefers-reduced-motion: reduce) {
+  @mixin skeleton {
+    animation: none;
+  }
+}

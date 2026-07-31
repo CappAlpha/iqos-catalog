@@ -61,3 +61,10 @@
     width: 0;
   }
 }
+
+@media (prefers-reduced-motion: reduce) {
+  .categories,
+  .categories::after {
+    animation: none;
+  }
+}

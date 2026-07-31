@@ -16,6 +16,7 @@ import {
   CONNECT_TIMEOUT,
   DEVICE_CONFIG,
   DISCONNECT_TIMEOUT,
+  UNSUPPORTED_MSG,
 } from "./constants";
 import type {
   IBluetoothStrategy,
@@ -36,17 +37,17 @@ class BluetoothM {
 
   readonly #getStrategy: () => Promise<IBluetoothStrategy>;
 
-  private strategy: IBluetoothStrategy | null = null;
-  private readonly logsM: IAppLogger;
-  private currentConnectionId = 0;
-  private abortController: AbortController | null = null;
+  #strategy: IBluetoothStrategy | null = null;
+  readonly #logsM: IAppLogger;
+  #currentConnectionId = 0;
+  #abortController: AbortController | null = null;
 
   constructor(
     getStrategy: () => Promise<IBluetoothStrategy>,
     logsM: IAppLogger,
   ) {
     this.#getStrategy = getStrategy;
-    this.logsM = logsM;
+    this.#logsM = logsM;
 
     makeAutoObservable(this, {
       device: observable.ref,
@@ -90,21 +91,41 @@ class BluetoothM {
     this.deviceInfo = getEmptyDeviceInfo();
   };
 
+  private readonly abortActiveConnection = () => {
+    this.#abortController?.abort();
+    this.#abortController = null;
+  };
+
+  private readonly disconnectStrategy = async (
+    connectionId: number,
+    errorMessage: string,
+  ) => {
+    await this.#strategy?.disconnect().catch((err) => {
+      this.#logsM.error(`[BLE] [ID:${connectionId}] ${errorMessage}`, err);
+    });
+  };
+
   connect = async () => {
     if (this.isConnecting || this.isDisconnecting) {
-      this.logsM.warn(
-        `[BLE] Отклонен повторный вызов connect. Текущий статус: ${this.status}`,
+      this.#logsM.warn(
+        `[BLE] Отклонён повторный вызов connect. Статус: ${this.status}`,
       );
       return;
     }
 
-    this.currentConnectionId++;
-    const connectionId = this.currentConnectionId;
+    if (!this.isSupported) {
+      this.#logsM.warn(`[BLE] ${UNSUPPORTED_MSG}`);
+      runInAction(() => this.reset(UNSUPPORTED_MSG));
+      return;
+    }
 
-    this.abortController = new AbortController();
-    const signal = this.abortController.signal;
+    this.#currentConnectionId++;
+    const connectionId = this.#currentConnectionId;
 
-    this.logsM.info(`[BLE] [ID:${connectionId}] Запуск подключения...`);
+    this.#abortController = new AbortController();
+    const signal = this.#abortController.signal;
+
+    this.#logsM.info(`[BLE] [ID:${connectionId}] Запуск подключения...`);
 
     runInAction(() => {
       this.status = "connecting";
@@ -114,117 +135,91 @@ class BluetoothM {
     });
 
     try {
-      if (!this.strategy) {
-        this.logsM.info(
+      if (!this.#strategy) {
+        this.#logsM.info(
           `[BLE] [ID:${connectionId}] Загрузка стратегии подключения...`,
         );
-        this.strategy = await this.#getStrategy();
-        this.logsM.success(
-          `[BLE] [ID:${connectionId}] Стратегия успешно загружена: ${this.strategy.constructor.name}`,
+        this.#strategy = await this.#getStrategy();
+        this.#logsM.success(
+          `[BLE] [ID:${connectionId}] Стратегия загружена: ${this.#strategy.constructor.name}`,
         );
       }
 
-      this.logsM.info(
-        `[BLE] [ID:${connectionId}] Ожидание выбора устройства и сопряжения. Лимит таймаута: ${CONNECT_TIMEOUT}мс`,
+      this.#logsM.info(
+        `[BLE] [ID:${connectionId}] Ожидание выбора устройства (таймаут ${CONNECT_TIMEOUT}мс).`,
       );
 
       const result = await actionPromiseWithTimeout(
-        this.strategy.connect(DEVICE_CONFIG, this.handleDisconnect, signal),
+        this.#strategy.connect(DEVICE_CONFIG, this.handleDisconnect, signal),
         CONNECT_TIMEOUT,
-        "Время ожидания подключения истекло. Пожалуйста, закройте окно выбора устройств (нажмите «Отмена») и попробуйте подключиться снова.",
+        "Время ожидания подключения истекло. Закройте окно выбора устройств и попробуйте снова.",
       );
 
-      if (connectionId !== this.currentConnectionId) {
-        this.logsM.warn(
-          `[BLE] [ID:${connectionId}] Подключение устарело (актуальный ID: ${this.currentConnectionId}). Освобождение ресурсов.`,
+      if (connectionId !== this.#currentConnectionId) {
+        this.#logsM.warn(
+          `[BLE] [ID:${connectionId}] Подключение устарело (актуальный ID: ${this.#currentConnectionId}). Освобождение ресурсов.`,
         );
-        this.abortController.abort();
-        await this.strategy.disconnect().catch((err) => {
-          this.logsM.error(
-            `[BLE] [ID:${connectionId}] Ошибка при освобождении ресурсов`,
-            err,
-          );
-        });
+        this.abortActiveConnection();
+        await this.disconnectStrategy(
+          connectionId,
+          "Ошибка при освобождении ресурсов",
+        );
         return;
       }
 
-      this.logsM.success(
-        `[BLE] [ID:${connectionId}] Успешно подключено к BLE-серверу!`,
+      this.#logsM.success(
+        `[BLE] [ID:${connectionId}] Подключено к BLE-устройству.`,
       );
-      this.logsM.info(
-        `[BLE] [ID:${connectionId}] Данные устройства: ${JSON.stringify(result.device)}`,
-      );
-      this.logsM.info(
-        `[BLE] [ID:${connectionId}] Версии ПО/Железа: FW=${result.deviceInfo.firmwareRevision ?? "N/A"}, HW=${result.deviceInfo.hardwareRevision ?? "N/A"}`,
-      );
-      this.logsM.info(
-        `[BLE] [ID:${connectionId}] Уровень заряда батареи при подключении: ${result.batteryLevel !== null ? `${result.batteryLevel}%` : "не прочитан"}`,
+      this.#logsM.info(
+        `[BLE] [ID:${connectionId}] FW=${result.deviceInfo.firmwareRevision ?? "N/A"}, HW=${result.deviceInfo.hardwareRevision ?? "N/A"}, заряд=${result.batteryLevel !== null ? `${result.batteryLevel}%` : "не прочитан"}`,
       );
 
-      runInAction(() => {
-        this.setConnected(result);
-      });
+      runInAction(() => this.setConnected(result));
     } catch (err) {
-      if (this.abortController) {
-        this.abortController.abort();
-        this.abortController = null;
-      }
+      this.abortActiveConnection();
 
-      if (connectionId !== this.currentConnectionId) {
-        this.logsM.warn(
+      if (connectionId !== this.#currentConnectionId) {
+        this.#logsM.warn(
           `[BLE] [ID:${connectionId}] Ошибка в устаревшем потоке подключения проигнорирована.`,
         );
         return;
       }
 
-      this.logsM.error(
-        `[BLE] [ID:${connectionId}] Сбой в процессе подключения`,
-        err,
+      this.#logsM.error(`[BLE] [ID:${connectionId}] Сбой подключения`, err);
+      this.#logsM.info(
+        `[BLE] [ID:${connectionId}] Разрыв соединения и очистка ресурсов...`,
       );
 
-      if (this.device) {
-        this.logsM.info(
-          `[BLE] [ID:${connectionId}] Принудительный разрыв физического соединения (GATT)...`,
-        );
-      } else {
-        this.logsM.info(
-          `[BLE] [ID:${connectionId}] Локальная очистка ресурсов стратегии (соединение не было установлено)...`,
-        );
-      }
-
-      await this.strategy?.disconnect().catch((cleanErr) => {
-        this.logsM.error(
-          `[BLE] [ID:${connectionId}] Ошибка при принудительном отключении`,
-          cleanErr,
-        );
-      });
+      await this.disconnectStrategy(
+        connectionId,
+        "Ошибка при принудительном отключении",
+      );
 
       let errMsg = getErrorMessage(err, "Ошибка подключения по Bluetooth.");
-
       if (errMsg === "User cancelled the requestDevice() chooser.") {
         errMsg = "Вы отменили выбор устройства.";
       }
 
-      runInAction(() => {
-        this.reset(errMsg);
-      });
+      runInAction(() => this.reset(errMsg));
     }
   };
 
   private readonly handleDisconnect = () => {
-    this.currentConnectionId++;
-    const connectionId = this.currentConnectionId;
+    this.#currentConnectionId++;
+    const connectionId = this.#currentConnectionId;
+
+    this.abortActiveConnection();
 
     runInAction(() => {
       if (this.status === "disconnecting") {
-        this.logsM.info(
-          `[BLE] [ID:${connectionId}] Физическое отключение устройства выполнено штатно по инициативе пользователя.`,
+        this.#logsM.info(
+          `[BLE] [ID:${connectionId}] Отключение выполнено по инициативе пользователя.`,
         );
         this.reset();
       } else {
         const warningMsg =
           "Соединение разорвано: устройство отключено или вышло из зоны действия.";
-        this.logsM.warn(`[BLE] [ID:${connectionId}] ${warningMsg}`);
+        this.#logsM.warn(`[BLE] [ID:${connectionId}] ${warningMsg}`);
         this.reset(warningMsg);
       }
     });
@@ -232,32 +227,29 @@ class BluetoothM {
 
   disconnect = async () => {
     if (this.isDisconnecting) {
-      this.logsM.warn(
-        "[BLE] Запрос на отключение отклонен: процесс уже выполняется.",
-      );
+      this.#logsM.warn("[BLE] Отключение уже выполняется.");
       return;
     }
     if (!this.isConnected && !this.isConnecting) {
-      this.logsM.warn(
-        `[BLE] Запрос на отключение отклонен: устройство не подключено. Статус: ${this.status}`,
+      this.#logsM.warn(
+        `[BLE] Отключение отклонено: устройство не подключено. Статус: ${this.status}`,
       );
       return;
     }
 
     const wasConnecting = this.isConnecting;
-    this.currentConnectionId++;
-    const connectionId = this.currentConnectionId;
+    this.#currentConnectionId++;
+    const connectionId = this.#currentConnectionId;
 
-    this.logsM.info(
-      `[BLE] [ID:${connectionId}] Инициирован ручной разрыв соединения. Текущий статус: ${this.status}`,
+    this.#logsM.info(
+      `[BLE] [ID:${connectionId}] Ручной разрыв соединения. Статус: ${this.status}`,
     );
 
-    if (this.abortController) {
-      this.logsM.info(
+    if (this.#abortController) {
+      this.#logsM.info(
         `[BLE] [ID:${connectionId}] Отмена активной попытки подключения через AbortSignal.`,
       );
-      this.abortController.abort();
-      this.abortController = null;
+      this.abortActiveConnection();
     }
 
     runInAction(() => {
@@ -266,62 +258,55 @@ class BluetoothM {
     });
 
     try {
-      if (this.strategy) {
-        this.logsM.info(
-          `[BLE] [ID:${connectionId}] Ожидание завершения логического отключения стратегии...`,
-        );
-
+      if (this.#strategy) {
         await actionPromiseWithTimeout(
-          this.strategy.disconnect(),
+          this.#strategy.disconnect(),
           DISCONNECT_TIMEOUT,
           "Таймаут физического отключения",
         );
-
-        this.logsM.success(
-          `[BLE] [ID:${connectionId}] Логический разрыв связи с GATT-сервером выполнен.`,
+        this.#logsM.success(
+          `[BLE] [ID:${connectionId}] Разрыв GATT-соединения выполнен.`,
         );
       } else {
-        this.logsM.warn(
-          `[BLE] [ID:${connectionId}] Стратегия отсутствует, пропускаем физический disconnect.`,
+        this.#logsM.warn(
+          `[BLE] [ID:${connectionId}] Стратегия отсутствует, физический disconnect пропущен.`,
         );
       }
     } catch (err) {
-      this.logsM.error(
-        `[BLE] [ID:${connectionId}] Физическое отключение завершилось с ошибкой`,
+      this.#logsM.error(
+        `[BLE] [ID:${connectionId}] Отключение завершилось с ошибкой`,
         err,
       );
     } finally {
-      runInAction(() => {
-        this.reset(wasConnecting ? "Подключение отменено." : null);
-      });
-      this.logsM.info(
-        `[BLE] [ID:${connectionId}] Сброс состояния стора завершен.`,
+      runInAction(() =>
+        this.reset(wasConnecting ? "Подключение отменено." : null),
       );
+      this.#logsM.info(`[BLE] [ID:${connectionId}] Состояние стора сброшено.`);
     }
   };
 
   refreshBattery = async (): Promise<void> => {
     if (!this.isConnected) {
-      this.logsM.warn(
-        "[BLE] Запрос на обновление батареи отклонен: устройство не подключено.",
+      this.#logsM.warn(
+        "[BLE] Обновление батареи отклонено: устройство не подключено.",
       );
       return;
     }
 
-    this.logsM.info("[BLE] Запрос чтения уровня заряда батареи...");
+    this.#logsM.info("[BLE] Чтение уровня заряда батареи...");
 
     try {
-      const level = (await this.strategy?.getBatteryLevel()) ?? null;
+      const level = (await this.#strategy?.getBatteryLevel()) ?? null;
 
       if (!this.isConnected) {
-        this.logsM.warn(
-          "[BLE] Чтение батареи отменено: за время ожидания ответа устройство отключилось.",
+        this.#logsM.warn(
+          "[BLE] Чтение батареи отменено: за время ожидания устройство отключилось.",
         );
         return;
       }
 
-      this.logsM.success(
-        `[BLE] Уровень заряда батареи получен: ${level !== null ? `${level}%` : "не прочитан"}`,
+      this.#logsM.success(
+        `[BLE] Заряд получен: ${level !== null ? `${level}%` : "не прочитан"}`,
       );
 
       runInAction(() => {
@@ -331,7 +316,7 @@ class BluetoothM {
       if (!this.isConnected) return;
 
       const errMsg = getErrorMessage(err, "Не удалось обновить заряд батареи.");
-      this.logsM.error("[BLE] Ошибка чтения заряда батареи", err);
+      this.#logsM.error("[BLE] Ошибка чтения заряда батареи", err);
 
       runInAction(() => {
         this.error = errMsg;
@@ -341,9 +326,7 @@ class BluetoothM {
 
   cancelIfConnecting = () => {
     if (this.isConnecting) {
-      this.logsM.warn(
-        "[BLE] Получен запрос на отмену операции в процессе соединения.",
-      );
+      this.#logsM.warn("[BLE] Запрос на отмену подключения.");
       void this.disconnect();
     }
   };

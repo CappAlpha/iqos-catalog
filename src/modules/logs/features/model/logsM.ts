@@ -9,6 +9,10 @@ const timeFormatter = new Intl.DateTimeFormat("ru-RU", {
   hour12: false,
 });
 
+const CONSOLE_LOG_LEVELS: readonly LogType[] = import.meta.env.DEV
+  ? ["info", "success", "warn", "error"]
+  : ["warn", "error"];
+
 class LogsM implements IAppLogger {
   logs: ILogEntry[] = [];
   private readonly maxLogsCount = 500;
@@ -41,7 +45,7 @@ class LogsM implements IAppLogger {
       this.logs.shift();
     }
 
-    //  if (!this.enableConsole) return;
+    if (!CONSOLE_LOG_LEVELS.includes(type)) return;
 
     const time = timeFormatter.format(newEntry.timestamp);
     const consoleMsg = `[${time}] [${type.toUpperCase()}] ${message}`;

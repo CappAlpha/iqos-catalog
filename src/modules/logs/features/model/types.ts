@@ -5,7 +5,7 @@ export interface ILogEntry {
   timestamp: Date;
   type: LogType;
   message: string;
-  error?: string;
+  error?: string | undefined;
 }
 
 export interface IAppLogger {

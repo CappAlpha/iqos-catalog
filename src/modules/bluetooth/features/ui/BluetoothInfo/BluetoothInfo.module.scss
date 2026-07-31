@@ -1,4 +1,4 @@
-.root {
+﻿.root {
   display: flex;
   flex-direction: column;
   gap: 20px;
@@ -25,4 +25,11 @@
   display: flex;
   flex-wrap: wrap;
   gap: 4px;
+}
+
+.batteryRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
 }

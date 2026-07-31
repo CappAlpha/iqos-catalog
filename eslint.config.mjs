@@ -63,9 +63,17 @@ export default [
 
   // globals
   {
+    files: ["src/**/*.{ts,tsx}"],
     languageOptions: {
-      globals: { ...globals.browser },
+      globals: globals.browser,
     },
   },
+  {
+    files: ["*.config.{ts,mjs}", "eslint.config.mjs"],
+    languageOptions: {
+      globals: globals.node,
+    },
+  },
+  
   prettierConfig,
 ];

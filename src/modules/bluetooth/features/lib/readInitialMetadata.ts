@@ -1,3 +1,5 @@
+import { logsM } from "@/modules/logs/features/model/logsM";
+
 import { GAP } from "../model/constants";
 import type { IBluetoothDeviceInfo } from "../model/types";
 import { getEmptyDeviceInfo, readDeviceInfo } from "./readDeviceInfo";
@@ -7,6 +9,9 @@ export interface IInitialMetadataResult {
   deviceInfo: IBluetoothDeviceInfo;
   batteryLevel: number | null;
 }
+
+const normalizeName = (name: string | null): string | null =>
+  name?.trim() ? name.trim() : null;
 
 export async function readInitialMetadata(
   readChar: (service: string, characteristic: string) => Promise<string | null>,
@@ -22,23 +27,26 @@ export async function readInitialMetadata(
 
   signal?.throwIfAborted();
 
-  let connectedName: string | null = null;
-  if (
-    nameResult.status === "fulfilled" &&
-    typeof nameResult.value === "string"
-  ) {
-    connectedName = nameResult.value;
+  const gapName = normalizeName(
+    nameResult.status === "fulfilled" ? nameResult.value : null,
+  );
+  const fallback = normalizeName(fallbackName);
+  const deviceName = gapName ?? fallback;
+
+  if (gapName) {
+    logsM.info(`[BLE] Имя из GAP.DeviceName: "${gapName}".`);
+  } else if (fallback) {
+    logsM.info(
+      `[BLE] GAP.DeviceName не прочитано — имя из окна выбора: "${fallback}".`,
+    );
+  } else {
+    logsM.warn(
+      "[BLE] Имя устройства не получено: GAP.DeviceName и окно выбора пусты.",
+    );
   }
 
-  const deviceName = connectedName ?? fallbackName;
-
-  let deviceInfo = getEmptyDeviceInfo();
-  if (
-    infoResult.status === "fulfilled" &&
-    infoResult.value.manufacturerName !== null
-  ) {
-    deviceInfo = infoResult.value;
-  }
+  const deviceInfo =
+    infoResult.status === "fulfilled" ? infoResult.value : getEmptyDeviceInfo();
 
   let batteryLevel: number | null = null;
   if (batteryResult.status === "fulfilled" && batteryResult.value !== null) {

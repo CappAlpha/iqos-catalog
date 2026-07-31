@@ -15,6 +15,7 @@ export const BluetoothConnect = observer(() => {
     isDisconnecting,
     isSupported,
     error,
+    status,
     disconnect,
     connect,
     cancelIfConnecting,
@@ -38,6 +39,14 @@ export const BluetoothConnect = observer(() => {
       ? "Отключение..."
       : "Подключить устройство";
 
+  const statusText = isConnected
+    ? "Устройство подключено"
+    : isConnecting
+      ? "Поиск и подключение"
+      : isDisconnecting
+        ? "Отключение"
+        : "Устройство не подключено";
+
   useEffect(() => {
     return () => {
       cancelIfConnecting();
@@ -46,7 +55,13 @@ export const BluetoothConnect = observer(() => {
 
   return (
     <section className={s.root}>
-      <h3 className={s.subtitle}>Подключение</h3>
+      <div className={s.subtitle}>
+        <h3>Подключение</h3>
+        <div className={s.status} data-status={status}>
+          <span className={s.statusDot} />
+          {statusText}
+        </div>
+      </div>
       <div className={s.controls}>
         <Button
           onClick={handleConnect}
@@ -82,10 +97,7 @@ export const BluetoothConnect = observer(() => {
       )}
       {!isSupported && (
         <div className={s.errorWrap}>
-          <p>
-            Bluetooth не поддерживается вашим браузером. Используйте Chrome,
-            Edge или Opera.
-          </p>
+          <p>Bluetooth недоступен на этой платформе или в текущей среде.</p>
         </div>
       )}
     </section>

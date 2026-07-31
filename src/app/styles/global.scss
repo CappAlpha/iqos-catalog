@@ -123,3 +123,10 @@ body[data-no-scroll="true"] {
     0 0 10px var(--accent-color),
     0 0 5px var(--accent-color) !important;
 }
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none;
+  }
+}

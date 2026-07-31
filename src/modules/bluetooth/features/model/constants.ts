@@ -24,9 +24,17 @@ const DEVICE_CONTROL = {
   SERVICE: "daebb240-b041-11e4-9e45-0002a5d5c51b",
 } as const;
 
+export const REQUIRED_SERVICES = [
+  GAP.SERVICE,
+  BATTERY.SERVICE,
+  DEVICE_INFO.SERVICE,
+] as const;
+
 export const DEVICE_CONFIG: IBluetoothDeviceConfig = {
   services: [BATTERY.SERVICE, DEVICE_INFO.SERVICE, DEVICE_CONTROL.SERVICE],
 };
 
 export const CONNECT_TIMEOUT = 20_000;
 export const DISCONNECT_TIMEOUT = 3_000;
+
+export const UNSUPPORTED_MSG = "Bluetooth не поддерживается на этой платформе.";

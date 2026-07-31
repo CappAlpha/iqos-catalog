@@ -1,22 +1,15 @@
-import { observer } from "mobx-react-lite";
+﻿import { observer } from "mobx-react-lite";
+import { useState } from "react";
+
+import { Button } from "@/shared/ui/Button";
 
 import { bluetoothM } from "../../model/bluetoothM";
 import type { IBluetoothDeviceInfo } from "../../model/types";
 
 import s from "./BluetoothInfo.module.scss";
 
-type AllowedDeviceKeys = Extract<
-  keyof IBluetoothDeviceInfo,
-  | "manufacturerName"
-  | "modelNumber"
-  | "serialNumber"
-  | "hardwareRevision"
-  | "firmwareRevision"
-  | "softwareRevision"
->;
-
 interface IDeviceInfoField {
-  key: AllowedDeviceKeys;
+  key: keyof IBluetoothDeviceInfo;
   label: string;
 }
 
@@ -30,10 +23,19 @@ const DEVICE_INFO_FIELDS: IDeviceInfoField[] = [
 ];
 
 export const BluetoothInfo = observer(() => {
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const { batteryLevel, device, deviceInfo } = bluetoothM;
   if (!device) return null;
 
   const { id, name } = device;
+  const refreshBattery = async () => {
+    setIsRefreshing(true);
+    try {
+      await bluetoothM.refreshBattery();
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
 
   return (
     <section className={s.root}>
@@ -47,11 +49,20 @@ export const BluetoothInfo = observer(() => {
           <b>ID устройства:</b> {id}
         </p>
 
-        {batteryLevel != null && (
-          <p className={s.row}>
-            <b>Заряд батареи:</b> {batteryLevel}%
+        <div className={s.batteryRow}>
+          <p className={s.row} aria-live="polite">
+            <b>Заряд батареи:</b>{" "}
+            {batteryLevel != null ? `${batteryLevel}%` : "Недоступен"}
           </p>
-        )}
+          <Button
+            color="outline"
+            onClick={refreshBattery}
+            loading={isRefreshing}
+            aria-label="Обновить заряд батареи"
+          >
+            Обновить
+          </Button>
+        </div>
 
         {DEVICE_INFO_FIELDS.map(({ key, label }) => {
           const value = deviceInfo[key];
