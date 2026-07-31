@@ -72,9 +72,3 @@
     z-index: 5;
   }
 }
-
-@media (prefers-reduced-motion: reduce) {
-  .loader::after {
-    animation: none;
-  }
-}

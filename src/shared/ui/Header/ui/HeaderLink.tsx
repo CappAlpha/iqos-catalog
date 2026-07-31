@@ -1,7 +1,9 @@
 import cn from "classnames";
 import { observer } from "mobx-react-lite";
 
+import { bluetoothM } from "@/modules/bluetooth/features/model/bluetoothM";
 import { cartM } from "@/modules/cart/features/model/cartM";
+import { usbM } from "@/modules/usb/features/model/usbM";
 
 import { TransitionNavLink } from "../../TransitionNavLink";
 import type { INavLinkItem } from "./Header";
@@ -10,7 +12,13 @@ import s from "../Header.module.scss";
 
 export const HeaderLink = observer(
   ({ to, text, Icon, isCart }: INavLinkItem) => {
+    const { status: statusBluetooth } = bluetoothM;
+    const { status: statusUsb } = usbM;
     const { isCartUpdating, uniqueItemsCount, isEmpty } = cartM;
+
+    const showStatusDot =
+      (to === "/bluetooth" && statusBluetooth === "connected") ||
+      (to === "/usb" && statusUsb === "connected");
 
     return (
       <TransitionNavLink
@@ -19,7 +27,12 @@ export const HeaderLink = observer(
           cn(s.navLink, { [s.active]: isActive, [s.pending]: isPending })
         }
       >
-        <div className={cn(isCart && s.cartIconWrap)}>
+        <div className={cn(s.iconWrap, isCart && s.cartIconWrap)}>
+          {showStatusDot && (
+            <div className={s.status}>
+              <span className={s.statusDot} />
+            </div>
+          )}
           <Icon className={s.icon} />
           {isCart && !isEmpty && (
             <b

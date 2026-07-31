@@ -1,3 +1,5 @@
+@use "@/app/styles/animations.scss" as *;
+
 .root {
   @include devicePanel;
 }
@@ -45,7 +47,7 @@
   .status[data-status="connecting"] &,
   .status[data-status="disconnecting"] & {
     background: var(--accent-color);
-    animation: bluetoothStatusPulse 1.2s ease-in-out infinite;
+    animation: statusPulse 1.2s ease-in-out infinite;
   }
 }
 
@@ -98,13 +100,6 @@
   color: var(--gray);
 }
 
-@keyframes bluetoothStatusPulse {
-  50% {
-    opacity: 0.35;
-    transform: scale(0.75);
-  }
-}
-
 @keyframes bluetoothPanelIn {
   from {
     opacity: 0;
@@ -114,12 +109,5 @@
   to {
     opacity: 1;
     transform: translateY(0);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .statusDot,
-  .errorWrap {
-    animation: none;
   }
 }

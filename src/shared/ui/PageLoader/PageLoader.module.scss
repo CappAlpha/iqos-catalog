@@ -24,9 +24,3 @@
   border-top-color: transparent;
   animation: loaderSpin 1s linear infinite;
 }
-
-@media (prefers-reduced-motion: reduce) {
-  .loader {
-    animation: none;
-  }
-}

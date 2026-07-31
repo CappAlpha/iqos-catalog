@@ -91,9 +91,3 @@
 .noPadding {
   padding: 0;
 }
-
-@media (prefers-reduced-motion: reduce) {
-  .loading::after {
-    animation: none;
-  }
-}

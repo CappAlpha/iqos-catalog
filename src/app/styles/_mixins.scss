@@ -1,6 +1,5 @@
 @use "sass:map";
 @use "sass:meta";
-@use "./animations.scss" as *;
 
 // If change it there, also change in useBreakpoint hook
 $breakpoints: (
@@ -248,10 +247,4 @@ $breakpoints: (
   clip-path: inset(50%) !important;
   white-space: nowrap !important;
   border: 0 !important;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  @mixin skeleton {
-    animation: none;
-  }
 }

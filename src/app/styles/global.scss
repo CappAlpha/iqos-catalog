@@ -36,8 +36,13 @@ body {
 }
 
 @media screen and (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: smooth;
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }
 
@@ -100,12 +105,19 @@ body[data-no-scroll="true"] {
   navigation: auto;
 }
 
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.4s;
+  animation-timing-function: ease-in-out;
+  mix-blend-mode: normal;
+}
+
 ::view-transition-old(root) {
-  animation: hideOpacity 0.3s forwards;
+  animation-name: hideOpacity;
 }
 
 ::view-transition-new(root) {
-  animation: showOpacity 0.5s ease-out forwards;
+  animation-name: showOpacity;
 }
 
 [data-rich-colors="true"][data-sonner-toast][data-styled="true"]
@@ -122,11 +134,4 @@ body[data-no-scroll="true"] {
   box-shadow:
     0 0 10px var(--accent-color),
     0 0 5px var(--accent-color) !important;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  ::view-transition-old(root),
-  ::view-transition-new(root) {
-    animation: none;
-  }
 }

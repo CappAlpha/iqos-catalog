@@ -51,3 +51,10 @@
     opacity: 1;
   }
 }
+
+@keyframes statusPulse {
+  50% {
+    opacity: 0.5;
+    transform: scale(0.75);
+  }
+}

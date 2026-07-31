@@ -126,10 +126,3 @@
 .updatingText {
   border-radius: 4px;
 }
-
-@media (prefers-reduced-motion: reduce) {
-  .cardAdding,
-  .cardRemoving {
-    animation: none;
-  }
-}
