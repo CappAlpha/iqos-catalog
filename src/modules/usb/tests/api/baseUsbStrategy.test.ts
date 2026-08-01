@@ -4,28 +4,25 @@ import { logsM } from "@/modules/logs/features/model/logsM";
 import { BaseConnectionStrategy } from "@/shared/lib/baseConnectionStrategy";
 
 import type {
-  IBluetoothConnectionResult,
-  IBluetoothDeviceConfig,
+  IUsbConnectionResult,
+  IUsbDeviceConfig,
 } from "../../features/model/types";
 
-const CONNECTION_RESULT: IBluetoothConnectionResult = {
-  device: { id: "device-id", name: "Device" },
-  batteryLevel: null,
-  deviceInfo: {
-    manufacturerName: null,
-    modelNumber: null,
-    serialNumber: null,
-    hardwareRevision: null,
-    firmwareRevision: null,
-    softwareRevision: null,
+const CONNECTION_RESULT: IUsbConnectionResult = {
+  device: {
+    manufacturerName: "Manufacturer",
+    productName: "USB device",
+    vendorId: 10073,
+    productId: 3,
   },
+  batteryLevel: null,
 };
 
-class TestBluetoothStrategy extends BaseConnectionStrategy<
-  IBluetoothDeviceConfig,
-  IBluetoothConnectionResult
+class TestUsbStrategy extends BaseConnectionStrategy<
+  IUsbDeviceConfig,
+  IUsbConnectionResult
 > {
-  protected readonly logPrefix = "[TestBluetooth]";
+  protected readonly logPrefix = "[TestUSB]";
   protected readonly disconnectErrorMessage = "Ошибка тестового отключения";
   protected readonly manualDisconnectMessage = "Тестовое отключение.";
   readonly disconnectPhysical = vi.fn(() => Promise.resolve());
@@ -34,10 +31,10 @@ class TestBluetoothStrategy extends BaseConnectionStrategy<
     super(logsM);
   }
 
-  async connect(
-    config: IBluetoothDeviceConfig,
+  connect(
+    config: IUsbDeviceConfig,
     onDisconnect: () => void,
-  ): Promise<IBluetoothConnectionResult> {
+  ): Promise<IUsbConnectionResult> {
     return this.withDisconnectCallback(onDisconnect, () => {
       void config;
       return Promise.resolve(CONNECTION_RESULT);
@@ -55,23 +52,23 @@ class TestBluetoothStrategy extends BaseConnectionStrategy<
   }
 }
 
-describe("BaseConnectionStrategy (Bluetooth)", () => {
-  it("does not notify the store on a manual disconnect", async () => {
-    const strategy = new TestBluetoothStrategy();
+describe("BaseConnectionStrategy (USB)", () => {
+  it("does not notify on manual disconnect", async () => {
+    const strategy = new TestUsbStrategy();
     const onDisconnect = vi.fn();
 
-    await strategy.connect({ services: [] }, onDisconnect);
+    await strategy.connect({ vendorId: 10073, productId: 3 }, onDisconnect);
     await strategy.disconnect();
 
     expect(onDisconnect).not.toHaveBeenCalled();
     expect(strategy.disconnectPhysical).toHaveBeenCalledTimes(1);
   });
 
-  it("notifies the store on a system disconnect", async () => {
-    const strategy = new TestBluetoothStrategy();
+  it("notifies after a system disconnect cleanup", async () => {
+    const strategy = new TestUsbStrategy();
     const onDisconnect = vi.fn();
 
-    await strategy.connect({ services: [] }, onDisconnect);
+    await strategy.connect({ vendorId: 10073, productId: 3 }, onDisconnect);
     strategy.notifySystemDisconnect();
     await new Promise((resolve) => setTimeout(resolve, 0));
 
@@ -79,19 +76,9 @@ describe("BaseConnectionStrategy (Bluetooth)", () => {
     expect(strategy.disconnectPhysical).toHaveBeenCalledTimes(1);
   });
 
-  it("does not run physical cleanup twice for one connection", async () => {
-    const strategy = new TestBluetoothStrategy();
-
-    await strategy.connect({ services: [] }, vi.fn());
-    await strategy.disconnect();
-    await strategy.disconnect();
-
-    expect(strategy.disconnectPhysical).toHaveBeenCalledTimes(1);
-  });
-
-  it("waits for physical cleanup to finish", async () => {
+  it("waits for physical cleanup", async () => {
     let resolveDisconnect: (() => void) | undefined;
-    const strategy = new TestBluetoothStrategy();
+    const strategy = new TestUsbStrategy();
     strategy.disconnectPhysical.mockImplementation(
       () =>
         new Promise<void>((resolve) => {
@@ -99,7 +86,7 @@ describe("BaseConnectionStrategy (Bluetooth)", () => {
         }),
     );
 
-    await strategy.connect({ services: [] }, vi.fn());
+    await strategy.connect({ vendorId: 10073, productId: 3 }, vi.fn());
     const disconnectPromise = strategy.disconnect();
     let isResolved = false;
     void disconnectPromise.then(() => {

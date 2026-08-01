@@ -2,6 +2,7 @@ import { BleClient } from "@capacitor-community/bluetooth-le";
 
 import { logsM } from "@/modules/logs/features/model/logsM";
 import { IS_ANDROID, IS_IOS } from "@/shared/config/platform";
+import { BaseConnectionStrategy } from "@/shared/lib/baseConnectionStrategy";
 import { getErrorMessage } from "@/shared/lib/getErrorMessage";
 
 import { createCharReader } from "../lib/readCharacteristic";
@@ -11,31 +12,47 @@ import type {
   IBluetoothConnectionResult,
   IBluetoothDeviceConfig,
 } from "../model/types";
-import { BaseBluetoothStrategy } from "./baseBluetoothStrategy";
 
 const LOG_PREFIX = "[NativeBluetooth]";
 
 /**
- * Реализация {@link BaseBluetoothStrategy} поверх нативного плагина
+ * Реализация {@link BaseConnectionStrategy} поверх нативного плагина
  * @capacitor-community/bluetooth-le (Android / iOS).
  *
  * Физическое подключение/отключение и чтение характеристик делегируются BleClient.
  * Системное событие разрыва приходит через колбэк `BleClient.connect` и
  * транслируется в `notifyDisconnected()` базового класса.
  */
-export class NativeBluetooth extends BaseBluetoothStrategy {
+export class NativeBluetooth extends BaseConnectionStrategy<
+  IBluetoothDeviceConfig,
+  IBluetoothConnectionResult
+> {
   protected readonly logPrefix = LOG_PREFIX;
+  protected readonly disconnectErrorMessage =
+    "Ошибка при разрыве GATT-соединения";
+  protected readonly manualDisconnectMessage = "Ручной disconnect.";
 
-  // ID выбранного устройства. Обнуляется в doDisconnect при разрыве.
+  /** Создаёт стратегию native Bluetooth с общим logger приложения. */
+  constructor() {
+    super(logsM);
+  }
+
   private deviceId: string | null = null;
 
   /**
-   * Подключение к устройству: проверка состояния Bluetooth → выбор устройства →
-   * физическое соединение → чтение начальных метаданных.
+   * Подключает BLE-устройство через Capacitor-плагин.
    *
-   * withDisconnectCallback регистрирует onDisconnect ДО action и гарантирует
-   * очистку ресурсов при ошибке подключения (без вызова колбэка — об ошибке
-   * сообщит сам reject).
+   * Последовательность операции: проверка состояния Bluetooth, выбор устройства,
+   * GATT-подключение и чтение начальных метаданных. Ошибки отдельных BLE-
+   * характеристик обрабатываются внутри `readInitialMetadata` и не отменяют
+   * подключение, если само GATT-соединение успешно.
+   *
+   * @param config конфигурация BLE-сервисов;
+   * @param onDisconnect callback системного отключения устройства;
+   * @param signal необязательный сигнал отмены выбора или чтения данных;
+   * @returns идентификатор, имя, metadata и начальный заряд устройства;
+   * @throws если Bluetooth выключен, permission отклонён, устройство не выбрано
+   * или native-плагин не смог установить GATT-соединение;
    */
   connect = async (
     config: IBluetoothDeviceConfig,
@@ -60,6 +77,10 @@ export class NativeBluetooth extends BaseBluetoothStrategy {
         optionalServices: [...REQUIRED_SERVICES],
       });
 
+      if (!this.isOperationActive()) {
+        throw new DOMException("Подключение отменено.", "AbortError");
+      }
+
       signal?.throwIfAborted();
 
       logsM.success(
@@ -71,6 +92,11 @@ export class NativeBluetooth extends BaseBluetoothStrategy {
       await BleClient.connect(device.deviceId, () => {
         this.handlePluginDisconnect();
       });
+
+      if (!this.isOperationActive()) {
+        await this.cleanupTransport();
+        throw new DOMException("Подключение отменено.", "AbortError");
+      }
 
       signal?.throwIfAborted();
 
@@ -97,7 +123,12 @@ export class NativeBluetooth extends BaseBluetoothStrategy {
     });
   };
 
-  /** Чтение уровня заряда батареи (Battery Service 0x180F, характеристика 0x2A19). */
+  /**
+   * Читает Battery Level characteristic через native BLE-плагин.
+   *
+   * @returns заряд в процентах или `null`, если устройство не подключено,
+   * характеристика пустая либо чтение завершилось ошибкой;
+   */
   getBatteryLevel = async (): Promise<number | null> => {
     if (!this.deviceId) {
       logsM.warn(`${LOG_PREFIX} Чтение батареи отклонено: нет ID устройства.`);
@@ -124,7 +155,7 @@ export class NativeBluetooth extends BaseBluetoothStrategy {
     }
   };
 
-  /** Физический разрыв: обнуляем ID и просим плагин разорвать соединение. */
+  /** Закрывает native GATT-соединение и очищает идентификатор устройства. */
   protected doDisconnect = async (): Promise<void> => {
     const idToDisconnect = this.deviceId;
     this.deviceId = null;

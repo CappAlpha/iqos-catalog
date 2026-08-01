@@ -15,6 +15,7 @@ export const UsbConnect = observer(() => {
     isDisconnecting,
     isSupported,
     error,
+    status,
     connect,
     disconnect,
   } = usbM;
@@ -37,9 +38,23 @@ export const UsbConnect = observer(() => {
       ? "Отключение..."
       : "Подключить устройство";
 
+  const statusText = isConnected
+    ? "Устройство подключено"
+    : isConnecting
+      ? "Поиск и подключение"
+      : isDisconnecting
+        ? "Отключение"
+        : "Устройство не подключено";
+
   return (
     <section className={s.root}>
-      <h3 className={s.subtitle}>Подключение</h3>
+      <div className={s.subtitle}>
+        <h3>Подключение</h3>
+        <div className={s.status} data-status={status}>
+          <span className={s.statusDot} />
+          {statusText}
+        </div>
+      </div>
       <div className={s.infoBlock}>
         <div className={s.controls}>
           <Button
@@ -76,10 +91,7 @@ export const UsbConnect = observer(() => {
         )}
         {!isSupported && (
           <div className={s.errorWrap}>
-            <p>
-              USB не поддерживается вашим браузером. Используйте Chrome, Edge
-              или Opera.
-            </p>
+            <p>USB недоступен на этой платформе или в текущей среде.</p>
           </div>
         )}
       </div>

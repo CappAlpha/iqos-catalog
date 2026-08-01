@@ -79,7 +79,6 @@ export const useApkUpdate = () => {
   }, [downloadUrl, latestVersion]);
 
   useEffect(() => {
-    // TODO: move startup logic to initial hook if needed
     let ignore = false;
 
     const initUpdateCheck = async () => {

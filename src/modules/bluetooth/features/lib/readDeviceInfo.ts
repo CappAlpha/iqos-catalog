@@ -20,21 +20,12 @@ export const readDeviceInfo = async (
 ): Promise<IBluetoothDeviceInfo> => {
   const s = DEVICE_INFO.SERVICE;
 
-  const [
-    manufacturerName,
-    modelNumber,
-    serialNumber,
-    hardwareRevision,
-    firmwareRevision,
-    softwareRevision,
-  ] = await Promise.all([
-    read(s, DEVICE_INFO.MANUFACTURER_NAME),
-    read(s, DEVICE_INFO.MODEL_NUMBER),
-    read(s, DEVICE_INFO.SERIAL_NUMBER),
-    read(s, DEVICE_INFO.HARDWARE_REVISION),
-    read(s, DEVICE_INFO.FIRMWARE_REVISION),
-    read(s, DEVICE_INFO.SOFTWARE_REVISION),
-  ]);
+  const manufacturerName = await read(s, DEVICE_INFO.MANUFACTURER_NAME);
+  const modelNumber = await read(s, DEVICE_INFO.MODEL_NUMBER);
+  const serialNumber = await read(s, DEVICE_INFO.SERIAL_NUMBER);
+  const hardwareRevision = await read(s, DEVICE_INFO.HARDWARE_REVISION);
+  const firmwareRevision = await read(s, DEVICE_INFO.FIRMWARE_REVISION);
+  const softwareRevision = await read(s, DEVICE_INFO.SOFTWARE_REVISION);
 
   return {
     manufacturerName,

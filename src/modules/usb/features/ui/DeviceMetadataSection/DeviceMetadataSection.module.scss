@@ -17,3 +17,10 @@
     line-height: 1.2;
   }
 }
+
+.batteryRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}

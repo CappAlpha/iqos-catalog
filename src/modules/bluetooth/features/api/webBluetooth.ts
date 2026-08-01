@@ -1,5 +1,6 @@
 import { logsM } from "@/modules/logs/features/model/logsM";
 import { actionPromiseWithTimeout } from "@/shared/lib/actionPromiseWithTimeout";
+import { BaseConnectionStrategy } from "@/shared/lib/baseConnectionStrategy";
 import { getErrorMessage } from "@/shared/lib/getErrorMessage";
 
 import { createCharReader } from "../lib/readCharacteristic";
@@ -10,30 +11,45 @@ import type {
   IBluetoothConnectionResult,
   IBluetoothDeviceConfig,
 } from "../model/types";
-import { BaseBluetoothStrategy } from "./baseBluetoothStrategy";
 
 const LOG_PREFIX = "[WebBluetooth]";
 const GATT_CONNECT_TIMEOUT = 10_000;
 
 /**
- * Реализация {@link BaseBluetoothStrategy} поверх Web Bluetooth API (браузер).
+ * Реализация {@link BaseConnectionStrategy} поверх Web Bluetooth API (браузер).
  *
  * Физическое подключение/отключение и чтение характеристик делегируются navigator.bluetooth.
  * Системное событие разрыва приходит через `gattserverdisconnected` и транслируется
  * в `notifyDisconnected()` базового класса.
  */
-export class WebBluetooth extends BaseBluetoothStrategy {
+export class WebBluetooth extends BaseConnectionStrategy<
+  IBluetoothDeviceConfig,
+  IBluetoothConnectionResult
+> {
   protected readonly logPrefix = LOG_PREFIX;
+  protected readonly disconnectErrorMessage =
+    "Ошибка при разрыве GATT-соединения";
+  protected readonly manualDisconnectMessage = "Ручной disconnect.";
+
+  constructor() {
+    super(logsM);
+  }
 
   private device: BluetoothDevice | null = null;
 
   /**
-   * Подключение к устройству: выбор устройства → физическое GATT-соединение →
-   * чтение начальных метаданных.
+   * Подключает устройство через Web Bluetooth API.
    *
-   * withDisconnectCallback регистрирует onDisconnect ДО action и гарантирует
-   * очистку ресурсов при ошибке подключения (без вызова колбэка — об ошибке
-   * сообщит сам reject).
+   * Последовательность операции: выбор устройства в browser chooser, GATT-
+   * подключение и чтение начальных metadata. Отсутствие отдельных BLE-
+   * characteristics не отменяет подключение: такие ошибки преобразуются в
+   * необязательные значения внутри `readInitialMetadata`.
+   *
+   * @param config конфигурация BLE-сервисов для будущих browser-фильтров;
+   * @param onDisconnect callback события `gattserverdisconnected`;
+   * @param signal необязательный сигнал отмены операции;
+   * @returns идентификатор, имя, metadata и начальный заряд устройства;
+   * @throws если chooser отменён, GATT-соединение не установлено или истёк timeout;
    */
   connect = async (
     config: IBluetoothDeviceConfig,
@@ -48,6 +64,10 @@ export class WebBluetooth extends BaseBluetoothStrategy {
           acceptAllDevices: true,
           optionalServices: [...REQUIRED_SERVICES],
         });
+
+      if (!this.isOperationActive()) {
+        throw new DOMException("Подключение отменено.", "AbortError");
+      }
 
       signal?.throwIfAborted();
 
@@ -74,6 +94,11 @@ export class WebBluetooth extends BaseBluetoothStrategy {
         GATT_CONNECT_TIMEOUT,
         "Превышено время ожидания ответа от устройства (таймаут GATT).",
       );
+
+      if (!this.isOperationActive()) {
+        await this.cleanupTransport();
+        throw new DOMException("Подключение отменено.", "AbortError");
+      }
 
       signal?.throwIfAborted();
 
@@ -107,7 +132,12 @@ export class WebBluetooth extends BaseBluetoothStrategy {
     });
   };
 
-  /** Чтение уровня заряда батареи (Battery Service 0x180F, характеристика 0x2A19). */
+  /**
+   * Читает Battery Level characteristic через подключённый GATT-сервер.
+   *
+   * @returns заряд в процентах или `null`, если GATT недоступен, значение пустое
+   * либо browser API не смог прочитать characteristic;
+   */
   getBatteryLevel = async (): Promise<number | null> => {
     const gatt = this.device?.gatt;
     if (!gatt?.connected) {
@@ -133,9 +163,7 @@ export class WebBluetooth extends BaseBluetoothStrategy {
     }
   };
 
-  /**
-   * Снять слушатели/обнулить ссылки ПЕРЕД физическим disconnect (хук базового класса).
-   */
+  /** Снимает listener GATT перед закрытием Web Bluetooth-соединения. */
   protected override readonly beforeDisconnect = () => {
     if (!this.device) return;
     this.device.removeEventListener(
@@ -144,7 +172,7 @@ export class WebBluetooth extends BaseBluetoothStrategy {
     );
   };
 
-  /** Физический разрыв: просим GATT-сервер отключиться, затем обнуляем ссылку. */
+  /** Закрывает GATT-соединение и очищает ссылку на browser device. */
   protected doDisconnect = () => {
     if (this.device?.gatt?.connected) {
       this.device.gatt.disconnect();

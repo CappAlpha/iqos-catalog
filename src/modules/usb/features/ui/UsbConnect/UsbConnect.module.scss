@@ -2,6 +2,8 @@
   @include devicePanel;
 }
 
+@include statusIndicator;
+
 .infoBlock {
   display: flex;
   flex-direction: column;
@@ -47,6 +49,7 @@
   outline: solid 1px var(--additional-red);
   border-radius: 1rem;
   color: var(--additional-red);
+  animation: usbPanelIn 0.25s ease-out;
 }
 
 .error {
@@ -62,4 +65,16 @@
   @include closeIconBtn;
   @include absolute(50%, 0, $transform: translateY(-50%));
   color: var(--gray);
+}
+
+@keyframes usbPanelIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

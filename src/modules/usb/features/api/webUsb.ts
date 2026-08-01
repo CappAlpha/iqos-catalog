@@ -1,80 +1,130 @@
+import { logsM } from "@/modules/logs/features/model/logsM";
+import { BaseConnectionStrategy } from "@/shared/lib/baseConnectionStrategy";
+
 import {
   DEFAULT_CONFIGURATION,
   DEFAULT_INTERFACE,
   CUSTOM_BATTERY_REQUEST,
   BATTERY_RESPONSE_LENGTH,
 } from "../model/constants";
-import type {
-  IUsbStrategy,
-  IUsbConnectionResult,
-  IUsbDeviceConfig,
-} from "../model/types";
+import type { IUsbConnectionResult, IUsbDeviceConfig } from "../model/types";
 
-export class WebUsb implements IUsbStrategy {
+const LOG_PREFIX = "[WebUSB]";
+
+/**
+ * USB-стратегия для браузеров с поддержкой WebUSB.
+ *
+ * Открывает выбранное устройство, переключает его конфигурацию, пытается
+ * захватить интерфейс и читает заряд через vendor control transfer.
+ */
+export class WebUsb extends BaseConnectionStrategy<
+  IUsbDeviceConfig,
+  IUsbConnectionResult
+> {
+  protected readonly logPrefix = LOG_PREFIX;
+  protected readonly disconnectErrorMessage = "Ошибка при отключении USB";
+  protected readonly manualDisconnectMessage = "Ручное отключение.";
+
+  /** Создаёт стратегию WebUSB с общим logger приложения. */
+  constructor() {
+    super(logsM);
+  }
+
   private device: USBDevice | null = null;
-  private onDisconnectCallback: (() => void) | null = null;
   private isInterfaceClaimed = false;
 
+  /**
+   * Запрашивает USB-устройство и подготавливает его к обмену данными.
+   *
+   * @param config конфигурация USB-устройства; используется текущим сценарием
+   * выбора устройства при включении production-фильтров;
+   * @param onDisconnect callback физического отключения устройства;
+   * @returns метаданные выбранного устройства и начальный уровень батареи;
+   * @throws если браузер отменил выбор или устройство не удалось открыть;
+   */
   connect = async (
     config: IUsbDeviceConfig,
     onDisconnect: () => void,
   ): Promise<IUsbConnectionResult> => {
-    await this.cleanup();
+    return this.withDisconnectCallback(onDisconnect, async () => {
+      const device = await navigator.usb.requestDevice({
+        // TODO: remove comment on release
+        filters: [
+          //config
+        ],
+      });
 
-    const device = await navigator.usb.requestDevice({
-      // TODO: remove comment on release
-      filters: [
-        //config
-      ],
+      logsM.success(
+        `${LOG_PREFIX} Устройство выбрано: "${device.productName ?? "Без имени"}" (VID=${device.vendorId}, PID=${device.productId}).`,
+      );
+
+      if (!this.isOperationActive()) {
+        throw new DOMException("Подключение отменено.", "AbortError");
+      }
+
+      this.device = device;
+      logsM.info(`${LOG_PREFIX} Открытие USB-устройства.`);
+      await this.configureWebUsbDevice(device);
+
+      if (!this.isOperationActive()) {
+        await this.cleanupTransport();
+        throw new DOMException("Подключение отменено.", "AbortError");
+      }
+      navigator.usb.addEventListener("disconnect", this.handleDisconnect);
+      logsM.info(`${LOG_PREFIX} Listener отключения зарегистрирован.`);
+
+      const batteryLevel = await this.getBatteryLevel();
+
+      return {
+        device: {
+          manufacturerName: device.manufacturerName ?? null,
+          productName: device.productName ?? null,
+          vendorId: device.vendorId ?? null,
+          productId: device.productId ?? null,
+          configuration: device.configuration ?? null,
+        },
+        batteryLevel,
+      };
     });
-
-    await this.configureWebUsbDevice(device);
-    this.device = device;
-
-    this.onDisconnectCallback = onDisconnect;
-    navigator.usb.addEventListener("disconnect", this.handleDisconnect);
-
-    const batteryLevel = await this.getBatteryLevel();
-
-    return {
-      device: {
-        manufacturerName: device.manufacturerName ?? null,
-        productName: device.productName ?? null,
-        vendorId: device.vendorId ?? null,
-        productId: device.productId ?? null,
-        configuration: device.configuration ?? null,
-      },
-      batteryLevel,
-    };
   };
 
-  disconnect = async () => {
-    await this.cleanup();
-  };
-
+  /**
+   * Читает заряд через vendor-specific control transfer.
+   *
+   * @returns заряд в процентах или `null`, если интерфейс не захвачен,
+   * ответ пустой либо устройство не поддерживает запрос;
+   */
   getBatteryLevel = async () => {
     if (!this.device || !this.isInterfaceClaimed) return null;
 
     try {
+      logsM.info(`${LOG_PREFIX} Чтение уровня заряда батареи.`);
       const result = await this.device.controlTransferIn(
         CUSTOM_BATTERY_REQUEST,
         BATTERY_RESPONSE_LENGTH,
       );
 
       if (result.status === "ok" && result.data && result.data.byteLength > 0) {
-        return result.data.getUint8(0);
+        const level = result.data.getUint8(0);
+        logsM.success(`${LOG_PREFIX} Заряд батареи: ${level}%.`);
+        return level;
       }
     } catch (error) {
-      console.warn("Ошибка при чтении заряда устройства:", error);
+      logsM.error(`${LOG_PREFIX} Ошибка при чтении заряда устройства.`, error);
     }
     return null;
   };
 
+  /** Открывает устройство, выбирает конфигурацию и пытается захватить интерфейс. */
   private readonly configureWebUsbDevice = async (device: USBDevice) => {
     await device.open();
+    logsM.info(`${LOG_PREFIX} USB-устройство открыто.`);
     try {
       if (device.configuration?.configurationValue !== DEFAULT_CONFIGURATION) {
         await device.selectConfiguration(DEFAULT_CONFIGURATION);
+        logsM.info(
+          `${LOG_PREFIX} Выбрана USB-конфигурация: ${DEFAULT_CONFIGURATION}.`,
+        );
       }
     } catch (err) {
       await device.close().catch(() => {});
@@ -84,40 +134,49 @@ export class WebUsb implements IUsbStrategy {
     try {
       await device.claimInterface(DEFAULT_INTERFACE);
       this.isInterfaceClaimed = true;
-    } catch (err) {
+      logsM.success(
+        `${LOG_PREFIX} USB-интерфейс захвачен: ${DEFAULT_INTERFACE}.`,
+      );
+    } catch {
       this.isInterfaceClaimed = false;
-      console.warn(
-        "Интерфейс занят ОС или заблокирован браузером. Продолжаем в режиме чтения метаданных.",
-        err,
+      logsM.warn(
+        `${LOG_PREFIX} Интерфейс занят ОС или заблокирован браузером. Продолжаем в режиме чтения метаданных.`,
       );
     }
   };
 
+  /** Передаёт физическое отключение выбранного устройства в общий lifecycle. */
   private readonly handleDisconnect = (event: USBConnectionEvent) => {
     if (this.device && event.device === this.device) {
-      const callback = this.onDisconnectCallback;
-      void this.cleanup();
-      callback?.();
+      logsM.warn(`${LOG_PREFIX} Устройство отключено системой.`);
+      this.notifyDisconnected();
     }
   };
 
-  private readonly cleanup = async () => {
+  /** Снимает browser listener перед закрытием USB-устройства. */
+  protected override readonly beforeDisconnect = () => {
+    navigator.usb.removeEventListener("disconnect", this.handleDisconnect);
+    logsM.info(`${LOG_PREFIX} Listener отключения снят.`);
+  };
+
+  /** Закрывает WebUSB-устройство и очищает локальное состояние стратегии. */
+  protected override readonly doDisconnect = async () => {
     const deviceToClose = this.device;
     this.device = null;
-    this.onDisconnectCallback = null;
     this.isInterfaceClaimed = false;
 
     if (deviceToClose) {
-      navigator.usb.removeEventListener("disconnect", this.handleDisconnect);
+      logsM.info(`${LOG_PREFIX} Закрытие USB-устройства.`);
       await deviceToClose.close().catch((err: unknown) => {
         const errorMessage = err instanceof Error ? err.message : String(err);
         if (
           !errorMessage.includes("disconnected") &&
           !errorMessage.includes("NotFound")
         ) {
-          console.warn("Ошибка при закрытии WebUSB устройства:", err);
+          logsM.error(`${LOG_PREFIX} Ошибка при закрытии USB-устройства.`, err);
         }
       });
+      logsM.success(`${LOG_PREFIX} USB-устройство закрыто.`);
     }
   };
 }

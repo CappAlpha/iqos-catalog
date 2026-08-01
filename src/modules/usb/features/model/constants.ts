@@ -16,3 +16,5 @@ export const CUSTOM_BATTERY_REQUEST = {
 } as const;
 
 export const BATTERY_RESPONSE_LENGTH = 1;
+
+export const UNSUPPORTED_MESSAGE = "USB не поддерживается на этой платформе.";

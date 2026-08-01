@@ -13,17 +13,25 @@ export interface IInitialMetadataResult {
 const normalizeName = (name: string | null): string | null =>
   name?.trim() ? name.trim() : null;
 
+const settle = async <T>(
+  promise: Promise<T>,
+): Promise<PromiseSettledResult<T>> => {
+  try {
+    return { status: "fulfilled", value: await promise };
+  } catch (reason) {
+    return { status: "rejected", reason };
+  }
+};
+
 export async function readInitialMetadata(
   readChar: (service: string, characteristic: string) => Promise<string | null>,
   getBatteryLevelFn: () => Promise<number | null>,
   fallbackName: string | null,
   signal?: AbortSignal,
 ): Promise<IInitialMetadataResult> {
-  const [nameResult, infoResult, batteryResult] = await Promise.allSettled([
-    readChar(GAP.SERVICE, GAP.DEVICE_NAME),
-    readDeviceInfo(readChar),
-    getBatteryLevelFn(),
-  ]);
+  const nameResult = await settle(readChar(GAP.SERVICE, GAP.DEVICE_NAME));
+  const infoResult = await settle(readDeviceInfo(readChar));
+  const batteryResult = await settle(getBatteryLevelFn());
 
   signal?.throwIfAborted();
 

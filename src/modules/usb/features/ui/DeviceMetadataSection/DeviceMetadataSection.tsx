@@ -1,4 +1,7 @@
 import { observer } from "mobx-react-lite";
+import { useState } from "react";
+
+import { Button } from "@/shared/ui/Button";
 
 import type { IUsbDeviceInfo } from "../../model/types";
 import { usbM } from "../../model/usbM";
@@ -27,7 +30,17 @@ interface Props {
 }
 
 export const DeviceMetadataSection = observer(({ device }: Props) => {
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const { batteryLevel } = usbM;
+
+  const refreshBattery = async () => {
+    setIsRefreshing(true);
+    try {
+      await usbM.refreshBattery();
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
 
   return (
     <section className={s.root}>
@@ -44,11 +57,20 @@ export const DeviceMetadataSection = observer(({ device }: Props) => {
           );
         })}
 
-        {batteryLevel !== null && (
+        <div className={s.batteryRow}>
           <p className={s.row}>
-            <b>Заряд батареи:</b> {batteryLevel}%
+            <b>Заряд батареи:</b>{" "}
+            {batteryLevel !== null ? `${batteryLevel}%` : "Недоступен"}
           </p>
-        )}
+          <Button
+            color="outline"
+            onClick={refreshBattery}
+            loading={isRefreshing}
+            aria-label="Обновить заряд батареи"
+          >
+            Обновить
+          </Button>
+        </div>
       </div>
     </section>
   );

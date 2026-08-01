@@ -1,5 +1,7 @@
-import { makeAutoObservable, observableRef, runInAction } from "mobx";
+import { makeAutoObservable, observable, runInAction } from "mobx";
 
+import { logsM } from "@/modules/logs/features/model/logsM";
+import type { IAppLogger } from "@/modules/logs/features/model/types";
 import {
   IS_ANDROID,
   IS_CAPACITOR,
@@ -10,7 +12,7 @@ import { actionPromiseWithTimeout } from "@/shared/lib/actionPromiseWithTimeout"
 import { getErrorMessage } from "@/shared/lib/getErrorMessage";
 
 import { getUsbStrategy } from "../lib/getUsbStrategy";
-import { USB_CONFIG } from "./constants";
+import { UNSUPPORTED_MESSAGE, USB_CONFIG } from "./constants";
 import type {
   IUsbStrategy,
   IUsbDeviceConfig,
@@ -25,20 +27,23 @@ class UsbM {
   status: UsbStatus = "disconnected";
   error: string | null = null;
   batteryLevel: number | null = null;
+  isRefreshingBattery = false;
   readonly deviceConfig: IUsbDeviceConfig = {
     vendorId: USB_CONFIG.VENDOR_ID,
     productId: USB_CONFIG.PRODUCT_ID,
   };
 
   readonly #getStrategy: () => Promise<IUsbStrategy>;
+  readonly #logsM: IAppLogger;
 
   #strategy: IUsbStrategy | null = null;
   #currentConnectionId = 0;
 
-  constructor(getStrategy: () => Promise<IUsbStrategy>) {
+  constructor(getStrategy: () => Promise<IUsbStrategy>, logsM: IAppLogger) {
     this.#getStrategy = getStrategy;
+    this.#logsM = logsM;
     makeAutoObservable(this, {
-      device: observableRef,
+      device: observable.ref,
       deviceConfig: false,
     });
   }
@@ -77,7 +82,18 @@ class UsbM {
   };
 
   connect = async () => {
-    if (this.isConnecting || this.isDisconnecting) return;
+    if (this.isConnecting || this.isDisconnecting) {
+      this.#logsM.warn(
+        `[USB] Повторное подключение отклонено. Статус: ${this.status}`,
+      );
+      return;
+    }
+
+    if (!this.isSupported) {
+      runInAction(() => this.reset(UNSUPPORTED_MESSAGE));
+      this.#logsM.warn(`[USB] ${UNSUPPORTED_MESSAGE}`);
+      return;
+    }
 
     this.#currentConnectionId++;
     const connectionId = this.#currentConnectionId;
@@ -88,25 +104,38 @@ class UsbM {
       this.batteryLevel = null;
     });
 
+    let strategy: IUsbStrategy | null = null;
+
     try {
-      this.#strategy ??= await this.#getStrategy();
+      strategy = await this.#getStrategy();
+
+      if (connectionId !== this.#currentConnectionId) {
+        await strategy.disconnect();
+        return;
+      }
+
+      this.#strategy = strategy;
 
       const result = await actionPromiseWithTimeout(
-        this.#strategy.connect(this.deviceConfig, this.handleDisconnect),
+        strategy.connect(this.deviceConfig, this.handleDisconnect),
         20000,
         "Подключения по USB не удалось, попробуйте ещё раз.",
       );
 
       if (connectionId !== this.#currentConnectionId) {
-        await this.#strategy.disconnect().catch(() => {});
+        await strategy.disconnect().catch((error) => {
+          this.#logsM.error("[USB] Ошибка при освобождении ресурсов", error);
+        });
         return;
       }
 
-      this.setConnected(result);
+      runInAction(() => this.setConnected(result));
     } catch (err) {
       if (connectionId !== this.#currentConnectionId) return;
 
-      await this.#strategy?.disconnect().catch(() => {});
+      await strategy?.disconnect().catch((error) => {
+        this.#logsM.error("[USB] Ошибка при принудительном отключении", error);
+      });
 
       let errMsg = getErrorMessage(err, "Ошибка подключения по USB.");
 
@@ -117,7 +146,7 @@ class UsbM {
         errMsg = "Вы отменили выбор устройства.";
       }
 
-      this.reset(errMsg);
+      runInAction(() => this.reset(errMsg));
     }
   };
 
@@ -153,15 +182,21 @@ class UsbM {
         "Таймаут физического отключения",
       );
     } catch (err) {
-      console.warn("Физическое отключение USB не завершилось штатно:", err);
+      this.#logsM.error(
+        "[USB] Физическое отключение не завершилось штатно",
+        err,
+      );
     } finally {
-      this.reset(wasConnecting ? "Подключение отменено." : null);
+      runInAction(() =>
+        this.reset(wasConnecting ? "Подключение отменено." : null),
+      );
     }
   };
 
   refreshBattery = async () => {
-    if (!this.isConnected) return;
+    if (!this.isConnected || this.isRefreshingBattery) return;
 
+    this.isRefreshingBattery = true;
     try {
       const battery = await this.#strategy?.getBatteryLevel();
 
@@ -176,8 +211,12 @@ class UsbM {
       runInAction(() => {
         this.error = getErrorMessage(err, "Не удалось обновить заряд батареи.");
       });
+    } finally {
+      runInAction(() => {
+        this.isRefreshingBattery = false;
+      });
     }
   };
 }
 
-export const usbM = new UsbM(getUsbStrategy);
+export const usbM = new UsbM(getUsbStrategy, logsM);
