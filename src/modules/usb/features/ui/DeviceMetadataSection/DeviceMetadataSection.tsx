@@ -31,7 +31,7 @@ interface Props {
 
 export const DeviceMetadataSection = observer(({ device }: Props) => {
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const { batteryLevel } = usbM;
+  const { batteryAvailable, batteryLevel } = usbM;
 
   const refreshBattery = async () => {
     setIsRefreshing(true);
@@ -62,14 +62,16 @@ export const DeviceMetadataSection = observer(({ device }: Props) => {
             <b>Заряд батареи:</b>{" "}
             {batteryLevel !== null ? `${batteryLevel}%` : "Недоступен"}
           </p>
-          <Button
-            color="outline"
-            onClick={refreshBattery}
-            loading={isRefreshing}
-            aria-label="Обновить заряд батареи"
-          >
-            Обновить
-          </Button>
+          {batteryAvailable && (
+            <Button
+              color="outline"
+              onClick={refreshBattery}
+              loading={isRefreshing}
+              aria-label="Обновить заряд батареи"
+            >
+              Обновить
+            </Button>
+          )}
         </div>
       </div>
     </section>

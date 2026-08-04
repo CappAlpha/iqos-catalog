@@ -74,7 +74,7 @@
 
     &::after {
       display: block;
-      @include absolute($top: calc(50% - 12px), $left: calc(50% - 12px));
+      @include absolute($top: calc(50% - 10px), $left: calc(50% - 10px));
       content: "";
       width: 20px;
       height: 20px;

@@ -58,6 +58,8 @@ describe("AndroidNativeUsb", () => {
     );
 
     expect(result.device.productName).toBe("IQOS");
+    expect(result.batteryAvailable).toBe(false);
+    expect(result.batteryLevel).toBeNull();
     expect(usbSerial.requestPermission).toHaveBeenCalledWith({
       deviceId: "device-id",
     });
@@ -65,5 +67,28 @@ describe("AndroidNativeUsb", () => {
 
     await strategy.disconnect();
     expect(removeDetachListener).toHaveBeenCalledTimes(1);
+  });
+
+  it("cleans up when permission is denied", async () => {
+    usbSerial.listDevices.mockResolvedValueOnce({
+      devices: [
+        {
+          deviceId: "device-id",
+          vendorId: 10073,
+          productId: 3,
+          hasPermission: false,
+          deviceName: "IQOS",
+        },
+      ],
+    });
+    usbSerial.requestPermission.mockResolvedValueOnce({ granted: false });
+    const strategy = new AndroidNativeUsb();
+
+    await expect(
+      strategy.connect({ vendorId: 10073, productId: 3 }, vi.fn()),
+    ).rejects.toThrow("Доступ к USB-устройству отклонён.");
+
+    expect(usbSerial.open).not.toHaveBeenCalled();
+    expect(usbSerial.close).not.toHaveBeenCalled();
   });
 });

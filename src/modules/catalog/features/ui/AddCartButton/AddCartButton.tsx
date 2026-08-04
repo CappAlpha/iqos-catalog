@@ -17,7 +17,14 @@ interface Props {
 
 export const AddCartButton = observer(
   ({ selectedProduct, isPending, className }: Props) => {
-    const { setQuantity, addToCart, getCartItem, getItemStatus } = cartM;
+    const {
+      setQuantity,
+      addToCart,
+      getCartItem,
+      getItemState,
+      isInitialized,
+      canAdd,
+    } = cartM;
 
     const itemInCart = getCartItem(selectedProduct.id);
 
@@ -27,27 +34,32 @@ export const AddCartButton = observer(
       isDecLoading,
       isRemoveLoading,
       isCountChanged,
-    } = getItemStatus(selectedProduct.id);
+      canChangeQuantity,
+    } = getItemState(selectedProduct.id);
 
     return (
       <div onClick={(e) => e.stopPropagation()}>
         {itemInCart ? (
           <CounterBtns
             className={cn(s.counter, className)}
-            id={selectedProduct.id}
             quantity={itemInCart.quantity}
             isDecLoading={isDecLoading || isRemoveLoading}
             isIncLoading={isIncLoading}
             isCountChanged={isCountChanged}
-            setQuantity={setQuantity}
-            disabled={isPending}
+            onDecrease={() =>
+              setQuantity(selectedProduct.id, itemInCart.quantity - 1)
+            }
+            onIncrease={() =>
+              setQuantity(selectedProduct.id, itemInCart.quantity + 1)
+            }
+            disabled={!isInitialized || !canChangeQuantity || isPending}
           />
         ) : (
           <Button
             className={cn(s.button, className)}
-            loading={isAddLoading}
+            loading={!isInitialized || !canAdd || isAddLoading}
             onClick={() => addToCart(selectedProduct)}
-            disabled={isPending}
+            disabled={!isInitialized || !canAdd || isPending}
           >
             Добавить
           </Button>

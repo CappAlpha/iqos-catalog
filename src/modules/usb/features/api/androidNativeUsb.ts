@@ -105,6 +105,7 @@ export class AndroidNativeUsb extends BaseConnectionStrategy<
           productName: targetDevice.deviceName ?? "USB устройство",
           manufacturerName: "Generic USB Device",
         },
+        batteryAvailable: false,
         batteryLevel: null,
       };
     });

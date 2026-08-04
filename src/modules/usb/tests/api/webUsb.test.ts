@@ -27,6 +27,7 @@ describe("WebUsb", () => {
     claimInterface,
     controlTransferIn,
   } as unknown as USBDevice;
+  const requestDevice = vi.fn(() => Promise.resolve(device));
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -35,7 +36,7 @@ describe("WebUsb", () => {
       configurable: true,
       value: {
         usb: {
-          requestDevice: vi.fn(() => Promise.resolve(device)),
+          requestDevice,
           addEventListener,
           removeEventListener,
         },
@@ -52,10 +53,72 @@ describe("WebUsb", () => {
     );
 
     expect(result.device.productName).toBe("USB device");
+    expect(result.batteryAvailable).toBe(true);
     expect(result.batteryLevel).toBe(81);
     expect(open).toHaveBeenCalledTimes(1);
     expect(selectConfiguration).toHaveBeenCalledWith(1);
     expect(claimInterface).toHaveBeenCalledWith(0);
+    expect(requestDevice).toHaveBeenCalledWith({ filters: [] });
+  });
+
+  it("keeps the connection when the battery interface is unavailable", async () => {
+    claimInterface.mockRejectedValueOnce(new Error("Interface is busy"));
+    const strategy = new WebUsb();
+
+    const result = await strategy.connect(
+      { vendorId: 10073, productId: 3 },
+      vi.fn(),
+    );
+
+    expect(result.batteryAvailable).toBe(false);
+    expect(result.batteryLevel).toBeNull();
+    expect(open).toHaveBeenCalledTimes(1);
+    expect(close).not.toHaveBeenCalled();
+  });
+
+  it("marks the battery unavailable when its transfer fails", async () => {
+    controlTransferIn.mockRejectedValueOnce(new Error("Transfer failed"));
+    const strategy = new WebUsb();
+
+    const result = await strategy.connect(
+      { vendorId: 10073, productId: 3 },
+      vi.fn(),
+    );
+
+    expect(result.batteryAvailable).toBe(false);
+    expect(result.batteryLevel).toBeNull();
+  });
+
+  it("keeps the connection when the battery response is empty", async () => {
+    controlTransferIn.mockResolvedValueOnce({
+      status: "ok",
+      data: new DataView(new ArrayBuffer(0)),
+    });
+    const strategy = new WebUsb();
+
+    const result = await strategy.connect(
+      { vendorId: 10073, productId: 3 },
+      vi.fn(),
+    );
+
+    expect(result.device.productName).toBe("USB device");
+    expect(result.batteryAvailable).toBe(false);
+    expect(result.batteryLevel).toBeNull();
+    expect(close).not.toHaveBeenCalled();
+  });
+
+  it("closes the device when configuration fails", async () => {
+    selectConfiguration.mockRejectedValueOnce(
+      new Error("Configuration failed"),
+    );
+    const strategy = new WebUsb();
+
+    await expect(
+      strategy.connect({ vendorId: 10073, productId: 3 }, vi.fn()),
+    ).rejects.toThrow("Configuration failed");
+
+    expect(close).toHaveBeenCalled();
+    expect(addEventListener).not.toHaveBeenCalled();
   });
 
   it("removes listeners and closes the device", async () => {

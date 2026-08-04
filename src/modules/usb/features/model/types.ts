@@ -8,6 +8,7 @@ export interface IUsbDeviceInfo {
 
 export interface IUsbConnectionResult {
   device: IUsbDeviceInfo;
+  batteryAvailable: boolean;
   batteryLevel: number | null;
 }
 

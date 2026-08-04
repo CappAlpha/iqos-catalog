@@ -20,7 +20,7 @@ export const CartItemCard = observer(({ item }: Props) => {
     quantity,
   } = item;
 
-  const { removeFromCart, setQuantity, getItemStatus } = cartM;
+  const { removeFromCart, setQuantity, getItemState } = cartM;
 
   const {
     isIncLoading,
@@ -28,7 +28,9 @@ export const CartItemCard = observer(({ item }: Props) => {
     isAddLoading,
     isRemoveLoading,
     isCountChanged,
-  } = getItemStatus(id);
+    canChangeQuantity,
+    canRemove,
+  } = getItemState(id);
 
   return (
     <div
@@ -56,12 +58,13 @@ export const CartItemCard = observer(({ item }: Props) => {
 
         <div className={s.controlsContainer}>
           <CounterBtns
-            id={id}
             quantity={quantity}
             isDecLoading={isDecLoading}
             isIncLoading={isIncLoading}
             isCountChanged={isCountChanged}
-            setQuantity={setQuantity}
+            onDecrease={() => setQuantity(id, quantity - 1)}
+            onIncrease={() => setQuantity(id, quantity + 1)}
+            disabled={!canChangeQuantity}
             className={s.counter}
           />
 
@@ -77,6 +80,7 @@ export const CartItemCard = observer(({ item }: Props) => {
             color="transparent"
             aria-label="Удалить из корзины"
             loading={isRemoveLoading}
+            disabled={!canRemove}
           >
             &#10005;
           </Button>

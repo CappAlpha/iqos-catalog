@@ -36,6 +36,43 @@ describe("readInitialMetadata", () => {
     expect(result.batteryLevel).toBeNull();
   });
 
+  it("returns null for a blank GAP name and blank fallback", async () => {
+    const read = vi.fn((service: string, characteristic: string) => {
+      if (service === GAP.SERVICE && characteristic === GAP.DEVICE_NAME) {
+        return Promise.resolve("   ");
+      }
+
+      return Promise.resolve(null);
+    });
+
+    const result = await readInitialMetadata(
+      read,
+      () => Promise.resolve(null),
+      "  ",
+    );
+
+    expect(result.deviceName).toBeNull();
+  });
+
+  it("keeps successful metadata when the battery read rejects", async () => {
+    const read = vi.fn((service: string, characteristic: string) => {
+      if (service === GAP.SERVICE && characteristic === GAP.DEVICE_NAME) {
+        return Promise.resolve("Device");
+      }
+
+      return Promise.resolve(null);
+    });
+
+    const result = await readInitialMetadata(
+      read,
+      () => Promise.reject(new Error("Battery unavailable")),
+      null,
+    );
+
+    expect(result.deviceName).toBe("Device");
+    expect(result.batteryLevel).toBeNull();
+  });
+
   it("does not fail when an individual metadata read rejects", async () => {
     const read = vi.fn((service: string, characteristic: string) => {
       if (service === GAP.SERVICE && characteristic === GAP.DEVICE_NAME) {

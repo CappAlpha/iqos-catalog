@@ -32,6 +32,7 @@ export class WebUsb extends BaseConnectionStrategy<
 
   private device: USBDevice | null = null;
   private isInterfaceClaimed = false;
+  private batteryAvailable = false;
 
   /**
    * Запрашивает USB-устройство и подготавливает его к обмену данными.
@@ -83,6 +84,7 @@ export class WebUsb extends BaseConnectionStrategy<
           productId: device.productId ?? null,
           configuration: device.configuration ?? null,
         },
+        batteryAvailable: this.batteryAvailable,
         batteryLevel,
       };
     });
@@ -95,6 +97,7 @@ export class WebUsb extends BaseConnectionStrategy<
    * ответ пустой либо устройство не поддерживает запрос;
    */
   getBatteryLevel = async () => {
+    this.batteryAvailable = false;
     if (!this.device || !this.isInterfaceClaimed) return null;
 
     try {
@@ -106,6 +109,7 @@ export class WebUsb extends BaseConnectionStrategy<
 
       if (result.status === "ok" && result.data && result.data.byteLength > 0) {
         const level = result.data.getUint8(0);
+        this.batteryAvailable = true;
         logsM.success(`${LOG_PREFIX} Заряд батареи: ${level}%.`);
         return level;
       }
@@ -164,6 +168,7 @@ export class WebUsb extends BaseConnectionStrategy<
     const deviceToClose = this.device;
     this.device = null;
     this.isInterfaceClaimed = false;
+    this.batteryAvailable = false;
 
     if (deviceToClose) {
       logsM.info(`${LOG_PREFIX} Закрытие USB-устройства.`);

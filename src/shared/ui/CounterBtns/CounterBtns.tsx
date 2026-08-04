@@ -5,23 +5,23 @@ import { Button } from "../Button";
 import s from "./CounterBtns.module.scss";
 
 interface Props {
-  id: string;
   quantity: number;
   isDecLoading: boolean;
   isIncLoading: boolean;
   isCountChanged: boolean;
-  setQuantity: (id: string, quantity: number) => void;
+  onDecrease: () => void;
+  onIncrease: () => void;
   disabled?: boolean;
   className?: string;
 }
 
 export const CounterBtns = ({
-  id,
   quantity,
   isDecLoading,
   isIncLoading,
-  setQuantity,
   isCountChanged,
+  onDecrease,
+  onIncrease,
   disabled,
   className,
 }: Props) => {
@@ -29,7 +29,7 @@ export const CounterBtns = ({
     <div className={cn(s.root, className)}>
       <Button
         className={s.counterBtn}
-        onClick={() => setQuantity(id, quantity - 1)}
+        onClick={onDecrease}
         disabled={disabled}
         loading={isDecLoading}
       >
@@ -42,7 +42,7 @@ export const CounterBtns = ({
 
       <Button
         className={s.counterBtn}
-        onClick={() => setQuantity(id, quantity + 1)}
+        onClick={onIncrease}
         disabled={disabled}
         loading={isIncLoading}
       >

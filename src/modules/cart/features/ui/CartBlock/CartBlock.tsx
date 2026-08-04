@@ -10,7 +10,7 @@ import { CartSidebar } from "../CartSidebar";
 import s from "./CartBlock.module.scss";
 
 export const CartBlock = observer(() => {
-  const { isEmpty, isCartClearing, isInitialized } = cartM;
+  const { isEmpty, isCartTransitioningToEmpty, isInitialized } = cartM;
 
   if (!isInitialized) {
     return (
@@ -31,7 +31,12 @@ export const CartBlock = observer(() => {
           </Button>
         </div>
       ) : (
-        <div className={cn(s.wrap, isCartClearing && s.emptyStateSkeleton)}>
+        <div
+          className={cn(
+            s.wrap,
+            isCartTransitioningToEmpty && s.emptyStateSkeleton,
+          )}
+        >
           <CartList />
 
           <CartSidebar />

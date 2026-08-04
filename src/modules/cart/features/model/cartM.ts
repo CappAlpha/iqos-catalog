@@ -4,6 +4,7 @@ import type { Product } from "@/modules/catalog/features/model/types";
 import { customToastTemplate } from "@/shared/lib/customToastTemplate";
 import { parseSafe } from "@/shared/lib/parseSafe";
 
+import { parseCartItems, parseOrders } from "../lib/cartValidation";
 import { storage } from "../lib/getStorage";
 import { CART_STORAGE_KEY, ORDERS_STORAGE_KEY } from "./constants";
 import type { CartItem, Order } from "./types";
@@ -15,16 +16,20 @@ class CartM {
   items: CartItem[] = [];
   orderHistory: Order[] = [];
   isInitialized = false;
+  recentOrderId: string | null = null;
 
   activeTransitions = new Map<string, CartActionType>();
   globalAction: GlobalActionType = null;
 
   #globalTimer: ReturnType<typeof setTimeout> | null = null;
   readonly #cartItemsTimers = new Map<string, ReturnType<typeof setTimeout>>();
+  #recentOrderTimer: ReturnType<typeof setTimeout> | null = null;
   #storageWriteQueue: Promise<void> = Promise.resolve();
+  #initializationPromise: Promise<void> | null = null;
+  #undoGeneration = 0;
 
   constructor() {
-    makeAutoObservable(this);
+    makeAutoObservable(this, {}, { autoBind: true });
 
     autorun(() => {
       if (!this.isInitialized) return;
@@ -54,6 +59,8 @@ class CartM {
     ms = 400,
   ) {
     if (this.#globalTimer) clearTimeout(this.#globalTimer);
+
+    this.#undoGeneration += 1;
 
     this.globalAction = action;
 
@@ -90,7 +97,14 @@ class CartM {
     this.#cartItemsTimers.set(productId, timer);
   }
 
-  initStore = async () => {
+  initStore = () => {
+    if (this.#initializationPromise) return this.#initializationPromise;
+
+    this.#initializationPromise = this.loadStore();
+    return this.#initializationPromise;
+  };
+
+  private loadStore = async () => {
     try {
       const [{ value: cart }, { value: orders }] = await Promise.all([
         storage.get(CART_STORAGE_KEY),
@@ -98,8 +112,8 @@ class CartM {
       ]);
 
       runInAction(() => {
-        this.items = parseSafe<CartItem[]>(cart, []);
-        this.orderHistory = parseSafe<Order[]>(orders, []);
+        this.items = parseCartItems(parseSafe<unknown>(cart, []));
+        this.orderHistory = parseOrders(parseSafe<unknown>(orders, []));
         this.isInitialized = true;
       });
     } catch (e) {
@@ -112,14 +126,19 @@ class CartM {
     return this.items.find((i) => i.product.id === productId);
   };
 
-  getItemStatus = (productId: string) => {
+  getItemState = (productId: string) => {
     const action = this.activeTransitions.get(productId);
+    const isBusy = action !== undefined || this.globalAction !== null;
+
     return {
       isAddLoading: action === "add",
       isIncLoading: action === "inc",
       isDecLoading: action === "dec",
       isRemoveLoading: action === "remove",
       isCountChanged: action === "inc" || action === "dec",
+      isUpdating: isBusy,
+      canChangeQuantity: this.isInitialized && !isBusy,
+      canRemove: this.isInitialized && !isBusy,
     };
   };
 
@@ -127,16 +146,25 @@ class CartM {
     return this.activeTransitions.size > 0 || this.globalAction !== null;
   }
 
-  get isCartClearing() {
-    if (this.globalAction === "checkout" || this.globalAction === "clear") {
-      return true;
-    }
+  get isClearing() {
+    return this.globalAction === "clear";
+  }
+
+  get isCheckingOut() {
+    return this.globalAction === "checkout";
+  }
+
+  get isRemovingAll() {
     return (
       this.items.length > 0 &&
       this.items.every(
         (i) => this.activeTransitions.get(i.product.id) === "remove",
       )
     );
+  }
+
+  get isCartTransitioningToEmpty() {
+    return this.isClearing || this.isCheckingOut || this.isRemovingAll;
   }
 
   get totalItems() {
@@ -158,7 +186,13 @@ class CartM {
     return this.items.length === 0;
   }
 
+  get canAdd() {
+    return this.isInitialized && this.globalAction === null;
+  }
+
   addToCart = (product: Product) => {
+    if (!this.canAdd) return;
+
     const existingItem = this.getCartItem(product.id);
 
     if (existingItem) {
@@ -177,8 +211,19 @@ class CartM {
     });
   };
 
-  private returnItemToCart(productId: string, item: CartItem) {
-    if (this.getCartItem(productId)) return;
+  private returnItemToCart(
+    productId: string,
+    item: CartItem,
+    undoGeneration: number,
+  ) {
+    if (
+      !this.isInitialized ||
+      this.globalAction !== null ||
+      undoGeneration !== this.#undoGeneration ||
+      this.getCartItem(productId)
+    ) {
+      return;
+    }
 
     this.updateItemWithTransition(
       productId,
@@ -189,8 +234,12 @@ class CartM {
   }
 
   removeFromCart = (productId: string) => {
+    if (!this.isInitialized || this.globalAction !== null) return;
+
     const item = this.getCartItem(productId);
     if (!item) return;
+
+    const undoGeneration = this.#undoGeneration;
 
     this.updateItemWithTransition(productId, "remove", {
       onEnd: () => {
@@ -201,13 +250,15 @@ class CartM {
           type: "success",
           description: item.product.name,
           buttonLabel: "Вернуть",
-          action: () => this.returnItemToCart(productId, item),
+          action: () => this.returnItemToCart(productId, item, undoGeneration),
         });
       },
     });
   };
 
   setQuantity = (productId: string, quantity: number) => {
+    if (!this.isInitialized || this.globalAction !== null) return;
+
     if (quantity < 1) {
       this.removeFromCart(productId);
       return;
@@ -223,7 +274,7 @@ class CartM {
   };
 
   clearCart = () => {
-    if (this.isEmpty) return;
+    if (!this.isInitialized || this.isEmpty) return;
 
     this.runGlobalTransition("clear", () => {
       this.items = [];
@@ -232,7 +283,10 @@ class CartM {
   };
 
   checkout = () => {
-    if (this.isEmpty) return;
+    if (!this.isInitialized || this.isEmpty) return;
+
+    const orderItems = toJS(this.items);
+    const orderTotalPrice = this.totalPrice;
 
     this.runGlobalTransition(
       "checkout",
@@ -242,24 +296,25 @@ class CartM {
         this.orderHistory.unshift({
           id: orderId,
           date: new Date().toISOString(),
-          items: toJS(this.items),
-          totalPrice: this.totalPrice,
+          items: orderItems,
+          totalPrice: orderTotalPrice,
         });
 
         this.items = [];
 
-        this.updateItemWithTransition(
-          orderId,
-          "add",
-          {
-            onStart: () =>
-              customToastTemplate({
-                title: "Заказ успешно оформлен",
-                type: "success",
-              }),
-          },
-          600,
-        );
+        this.recentOrderId = orderId;
+        if (this.#recentOrderTimer) clearTimeout(this.#recentOrderTimer);
+        this.#recentOrderTimer = setTimeout(() => {
+          runInAction(() => {
+            this.recentOrderId = null;
+            this.#recentOrderTimer = null;
+          });
+        }, 600);
+
+        customToastTemplate({
+          title: "Заказ успешно оформлен",
+          type: "success",
+        });
       },
       400,
     );

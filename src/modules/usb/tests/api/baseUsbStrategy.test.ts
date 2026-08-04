@@ -15,6 +15,7 @@ const CONNECTION_RESULT: IUsbConnectionResult = {
     vendorId: 10073,
     productId: 3,
   },
+  batteryAvailable: false,
   batteryLevel: null,
 };
 

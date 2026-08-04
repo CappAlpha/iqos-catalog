@@ -22,10 +22,11 @@ import type {
 
 type UsbStatus = "disconnected" | "connecting" | "connected" | "disconnecting";
 
-class UsbM {
+export class UsbM {
   device: IUsbDeviceInfo | null = null;
   status: UsbStatus = "disconnected";
   error: string | null = null;
+  batteryAvailable = false;
   batteryLevel: number | null = null;
   isRefreshingBattery = false;
   readonly deviceConfig: IUsbDeviceConfig = {
@@ -66,11 +67,13 @@ class UsbM {
 
   private readonly setConnected = ({
     device,
+    batteryAvailable,
     batteryLevel,
   }: IUsbConnectionResult) => {
     this.status = "connected";
     this.error = null;
     this.device = device;
+    this.batteryAvailable = batteryAvailable;
     this.batteryLevel = batteryLevel;
   };
 
@@ -78,6 +81,7 @@ class UsbM {
     this.device = null;
     this.status = "disconnected";
     this.error = error;
+    this.batteryAvailable = false;
     this.batteryLevel = null;
   };
 
@@ -101,6 +105,7 @@ class UsbM {
     runInAction(() => {
       this.status = "connecting";
       this.error = null;
+      this.batteryAvailable = false;
       this.batteryLevel = null;
     });
 
@@ -194,19 +199,24 @@ class UsbM {
   };
 
   refreshBattery = async () => {
-    if (!this.isConnected || this.isRefreshingBattery) return;
+    if (!this.isConnected || !this.batteryAvailable || this.isRefreshingBattery)
+      return;
 
+    const connectionId = this.#currentConnectionId;
     this.isRefreshingBattery = true;
     try {
       const battery = await this.#strategy?.getBatteryLevel();
 
-      if (!this.isConnected) return;
+      if (!this.isConnected || connectionId !== this.#currentConnectionId)
+        return;
 
       runInAction(() => {
+        if (battery == null) this.batteryAvailable = false;
         this.batteryLevel = battery ?? null;
       });
     } catch (err) {
-      if (!this.isConnected) return;
+      if (!this.isConnected || connectionId !== this.#currentConnectionId)
+        return;
 
       runInAction(() => {
         this.error = getErrorMessage(err, "Не удалось обновить заряд батареи.");

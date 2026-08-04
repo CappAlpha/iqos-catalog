@@ -28,7 +28,7 @@ import type {
 type BluetoothStatus =
   "disconnected" | "connecting" | "connected" | "disconnecting";
 
-class BluetoothM {
+export class BluetoothM {
   device: IBluetoothDevice | null = null;
   status: BluetoothStatus = "disconnected";
   error: string | null = null;

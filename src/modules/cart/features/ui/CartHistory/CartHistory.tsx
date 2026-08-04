@@ -6,7 +6,7 @@ import { HistoryCard } from "../HistoryCard";
 import s from "./CartHistory.module.scss";
 
 export const CartHistory = observer(() => {
-  const { orderHistory } = cartM;
+  const { orderHistory, recentOrderId } = cartM;
 
   if (orderHistory.length === 0) return null;
 
@@ -15,7 +15,11 @@ export const CartHistory = observer(() => {
       <h2 className={s.title}>История заказов</h2>
       <div className={s.list}>
         {orderHistory.map((order) => (
-          <HistoryCard key={order.id} order={order} />
+          <HistoryCard
+            key={order.id}
+            order={order}
+            isNew={recentOrderId === order.id}
+          />
         ))}
       </div>
     </div>
