@@ -28,7 +28,7 @@ const CatalogPage = observer(() => {
   };
 
   return (
-    <div className={s.root} ref={topRef}>
+    <main className={s.root} ref={topRef}>
       <CatalogHeader />
 
       <div className={cn(s.wrap, error && s.wrapError)}>
@@ -50,7 +50,7 @@ const CatalogPage = observer(() => {
           onChange={onPageChange}
         />
       )}
-    </div>
+    </main>
   );
 });
 

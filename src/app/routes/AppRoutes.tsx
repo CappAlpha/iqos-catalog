@@ -1,45 +1,59 @@
-import NProgress from "nprogress";
-import "nprogress/nprogress.css";
-import { lazy, useEffect, useState } from "react";
-import { Route, Routes, useLocation } from "react-router";
+import { createBrowserRouter, RouterProvider } from "react-router";
 
-NProgress.configure({
-  showSpinner: false,
-  speed: 350,
-  trickleSpeed: 170,
-  minimum: 0.05,
-});
+import { NotFoundPage } from "@/modules/not-found/pages/ui/NotFoundPage";
+import { IS_CAPACITOR } from "@/shared/config/platform";
+import { Header } from "@/shared/ui/Header";
+import { PageLoader } from "@/shared/ui/PageLoader";
 
-const CatalogPage = lazy(() => import("@/modules/catalog/pages/ui/catalog"));
-const CartPage = lazy(() => import("@/modules/cart/pages/ui/cart"));
-const BluetoothPage = lazy(
-  () => import("@/modules/bluetooth/pages/ui/bluetooth"),
+import { AppLayout } from "../layout/AppLayout";
+
+const ROUTER_BASENAME = IS_CAPACITOR ? "/" : "/iqos-catalog/";
+
+const router = createBrowserRouter(
+  [
+    {
+      element: <AppLayout />,
+      hydrateFallbackElement: (
+        <>
+          <Header />
+          <PageLoader />
+        </>
+      ),
+      children: [
+        {
+          path: "/",
+          lazy: async () => ({
+            Component: (await import("@/modules/catalog/pages/ui/catalog"))
+              .default,
+          }),
+        },
+        {
+          path: "/cart",
+          lazy: async () => ({
+            Component: (await import("@/modules/cart/pages/ui/cart")).default,
+          }),
+        },
+        {
+          path: "/bluetooth",
+          lazy: async () => ({
+            Component: (await import("@/modules/bluetooth/pages/ui/bluetooth"))
+              .default,
+          }),
+        },
+        {
+          path: "/usb",
+          lazy: async () => ({
+            Component: (await import("@/modules/usb/pages/ui/usb")).default,
+          }),
+        },
+        {
+          path: "*",
+          element: <NotFoundPage />,
+        },
+      ],
+    },
+  ],
+  { basename: ROUTER_BASENAME },
 );
-const UsbPage = lazy(() => import("@/modules/usb/pages/ui/usb"));
 
-export const AppRoutes = () => {
-  const location = useLocation();
-  const [prevPathname, setPrevPathname] = useState(location.pathname);
-
-  if (location.pathname !== prevPathname) {
-    NProgress.start();
-    setPrevPathname(location.pathname);
-  }
-
-  useEffect(() => {
-    NProgress.done();
-
-    return () => {
-      NProgress.done();
-    };
-  }, [location.pathname]);
-
-  return (
-    <Routes>
-      <Route path="/" element={<CatalogPage />} />
-      <Route path="/cart" element={<CartPage />} />
-      <Route path="/bluetooth" element={<BluetoothPage />} />
-      <Route path="/usb" element={<UsbPage />} />
-    </Routes>
-  );
-};
+export const AppRoutes = () => <RouterProvider router={router} />;

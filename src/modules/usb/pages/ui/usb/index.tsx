@@ -19,7 +19,7 @@ const UsbPage = () => {
   if (IS_IOS) return null;
 
   return (
-    <div className={s.root}>
+    <main className={s.root}>
       <div className={s.header}>
         <h1 className={s.title}>USB подключение</h1>
         <p className={s.description}>Подключение IQOS DUO через USB</p>
@@ -29,7 +29,7 @@ const UsbPage = () => {
         <UsbConnect />
         <UsbInfo />
       </div>
-    </div>
+    </main>
   );
 };
 

@@ -17,7 +17,7 @@
 
 .container {
   @include wrap;
-  height: 70px;
+  height: var(--header-height);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -28,7 +28,7 @@
   }
 
   @include breakpoint(mobile-s) {
-    height: 50px;
+    height: var(--header-height-mobile);
   }
 }
 

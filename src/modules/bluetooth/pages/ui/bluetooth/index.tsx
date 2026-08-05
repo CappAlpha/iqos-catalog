@@ -5,7 +5,7 @@ import s from "./BluetoothPage.module.scss";
 
 const BluetoothPage = () => {
   return (
-    <div className={s.root}>
+    <main className={s.root}>
       <div className={s.header}>
         <h1 className={s.title}>Bluetooth подключение</h1>
         <p className={s.description}>Подключение IQOS DUO через Bluetooth</p>
@@ -15,7 +15,7 @@ const BluetoothPage = () => {
         <BluetoothConnect />
         <BluetoothInfo />
       </div>
-    </div>
+    </main>
   );
 };
 

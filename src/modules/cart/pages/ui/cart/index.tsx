@@ -6,11 +6,11 @@ import s from "./CartPage.module.scss";
 
 const CartPage = () => {
   return (
-    <div className={s.root}>
+    <main className={s.root}>
       <CartHeader />
       <CartBlock />
       <CartHistory />
-    </div>
+    </main>
   );
 };
 
