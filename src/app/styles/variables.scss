@@ -1,4 +1,19 @@
 :root {
   --header-height: 70px;
   --header-height-mobile: 50px;
+
+  --vh: 1vh;
+  --vw: 1vw;
+}
+
+@supports (height: 1dvh) {
+  :root {
+    --vh: 1dvh;
+  }
+}
+
+@supports (width: 1dvw) {
+  :root {
+    --vw: 1dvw;
+  }
 }

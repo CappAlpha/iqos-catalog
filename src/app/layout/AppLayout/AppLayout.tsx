@@ -10,7 +10,7 @@ export const AppLayout = () => {
 
   return (
     <>
-      <PageProgressBar />
+      <PageProgressBar state={state} />
       <Header />
       {isNavigating ? <PageLoader /> : <Outlet />}
     </>

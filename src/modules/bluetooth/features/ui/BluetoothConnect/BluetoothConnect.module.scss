@@ -50,7 +50,7 @@
 }
 
 .error {
-  max-width: 60dvw;
+  max-width: calc(60 * var(--vw));
   padding-right: 2rem;
 
   @include breakpoint(tablet) {

@@ -1,5 +1,6 @@
 import { createBrowserRouter, RouterProvider } from "react-router";
 
+import { ErrorPage } from "@/modules/error/pages/ui/ErrorPage";
 import { NotFoundPage } from "@/modules/not-found/pages/ui/NotFoundPage";
 import { IS_CAPACITOR } from "@/shared/config/platform";
 import { Header } from "@/shared/ui/Header";
@@ -13,6 +14,7 @@ const router = createBrowserRouter(
   [
     {
       element: <AppLayout />,
+      errorElement: <ErrorPage />,
       hydrateFallbackElement: (
         <>
           <Header />

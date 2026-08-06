@@ -8,11 +8,9 @@
 }
 
 .modal {
-  width: 60dvw;
+  width: calc(60 * var(--vw));
   max-width: 1400px;
-  max-height: 90vh;
-  max-height: calc(var(--vh, 1vh) * 90);
-  max-height: 90dvh;
+  max-height: calc(90 * var(--vh));
   position: relative;
   overflow-y: auto;
   background: var(--white);
@@ -22,7 +20,7 @@
   @include scrollbar(3px, 3px);
 
   @include breakpoint(desktop-s) {
-    width: 85dvw;
+    width: calc(85 * var(--vw));
   }
 }
 
@@ -48,7 +46,7 @@
   display: flex;
   align-items: baseline;
   gap: 6px;
-  margin-left: 8dvw;
+  margin-left: calc(8 * var(--vw));
 
   @include breakpoint(mobile-m) {
     margin-left: 0;
@@ -112,9 +110,7 @@
   @include breakpoint(mobile-m) {
     img,
     .imgSkeleton {
-      max-height: 20vh;
-      max-height: calc(var(--vh, 1vh) * 20);
-      max-height: 20dvh;
+      max-height: calc(20 * var(--vh));
     }
   }
 }
@@ -196,7 +192,7 @@
 @keyframes slideUp {
   from {
     opacity: 0;
-    transform: translateY(5dvw);
+    transform: translateY(calc(5 * var(--vw)));
   }
 
   to {

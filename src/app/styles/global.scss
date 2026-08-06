@@ -1,3 +1,7 @@
+@use "./reset";
+@use "./colors";
+@use "./variables";
+
 @font-face {
   font-family: "IQOS";
   src: url("../../assets/fonts/IQOS-Regular.woff2") format("woff2");
@@ -25,9 +29,7 @@ body {
   font-weight: 400;
   font-size: 14px;
   user-select: text;
-  min-height: 100vh;
-  min-height: calc(var(--vh, 1vh) * 100);
-  min-height: 100dvh;
+  min-height: calc(100 * var(--vh));
   min-width: 320px;
   scroll-padding-top: 100px;
   -webkit-font-smoothing: antialiased;

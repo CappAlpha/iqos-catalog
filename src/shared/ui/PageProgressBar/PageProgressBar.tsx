@@ -1,7 +1,7 @@
 import NProgress from "nprogress";
 import "nprogress/nprogress.css";
 import { useEffect } from "react";
-import { useNavigation } from "react-router";
+import type { Navigation } from "react-router";
 
 NProgress.configure({
   showSpinner: false,
@@ -10,9 +10,7 @@ NProgress.configure({
   minimum: 0.05,
 });
 
-export const PageProgressBar = () => {
-  const { state } = useNavigation();
-
+export const PageProgressBar = ({ state }: Pick<Navigation, "state">) => {
   useEffect(() => {
     if (state === "loading" || state === "submitting") {
       NProgress.start();

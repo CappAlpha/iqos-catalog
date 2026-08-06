@@ -1,10 +1,7 @@
 import { Suspense, useEffect } from "react";
 import { Toaster } from "sonner";
 
-import "@/app/styles/_reset.scss";
-import "@/app/styles/colors.scss";
 import "@/app/styles/global.scss";
-import "@/app/styles/variables.scss";
 import { cartM } from "@/modules/cart/features/model/cartM";
 import { useVH } from "@/shared/hooks/useVh";
 import { LazyApkUpdaterToast } from "@/shared/ui/ApkUpdaterToast";

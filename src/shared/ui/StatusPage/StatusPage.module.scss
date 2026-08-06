@@ -2,15 +2,14 @@
   @include wrapPage;
   position: relative;
   isolation: isolate;
-  min-height: calc(100dvh - var(--header-height));
+  min-height: calc(100 * var(--vh) - var(--header-height));
   display: grid;
   place-items: center;
 
   &::before {
     position: absolute;
     z-index: -1;
-    inset: 0 calc((100vw - 100%) / -2);
-    inset: 0 calc((100dvw - 100%) / -2);
+    inset: 0 calc((100 * var(--vw) - 100%) / -2);
     content: "";
     background:
       radial-gradient(
@@ -26,7 +25,7 @@
   }
 
   @include breakpoint(mobile-m) {
-    min-height: calc(100dvh - var(--header-height-mobile));
+    min-height: calc(100 * var(--vh) - var(--header-height-mobile));
     padding-bottom: 90px;
   }
 }
@@ -79,13 +78,19 @@
 .title {
   margin-bottom: 12px;
   color: var(--dark-gray);
-  font-size: clamp(84px, 14vw, 168px);
   line-height: 0.8;
   letter-spacing: -0.08em;
 }
 
+.error .title {
+  font-size: clamp(72px, calc(12 * var(--vw)), 144px);
+}
+
+.not-found .title {
+  font-size: clamp(84px, calc(14 * var(--vw)), 168px);
+}
+
 .description {
-  max-width: 360px;
   margin-bottom: 28px;
   color: var(--gray);
   font-size: 18px;
@@ -96,26 +101,46 @@
   }
 }
 
-.link {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 48px;
-  padding: 0 22px;
-  border-radius: 12px;
-  background: var(--dark-gray);
-  color: var(--white);
-  font-family: "IQOS Bold", sans-serif;
-  font-size: 16px;
-  transition:
-    background-color 0.25s ease,
-    color 0.25s ease,
-    transform 0.25s ease;
+.error .description {
+  max-width: 380px;
+}
 
-  @include hoverDevice {
-    background: var(--accent-color);
-    color: var(--dark-gray);
-    transform: translateY(-2px);
+.not-found .description {
+  max-width: 360px;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  .not-found & {
+    a {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 48px;
+      padding: 0 22px;
+      border-radius: 12px;
+      background: var(--dark-gray);
+      color: var(--white);
+      font-family: "IQOS Bold", sans-serif;
+      font-size: 16px;
+      transition:
+        background-color 0.25s ease,
+        color 0.25s ease,
+        transform 0.25s ease;
+
+      @include hoverDevice {
+        background: var(--accent-color);
+        color: var(--dark-gray);
+        transform: translateY(-2px);
+      }
+    }
+  }
+
+  @include breakpoint(mobile-m) {
+    flex-direction: column;
   }
 }
 
@@ -130,7 +155,7 @@
   &::before {
     position: absolute;
     z-index: -1;
-    width: min(34vw, 360px);
+    width: min(calc(34 * var(--vw)), 360px);
     aspect-ratio: 1;
     content: "";
     border-radius: 50%;
@@ -163,8 +188,7 @@
     min-height: 220px;
 
     &::before {
-      width: min(72vw, 300px);
-      width: min(72dvw, 300px);
+      width: min(calc(72 * var(--vw)), 300px);
     }
   }
 }
