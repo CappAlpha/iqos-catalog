@@ -14,7 +14,7 @@ interface ProductImageProps {
   onFallbackChange?: (isFallback: boolean) => void;
 }
 
-export const ProductPlaceholder = ({
+const ProductPlaceholder = ({
   type,
   variantLabel,
   className,
