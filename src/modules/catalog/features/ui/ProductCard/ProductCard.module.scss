@@ -22,6 +22,11 @@
   pointer-events: none;
 }
 
+.imgWrap {
+  position: relative;
+  overflow-anchor: none;
+}
+
 .imgWrap,
 .imgWrapSkeleton {
   overflow: hidden;
@@ -35,15 +40,29 @@
 }
 
 .placeholder {
-  min-height: 270px;
-  align-content: center;
-  text-align: center;
-  font-size: 14px;
-  color: var(--additional-red);
+  width: 100%;
+  height: 100%;
+  padding: 35px;
+  color: var(--gray);
 
   @include breakpoint(mobile-m) {
-    min-height: 200px;
+    padding: 25px;
   }
+}
+
+.imageDisclaimer {
+  position: absolute;
+  right: 12px;
+  bottom: 10px;
+  left: 12px;
+  margin: 0;
+  padding: 4px 7px;
+  border-radius: 5px;
+  backdrop-filter: blur(10px);
+  color: var(--gray);
+  font-size: 11px;
+  line-height: 1.2;
+  text-align: center;
 }
 
 .img {
@@ -131,6 +150,8 @@
 }
 
 .imgWrapSkeleton {
+  position: absolute;
+  inset: 0;
   z-index: 10;
 }
 

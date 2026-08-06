@@ -97,22 +97,49 @@
 
 .imageBlock {
   position: relative;
-  flex: 1;
+  display: flex;
+  flex: 1 1 0;
+  flex-direction: column;
+  justify-content: center;
+  height: clamp(280px, 32vw, 420px);
+  min-height: 280px;
   align-self: center;
 
   img,
+  svg,
   .imgSkeleton {
     width: 100%;
+    height: 100%;
     border-radius: 12px;
     object-fit: contain;
   }
 
   @include breakpoint(mobile-m) {
+    height: min(320px, calc(35 * var(--vh)));
+    min-height: auto;
+
     img,
+    svg,
     .imgSkeleton {
-      max-height: calc(20 * var(--vh));
+      height: min(320px, calc(35 * var(--vh)));
     }
   }
+}
+
+.placeholder {
+  display: block;
+  width: 100%;
+  flex: 1;
+  color: var(--gray);
+}
+
+.imageDisclaimer {
+  flex: 0 0 auto;
+  margin: 8px 0 0;
+  text-align: center;
+  font-size: 12px;
+  line-height: 1.35;
+  color: var(--gray);
 }
 
 .infoBlock {

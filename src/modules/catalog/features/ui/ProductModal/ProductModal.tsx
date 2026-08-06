@@ -1,5 +1,5 @@
 import cn from "classnames";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 
 import { useMobileM } from "@/shared/hooks/useBreakpoint";
 import { useOnButtonDown } from "@/shared/hooks/useOnButtonDown";
@@ -10,6 +10,7 @@ import { Button } from "@/shared/ui/Button";
 
 import type { ProductGroup } from "../../model/types";
 import { AddCartButton } from "../AddCartButton";
+import { ProductImage } from "../ProductImage/ProductImage";
 import { ProductVariants } from "../ProductVariants";
 
 import s from "./ProductModal.module.scss";
@@ -34,6 +35,8 @@ export const ProductModal = ({
     selectedProduct;
 
   const wrapRef = useRef<HTMLDivElement>(null);
+  const [failedImageUrl, setFailedImageUrl] = useState<string | null>(null);
+  const isImageFallback = !pictureUrl || failedImageUrl === pictureUrl;
 
   useScrollBlock(true);
   useOutsideClick(onClose, wrapRef);
@@ -56,18 +59,22 @@ export const ProductModal = ({
         <div className={s.content}>
           <div className={s.imageBlock}>
             {isPending && <div className={s.imgSkeleton} />}
-            {pictureUrl ? (
-              <img
-                key={pictureUrl}
-                className={s.img}
-                src={pictureUrl}
-                alt={name}
-                loading="eager"
-              />
-            ) : (
-              <div className={s.placeholder} aria-hidden="true">
-                Нет фото
-              </div>
+            <ProductImage
+              key={`${pictureUrl ?? "placeholder"}-${selectedProduct.variantLabel}`}
+              src={pictureUrl}
+              alt={name}
+              type={productGroup.type}
+              variantLabel={selectedProduct.variantLabel}
+              className={s.img}
+              placeholderClassName={s.placeholder}
+              loading="eager"
+              onFallbackChange={() => setFailedImageUrl(pictureUrl)}
+            />
+            {isImageFallback && (
+              <p className={s.imageDisclaimer}>
+                Изображение не загрузилось. Показан примерный внешний вид
+                товара.
+              </p>
             )}
           </div>
 

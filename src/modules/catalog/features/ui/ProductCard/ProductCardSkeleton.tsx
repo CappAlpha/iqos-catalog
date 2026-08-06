@@ -3,7 +3,9 @@ import s from "./ProductCard.module.scss";
 export const ProductCardSkeleton = () => {
   return (
     <div className={s.root}>
-      <div className={s.imgWrapSkeleton} />
+      <div className={s.imgWrap}>
+        <div className={s.imgWrapSkeleton} />
+      </div>
 
       <div className={s.textWrap}>
         <div className={s.titleSkeleton} />

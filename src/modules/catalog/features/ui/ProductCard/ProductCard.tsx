@@ -7,6 +7,7 @@ import { formatPrice } from "@/shared/lib/formatPrice";
 import { useVariantTransition } from "../../lib/useVariantTransition";
 import type { ProductGroup } from "../../model/types";
 import { AddCartButton } from "../AddCartButton";
+import { ProductImage } from "../ProductImage/ProductImage";
 import { ProductModal } from "../ProductModal";
 import { ProductVariants } from "../ProductVariants";
 
@@ -24,9 +25,11 @@ export const ProductCard = observer(
     const { selectedIdx, isPending, handleSelect } =
       useVariantTransition(variants);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [failedImageUrl, setFailedImageUrl] = useState<string | null>(null);
 
     const selectedProduct = variants[selectedIdx];
     const { price, pictureUrl, categoryTitle } = selectedProduct;
+    const isImageFallback = !pictureUrl || failedImageUrl === pictureUrl;
 
     const onClose = (e?: MouseEvent | KeyboardEvent) => {
       if ((e?.target as Element)?.closest(".toast-root")) {
@@ -40,18 +43,22 @@ export const ProductCard = observer(
         <div className={s.root} onClick={() => setIsModalOpen(true)}>
           <div className={s.imgWrap}>
             {isPending && <div className={s.imgWrapSkeleton} />}
-            {pictureUrl ? (
-              <img
-                key={pictureUrl}
-                className={s.img}
-                src={pictureUrl}
-                alt={baseName}
-                loading={loading}
-              />
-            ) : (
-              <div className={s.placeholder} aria-hidden="true">
-                Нет фото
-              </div>
+            <ProductImage
+              key={`${pictureUrl ?? "placeholder"}-${selectedProduct.variantLabel}`}
+              src={pictureUrl}
+              alt={baseName}
+              type={type}
+              variantLabel={selectedProduct.variantLabel}
+              className={s.img}
+              placeholderClassName={s.placeholder}
+              loading={loading}
+              onFallbackChange={() => setFailedImageUrl(pictureUrl)}
+            />
+            {isImageFallback && (
+              <p className={s.imageDisclaimer}>
+                Изображение не загрузилось <br />
+                Отображается пример товара
+              </p>
             )}
           </div>
 

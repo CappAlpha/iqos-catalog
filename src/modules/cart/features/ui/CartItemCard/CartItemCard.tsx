@@ -1,9 +1,11 @@
 import cn from "classnames";
 import { observer } from "mobx-react-lite";
+import { useState } from "react";
 
 import { formatPrice } from "@/shared/lib/formatPrice";
 import { Button } from "@/shared/ui/Button";
 import { CounterBtns } from "@/shared/ui/CounterBtns";
+import { ImagePlaceholder } from "@/shared/ui/ImagePlaceholder";
 
 import { cartM } from "../../model/cartM";
 import type { CartItem } from "../../model/types";
@@ -15,12 +17,15 @@ interface Props {
 }
 
 export const CartItemCard = observer(({ item }: Props) => {
+  const [failedImageUrl, setFailedImageUrl] = useState<string | null>(null);
   const {
     product: { pictureUrl, name, categoryTitle, id, price },
     quantity,
   } = item;
 
   const { removeFromCart, setQuantity, getItemState } = cartM;
+
+  const hasImageError = pictureUrl !== null && failedImageUrl === pictureUrl;
 
   const {
     isIncLoading,
@@ -41,10 +46,16 @@ export const CartItemCard = observer(({ item }: Props) => {
       )}
     >
       <div className={s.imgWrap}>
-        {pictureUrl ? (
-          <img className={s.img} src={pictureUrl} alt={name} loading="lazy" />
+        {pictureUrl && !hasImageError ? (
+          <img
+            className={s.img}
+            src={pictureUrl}
+            alt={name}
+            loading="lazy"
+            onError={() => setFailedImageUrl(pictureUrl)}
+          />
         ) : (
-          <div className={s.placeholder}>Нет фото</div>
+          <ImagePlaceholder className={s.placeholder} />
         )}
       </div>
 
