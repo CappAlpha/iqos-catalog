@@ -1,7 +1,10 @@
+import cn from "classnames";
 import { useState } from "react";
 
 import { getColorHex } from "../../lib/getColorHex";
 import type { ProductGroup } from "../../model/types";
+
+import s from "./ProductImage.module.scss";
 
 interface ProductImageProps {
   src: string | null;
@@ -11,7 +14,8 @@ interface ProductImageProps {
   className: string;
   placeholderClassName: string;
   loading?: "eager" | "lazy";
-  onFallbackChange?: (isFallback: boolean) => void;
+  isFallback: boolean;
+  onError: () => void;
 }
 
 const ProductPlaceholder = ({
@@ -149,11 +153,13 @@ export const ProductImage = ({
   className,
   placeholderClassName,
   loading,
-  onFallbackChange,
+  isFallback,
+  onError,
 }: ProductImageProps) => {
-  const [hasError, setHasError] = useState(false);
+  const [loadedImageUrl, setLoadedImageUrl] = useState<string | null>(null);
+  const isLoaded = loadedImageUrl === src;
 
-  if (!src || hasError) {
+  if (!src || isFallback) {
     return (
       <ProductPlaceholder
         type={type}
@@ -163,16 +169,21 @@ export const ProductImage = ({
     );
   }
 
+  const handleLoad = () => {
+    window.setTimeout(() => setLoadedImageUrl(src), 400);
+  };
+
   return (
-    <img
-      className={className}
-      src={src}
-      alt={alt}
-      loading={loading}
-      onError={() => {
-        setHasError(true);
-        onFallbackChange?.(true);
-      }}
-    />
+    <>
+      {!isLoaded && <div className={cn(className, s.skeleton)} />}
+      <img
+        className={cn(className, s.image, isLoaded && s.imageLoaded)}
+        src={src}
+        alt={alt}
+        loading={loading}
+        onLoad={handleLoad}
+        onError={onError}
+      />
+    </>
   );
 };

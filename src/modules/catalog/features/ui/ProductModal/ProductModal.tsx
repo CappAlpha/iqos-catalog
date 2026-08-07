@@ -60,7 +60,6 @@ export const ProductModal = ({
           <div className={s.imageBlock}>
             {isPending && <div className={s.imgSkeleton} />}
             <ProductImage
-              key={`${pictureUrl ?? "placeholder"}-${selectedProduct.variantLabel}`}
               src={pictureUrl}
               alt={name}
               type={productGroup.type}
@@ -68,7 +67,8 @@ export const ProductModal = ({
               className={s.img}
               placeholderClassName={s.placeholder}
               loading="eager"
-              onFallbackChange={() => setFailedImageUrl(pictureUrl)}
+              isFallback={isImageFallback}
+              onError={() => setFailedImageUrl(pictureUrl)}
             />
             {isImageFallback && (
               <p className={s.imageDisclaimer}>

@@ -44,7 +44,6 @@ export const ProductCard = observer(
           <div className={s.imgWrap}>
             {isPending && <div className={s.imgWrapSkeleton} />}
             <ProductImage
-              key={`${pictureUrl ?? "placeholder"}-${selectedProduct.variantLabel}`}
               src={pictureUrl}
               alt={baseName}
               type={type}
@@ -52,7 +51,8 @@ export const ProductCard = observer(
               className={s.img}
               placeholderClassName={s.placeholder}
               loading={loading}
-              onFallbackChange={() => setFailedImageUrl(pictureUrl)}
+              isFallback={isImageFallback}
+              onError={() => setFailedImageUrl(pictureUrl)}
             />
             {isImageFallback && (
               <p className={s.imageDisclaimer}>

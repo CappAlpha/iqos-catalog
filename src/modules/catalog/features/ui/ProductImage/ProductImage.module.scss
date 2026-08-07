@@ -1,0 +1,16 @@
+.skeleton {
+  @include skeleton;
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+}
+
+.image {
+  position: relative;
+  opacity: 0;
+  transition: opacity 0.25s ease-in-out;
+}
+
+.imageLoaded {
+  opacity: 1;
+}
