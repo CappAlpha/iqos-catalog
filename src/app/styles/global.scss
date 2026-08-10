@@ -29,8 +29,7 @@ body {
   font-weight: 400;
   font-size: 14px;
   user-select: text;
-  min-height: calc(100 * var(--vh));
-  min-width: 320px;
+  min-block-size: calc(100 * var(--vh));
   scroll-padding-top: 100px;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;

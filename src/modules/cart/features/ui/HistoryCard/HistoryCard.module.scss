@@ -68,8 +68,8 @@
   min-height: 0;
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  border-top: solid 1px transparent;
+  gap: 8px;
+  border-top: dashed 1px transparent;
   padding-top: 10px;
   opacity: 0;
   transition: all 0.4s ease-in-out;
@@ -77,13 +77,21 @@
 
 .itemsWrapperOpen .items {
   opacity: 1;
-  border-top: solid 1px var(--gray-border);
+  border-top: dashed 1px var(--gray-border);
 }
 
 .item {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 5px;
   font-size: 14px;
+}
+
+.line {
+  background-color: var(--gray-border);
+  opacity: 0.8;
+  height: 1px;
+  align-self: center;
 }
 
 .detailsBtn {

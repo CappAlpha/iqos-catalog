@@ -27,6 +27,7 @@
 
   @include breakpoint(mobile-s) {
     width: 100%;
+    height: clamp(140px, calc(42 * var(--vw)), 220px);
   }
 }
 
@@ -82,6 +83,8 @@
   @include breakpoint(mobile-m) {
     width: 100%;
     justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
   }
 }
 
@@ -93,12 +96,28 @@
 }
 
 .deleteBtn {
-  font-size: 32px;
+  line-height: 1;
   padding: 4px;
   user-select: none;
 
+  svg {
+    width: 32px;
+    min-width: 32px;
+    height: 32px;
+  }
+
   @include breakpoint(mobile-s) {
-    @include absolute(10px, 10px);
+    @include absolute(-12px, -6px);
+    border-radius: 40%;
+    background-color: var(--light-bg-gray);
+    backdrop-filter: blur(10px);
+    outline: 1px solid var(--gray);
+
+    svg {
+      width: 24px;
+      min-width: 24px;
+      height: 24px;
+    }
   }
 
   @include hoverDevice {

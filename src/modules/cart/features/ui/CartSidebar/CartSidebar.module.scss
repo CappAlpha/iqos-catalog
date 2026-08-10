@@ -1,11 +1,7 @@
 .sidebar {
-  width: 350px;
+  width: clamp(300px, calc(31.25 * var(--vw) - 100px), 350px);
   position: sticky;
   top: 90px;
-
-  @include breakpoint(desktop-s) {
-    width: 300px;
-  }
 
   @include breakpoint(tablet) {
     width: 100%;

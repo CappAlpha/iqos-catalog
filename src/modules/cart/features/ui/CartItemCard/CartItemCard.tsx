@@ -2,6 +2,7 @@ import cn from "classnames";
 import { observer } from "mobx-react-lite";
 import { useState } from "react";
 
+import { TrashIcon } from "@/assets/icons";
 import { formatPrice } from "@/shared/lib/formatPrice";
 import { Button } from "@/shared/ui/Button";
 import { CounterBtns } from "@/shared/ui/CounterBtns";
@@ -93,7 +94,7 @@ export const CartItemCard = observer(({ item }: Props) => {
             loading={isRemoveLoading}
             disabled={!canRemove}
           >
-            &#10005;
+            <TrashIcon />
           </Button>
         </div>
       </div>

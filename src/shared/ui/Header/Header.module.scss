@@ -57,6 +57,9 @@
 
   svg {
     &:first-child {
+      width: 76px;
+      min-width: 76px;
+      height: 24px;
       margin-top: 2px;
       padding-right: 5px;
       border-right: 1px solid var(--gray-border);

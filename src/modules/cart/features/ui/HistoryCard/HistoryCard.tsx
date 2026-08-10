@@ -49,6 +49,7 @@ export const HistoryCard = ({ order, isNew = false }: Props) => {
           {order.items.map(({ product: { name, id }, quantity }) => (
             <div key={id} className={s.item}>
               <span>{name}</span>
+              <span className={s.line} />
               <span>x{quantity}</span>
             </div>
           ))}

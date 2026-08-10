@@ -1,4 +1,6 @@
 :root {
+  interpolate-size: allow-keywords;
+
   --header-height: 70px;
   --header-height-mobile: 50px;
 
@@ -6,14 +8,8 @@
   --vw: 1vw;
 }
 
-@supports (height: 1dvh) {
+@supports (height: 1svh) {
   :root {
-    --vh: 1dvh;
-  }
-}
-
-@supports (width: 1dvw) {
-  :root {
-    --vw: 1dvw;
+    --vh: 1svh;
   }
 }

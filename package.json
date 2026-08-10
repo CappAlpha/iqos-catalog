@@ -49,7 +49,7 @@
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "react-router": "^8.3.0",
-    "sonner": "^2.0.7"
+    "sonner": "^2.0.8"
   },
   "devDependencies": {
     "@babel/core": "^8.0.1",
@@ -67,7 +67,7 @@
     "@types/web-bluetooth": "^0.0.21",
     "@vitejs/plugin-react": "^6.0.5",
     "babel-plugin-react-compiler": "^1.0.0",
-    "eslint": "^10.8.0",
+    "eslint": "^10.8.1",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-mobx": "^0.0.14",
     "eslint-plugin-react-hooks": "^7.1.1",

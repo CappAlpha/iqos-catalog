@@ -1,8 +1,8 @@
-﻿.root {
+.root {
+  @include devicePanel;
   display: flex;
   flex-direction: column;
   gap: 20px;
-  @include devicePanel;
 }
 
 .title {

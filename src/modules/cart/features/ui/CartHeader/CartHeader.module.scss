@@ -1,15 +1,13 @@
 .root {
-  width: calc(100% - 380px);
+  width: calc(
+    100% - clamp(300px, calc(31.25 * var(--vw) - 100px), 350px) - 30px
+  );
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
   align-items: flex-end;
   gap: 10px;
   margin-bottom: 30px;
-
-  @include breakpoint(desktop-s) {
-    width: calc(100% - 330px);
-  }
 
   @include breakpoint(tablet) {
     width: 100%;

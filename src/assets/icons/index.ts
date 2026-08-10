@@ -5,3 +5,4 @@ export { default as BluetoothIcon } from "./header/bluetooth.svg?react";
 export { default as CartIcon } from "./header/cart.svg?react";
 export { default as USBIcon } from "./header/usb.svg?react";
 export { default as NotFoundDevice } from "./not-found-device.svg?react";
+export { default as TrashIcon } from "./trash.svg?react";
