@@ -1,5 +1,5 @@
 import cn from "classnames";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { getColorHex } from "../../lib/getColorHex";
 import type { ProductGroup } from "../../model/types";
@@ -156,8 +156,23 @@ export const ProductImage = ({
   isFallback,
   onError,
 }: ProductImageProps) => {
-  const [loadedImageUrl, setLoadedImageUrl] = useState<string | null>(null);
-  const isLoaded = loadedImageUrl === src;
+  const [prevSrc, setPrevSrc] = useState(src);
+  const [isLoaded, setIsLoaded] = useState(false);
+  const loadTimerRef = useRef<number | null>(null);
+
+  if (src !== prevSrc) {
+    setPrevSrc(src);
+    setIsLoaded(false);
+  }
+
+  useEffect(() => {
+    return () => {
+      if (loadTimerRef.current !== null) {
+        window.clearTimeout(loadTimerRef.current);
+        loadTimerRef.current = null;
+      }
+    };
+  }, [src]);
 
   if (!src || isFallback) {
     return (
@@ -170,7 +185,14 @@ export const ProductImage = ({
   }
 
   const handleLoad = () => {
-    window.setTimeout(() => setLoadedImageUrl(src), 400);
+    if (loadTimerRef.current !== null) {
+      window.clearTimeout(loadTimerRef.current);
+    }
+
+    loadTimerRef.current = window.setTimeout(() => {
+      setIsLoaded(true);
+      loadTimerRef.current = null;
+    }, 400);
   };
 
   return (

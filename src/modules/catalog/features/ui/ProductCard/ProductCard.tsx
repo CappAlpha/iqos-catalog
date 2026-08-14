@@ -85,11 +85,9 @@ export const ProductCard = observer(
             />
 
             <div className={s.bottomWrap}>
-              {price && (
-                <b className={cn(s.price, isPending && s.priceSkeleton)}>
-                  {formatPrice(price)}
-                </b>
-              )}
+              <b className={cn(s.price, isPending && s.priceSkeleton)}>
+                {formatPrice(price)}
+              </b>
 
               <AddCartButton
                 selectedProduct={selectedProduct}

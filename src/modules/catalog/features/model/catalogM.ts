@@ -2,10 +2,13 @@ import { makeAutoObservable, observable, runInAction } from "mobx";
 import { Query } from "mobx-tanstack-query";
 import { queryClient } from "mobx-tanstack-query/preset";
 
+import { cartM } from "@/modules/cart/features/model/cartM";
+
 import { fetchCatalog } from "../api/fetchCatalog";
 import { getComparator } from "../lib/comparators";
 import {
   CATALOG_DEFAULT,
+  CATALOG_QUERY_KEY,
   UNCAT_ID,
   GROUP_KEYWORDS,
   GROUP_TITLES,
@@ -33,8 +36,12 @@ class CatalogM {
 
   readonly catalogQuery = new Query({
     queryClient,
-    queryKey: ["catalog"],
-    queryFn: ({ signal }) => fetchCatalog({ signal }),
+    queryKey: CATALOG_QUERY_KEY,
+    queryFn: async ({ signal }) => {
+      const catalog = await fetchCatalog({ signal });
+      cartM.syncCatalogAndNotify(catalog.products);
+      return catalog;
+    },
     staleTime: 5 * 60 * 1000,
   });
 
@@ -81,7 +88,9 @@ class CatalogM {
 
     for (const key of Object.keys(GROUP_KEYWORDS) as FilterGroupKey[]) {
       const root = this.categories.find(
-        ({ title }) => GROUP_KEYWORDS[key] === title,
+        ({ title }) =>
+          GROUP_KEYWORDS[key].trim().toLocaleLowerCase() ===
+          title.trim().toLocaleLowerCase(),
       );
 
       const childIds = root
@@ -187,9 +196,16 @@ class CatalogM {
 
   get sortedProductGroups(): ProductGroup[] {
     const compare = getComparator(this.sort);
-    return this.filteredProductGroups.toSorted((a, b) =>
-      compare(a.variants[0], b.variants[0]),
+    return this.filteredProductGroups.toSorted(
+      (a, b) =>
+        (this.isFullyUnavailable(a) ? 1 : 0) -
+          (this.isFullyUnavailable(b) ? 1 : 0) ||
+        compare(a.variants[0], b.variants[0]),
     );
+  }
+
+  private isFullyUnavailable(group: ProductGroup) {
+    return group.variants.every(({ available }) => !available);
   }
 
   get pagedProductGroups(): ProductGroup[] {
@@ -307,6 +323,8 @@ class CatalogM {
   };
 
   setCategory = (id: string) => {
+    if (this.selectedCategoryIds.has(id)) return;
+
     this.updateWithTransition(() => {
       this.selectedCategoryIds.add(id);
       this.page = CATALOG_DEFAULT.page;

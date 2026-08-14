@@ -1426,4 +1426,33 @@
 &lt;/p&gt;
 &lt;p&gt;
 	 Цвет на изображении может отличаться от оригинала
-&lt;/p&gt; ]]></description></offer></offers></shop></yml_catalog>
+&lt;/p&gt; ]]></description></offer>
+<offer id="TEST-CAP-01" available="true"><price>300</price><currencyId>RUB</currencyId><categoryId>382</categoryId><name>ТЕСТ Колпачок 01, Синий</name></offer>
+<offer id="TEST-CAP-01" available="false"><price>300</price><currencyId>RUB</currencyId><categoryId>382</categoryId><name>ТЕСТ Колпачок 01, Красный</name></offer>
+<offer id="TEST-CAP-01" available="false"><price>300</price><currencyId>RUB</currencyId><categoryId>382</categoryId><name>ТЕСТ Колпачок 01, Графитовый</name></offer>
+<offer id="TEST-CAP-02" available="false"><price>350</price><currencyId>RUB</currencyId><categoryId>382</categoryId><name>ТЕСТ Колпачок 02, Белый</name></offer>
+<offer id="TEST-CAP-02" available="false"><price>350</price><currencyId>RUB</currencyId><categoryId>382</categoryId><name>ТЕСТ Колпачок 02, Зеленый</name></offer>
+<offer id="TEST-CAP-03" available="false"><price>400</price><currencyId>RUB</currencyId><categoryId>382</categoryId><name>ТЕСТ Колпачок 03, Черный</name></offer>
+<offer id="TEST-CAP-03" available="false"><price>400</price><currencyId>RUB</currencyId><categoryId>382</categoryId><name>ТЕСТ Колпачок 03, Оранжевый</name></offer>
+<offer id="TEST-POWER-01" available="true"><price>750</price><currencyId>RUB</currencyId><categoryId>385</categoryId><name>ТЕСТ Блок питания 01, Белый</name></offer>
+<offer id="TEST-POWER-01" available="false"><price>750</price><currencyId>RUB</currencyId><categoryId>385</categoryId><name>ТЕСТ Блок питания 01, Черный</name></offer>
+<offer id="TEST-POWER-02" available="false"><price>850</price><currencyId>RUB</currencyId><categoryId>385</categoryId><name>ТЕСТ Блок питания 02, Синий</name></offer>
+<offer id="TEST-POWER-02" available="false"><price>850</price><currencyId>RUB</currencyId><categoryId>385</categoryId><name>ТЕСТ Блок питания 02, Серебряный</name></offer>
+<offer id="TEST-POWER-03" available="false"><price>950</price><currencyId>RUB</currencyId><categoryId>385</categoryId><name>ТЕСТ Блок питания 03, Красный</name></offer>
+<offer id="TEST-DEVICE-01" available="true"><price>1490</price><currencyId>RUB</currencyId><categoryId>681</categoryId><name>Держатель lil SOLID DUAL, Оливковый</name></offer>
+<offer id="TEST-DEVICE-01" available="false"><price>1490</price><currencyId>RUB</currencyId><categoryId>681</categoryId><name>Держатель lil SOLID DUAL, Оранжевый</name></offer>
+<offer id="TEST-DEVICE-01" available="false"><price>1490</price><currencyId>RUB</currencyId><categoryId>681</categoryId><name>Держатель lil SOLID DUAL, Графитовый</name></offer>
+<offer id="TEST-DEVICE-02" available="true"><price>1590</price><currencyId>RUB</currencyId><categoryId>451</categoryId><name>Комплект lil SOLID 3.0, Графитовый</name></offer>
+<offer id="TEST-DEVICE-02" available="false"><price>1590</price><currencyId>RUB</currencyId><categoryId>451</categoryId><name>Комплект lil SOLID 3.0, Розовый</name></offer>
+<offer id="TEST-DEVICE-03" available="false"><price>1690</price><currencyId>RUB</currencyId><categoryId>451</categoryId><name>Устройство lil SOLID 3.0, Черный</name></offer>
+<offer id="TEST-DEVICE-03" available="false"><price>1690</price><currencyId>RUB</currencyId><categoryId>451</categoryId><name>Устройство lil SOLID 3.0, Белый</name></offer>
+<offer id="TEST-DEVICE-04" available="false"><price>1790</price><currencyId>RUB</currencyId><categoryId>681</categoryId><name>Комплект lil SOLID DUAL, Графитовый</name></offer>
+<offer id="TEST-STICK-01" available="true"><price>190</price><currencyId>RUB</currencyId><categoryId>377</categoryId><name>ТЕСТ Стики Fiit 01, пачка</name></offer>
+<offer id="TEST-STICK-01" available="false"><price>1800</price><currencyId>RUB</currencyId><categoryId>377</categoryId><name>ТЕСТ Стики Fiit 01, блок (10 пачек)</name></offer>
+<offer id="TEST-STICK-02" available="true"><price>200</price><currencyId>RUB</currencyId><categoryId>376</categoryId><name>ТЕСТ Стики HEETS 02, пачка</name></offer>
+<offer id="TEST-STICK-02" available="false"><price>1900</price><currencyId>RUB</currencyId><categoryId>376</categoryId><name>ТЕСТ Стики HEETS 02, блок (10 пачек)</name></offer>
+<offer id="TEST-STICK-03" available="false"><price>210</price><currencyId>RUB</currencyId><categoryId>376</categoryId><name>ТЕСТ Стики HEETS 03, пачка</name></offer>
+<offer id="TEST-STICK-03" available="false"><price>2000</price><currencyId>RUB</currencyId><categoryId>376</categoryId><name>ТЕСТ Стики HEETS 03, блок (10 пачек)</name></offer>
+<offer id="TEST-STICK-04" available="false"><price>220</price><currencyId>RUB</currencyId><categoryId>377</categoryId><name>ТЕСТ Стики Fiit 04, пачка</name></offer>
+<offer id="TEST-STICK-04" available="false"><price>2100</price><currencyId>RUB</currencyId><categoryId>377</categoryId><name>ТЕСТ Стики Fiit 04, блок (10 пачек)</name></offer>
+</offers></shop></yml_catalog>

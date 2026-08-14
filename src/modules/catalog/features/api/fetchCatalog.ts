@@ -43,46 +43,47 @@ async function executeRequest(
   return data;
 }
 
+const throwIfAborted = (error: unknown, signal?: AbortSignal): void => {
+  if (isAbortError(error) || signal?.aborted) {
+    throwAbortException();
+  }
+};
+
+const loadFeed = async (
+  url: string,
+  signal: AbortSignal | undefined,
+  timeout: number,
+): Promise<FeedResult> => {
+  const xmlData = await executeRequest(url, signal, timeout);
+  return await parseXmlCatalog(xmlData);
+};
+
+const notifyFallback = (feedUrl: string, error: unknown): void => {
+  console.warn(`Ошибка основного фида (${feedUrl}), берём резервный...`, error);
+
+  if (globalThis.window !== undefined) {
+    customToastTemplate({
+      title: `Ошибка основного фида (${feedUrl}), берём резервный...`,
+      type: "warning",
+    });
+  }
+};
+
 export async function fetchCatalog({
   feedUrl = FEED_URL,
   signal,
-  timeout = 30000,
+  timeout = 30_000,
 }: FetchParams = {}): Promise<FeedResult> {
   try {
-    const xmlData = await executeRequest(feedUrl, signal, timeout);
-    return parseXmlCatalog(xmlData);
+    return await loadFeed(feedUrl, signal, timeout);
   } catch (error: unknown) {
-    if (isAbortError(error)) {
-      throwAbortException();
-    }
-
-    if (signal?.aborted) {
-      throwAbortException();
-    }
-
-    console.warn(
-      `Ошибка основного фида (${feedUrl}), берём резервный...`,
-      error,
-    );
-
-    if (globalThis.window !== undefined) {
-      customToastTemplate({
-        title: `Ошибка основного фида (${feedUrl}), берём резервный...`,
-        type: "warning",
-      });
-    }
+    throwIfAborted(error, signal);
+    notifyFallback(feedUrl, error);
 
     try {
-      const reserveData = await executeRequest(
-        RESERVE_FEED_URL,
-        signal,
-        timeout,
-      );
-      return parseXmlCatalog(reserveData);
+      return await loadFeed(RESERVE_FEED_URL, signal, timeout);
     } catch (reserveError: unknown) {
-      if (isAbortError(reserveError)) {
-        throwAbortException();
-      }
+      throwIfAborted(reserveError, signal);
 
       throw formatError(reserveError, timeout, "Не удалось загрузить каталог");
     }

@@ -19,6 +19,15 @@
   }
 }
 
+.unavailable {
+  opacity: 0.5;
+}
+
+.root.unavailable {
+  opacity: 1;
+  outline: dashed 1px var(--gray-border-disabled);
+}
+
 .imgWrap {
   width: 120px;
   height: 120px;
@@ -75,15 +84,20 @@
   font-size: 14px;
 }
 
+.unavailableLabel {
+  color: var(--gray);
+  font-size: 24px;
+  min-width: 260px;
+}
+
 .controlsContainer {
   display: flex;
   align-items: center;
-  gap: 30px;
+  gap: clamp(10px, 2 * var(--vw), 30px);
 
   @include breakpoint(mobile-m) {
     width: 100%;
     justify-content: space-between;
-    gap: 10px;
     flex-wrap: wrap;
   }
 }

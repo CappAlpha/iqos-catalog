@@ -14,7 +14,7 @@ export const HeaderLink = observer(
   ({ to, text, Icon, isCart }: INavLinkItem) => {
     const { status: statusBluetooth } = bluetoothM;
     const { status: statusUsb } = usbM;
-    const { isCartUpdating, uniqueItemsCount, isEmpty } = cartM;
+    const { isCartUpdating, uniqueItemsCount } = cartM;
 
     const showStatusDot =
       (to === "/bluetooth" && statusBluetooth === "connected") ||
@@ -34,7 +34,7 @@ export const HeaderLink = observer(
             </div>
           )}
           <Icon className={s.icon} />
-          {isCart && !isEmpty && (
+          {isCart && uniqueItemsCount > 0 && (
             <b
               className={cn(s.badge, {
                 [s.cartInitial]: uniqueItemsCount === 1,

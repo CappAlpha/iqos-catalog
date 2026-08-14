@@ -20,7 +20,7 @@ interface Props {
 export const CartItemCard = observer(({ item }: Props) => {
   const [failedImageUrl, setFailedImageUrl] = useState<string | null>(null);
   const {
-    product: { pictureUrl, name, categoryTitle, id, price },
+    product: { pictureUrl, name, categoryTitle, id, price, available },
     quantity,
   } = item;
 
@@ -35,7 +35,6 @@ export const CartItemCard = observer(({ item }: Props) => {
     isRemoveLoading,
     isCountChanged,
     canChangeQuantity,
-    canRemove,
   } = getItemState(id);
 
   return (
@@ -44,9 +43,10 @@ export const CartItemCard = observer(({ item }: Props) => {
         s.root,
         isAddLoading && s.cardAdding,
         isRemoveLoading && s.cardRemoving,
+        !available && s.unavailable,
       )}
     >
-      <div className={s.imgWrap}>
+      <div className={cn(s.imgWrap, !available && s.unavailable)}>
         {pictureUrl && !hasImageError ? (
           <img
             className={s.img}
@@ -61,7 +61,7 @@ export const CartItemCard = observer(({ item }: Props) => {
       </div>
 
       <div className={s.info}>
-        <div className={s.header}>
+        <div className={cn(s.header, !available && s.unavailable)}>
           <h5 className={s.title}>
             <b>{name}</b>
           </h5>
@@ -69,21 +69,29 @@ export const CartItemCard = observer(({ item }: Props) => {
         </div>
 
         <div className={s.controlsContainer}>
-          <CounterBtns
-            quantity={quantity}
-            isDecLoading={isDecLoading}
-            isIncLoading={isIncLoading}
-            isCountChanged={isCountChanged}
-            onDecrease={() => setQuantity(id, quantity - 1)}
-            onIncrease={() => setQuantity(id, quantity + 1)}
-            disabled={!canChangeQuantity}
-            className={s.counter}
-          />
+          {!available ? (
+            <p className={s.unavailableLabel}>
+              <b>Нет в наличии</b>
+            </p>
+          ) : (
+            <>
+              <CounterBtns
+                quantity={quantity}
+                isDecLoading={isDecLoading}
+                isIncLoading={isIncLoading}
+                isCountChanged={isCountChanged}
+                onDecrease={() => setQuantity(id, quantity - 1)}
+                onIncrease={() => setQuantity(id, quantity + 1)}
+                disabled={!canChangeQuantity}
+                className={s.counter}
+              />
 
-          {price != null && (
-            <b className={cn(s.price, isCountChanged && s.updatingText)}>
-              {formatPrice(price, quantity)}
-            </b>
+              {price != null && (
+                <b className={cn(s.price, isCountChanged && s.updatingText)}>
+                  {formatPrice(price, quantity)}
+                </b>
+              )}
+            </>
           )}
 
           <Button
@@ -92,7 +100,7 @@ export const CartItemCard = observer(({ item }: Props) => {
             color="transparent"
             aria-label="Удалить из корзины"
             loading={isRemoveLoading}
-            disabled={!canRemove}
+            disabled={!canChangeQuantity}
           >
             <TrashIcon />
           </Button>

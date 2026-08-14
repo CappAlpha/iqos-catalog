@@ -36,7 +36,13 @@ export const CounterBtns = ({
         &#8722;
       </Button>
 
-      <span className={cn(s.quantity, isCountChanged && s.updatingText)}>
+      <span
+        className={cn(
+          s.quantity,
+          isCountChanged && s.updatingText,
+          disabled && s.disabledText,
+        )}
+      >
         {quantity}
       </span>
 

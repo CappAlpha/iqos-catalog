@@ -22,12 +22,13 @@
 }
 
 .title {
+  font-size: clamp(14px, 1.5 * var(--vw), 18px);
   @include lineClamp(1);
 }
 
 .date {
   color: var(--gray);
-  font-size: 14px;
+  font-size: clamp(14px, 1.5 * var(--vw), 18px);
 }
 
 .total {
@@ -83,15 +84,16 @@
 .item {
   display: grid;
   grid-template-columns: auto 1fr auto;
-  gap: 5px;
-  font-size: 14px;
+  align-items: center;
+  gap: 6px;
+  font-size: clamp(14px, 1.5 * var(--vw), 18px);
 }
 
 .line {
-  background-color: var(--gray-border);
-  opacity: 0.8;
+  background-color: var(--light-gray-border);
   height: 1px;
-  align-self: center;
+  width: 100%;
+  min-width: 20px;
 }
 
 .detailsBtn {

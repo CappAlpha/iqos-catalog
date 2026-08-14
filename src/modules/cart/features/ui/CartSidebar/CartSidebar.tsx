@@ -10,8 +10,15 @@ import { cartM } from "../../model/cartM";
 import s from "./CartSidebar.module.scss";
 
 export const CartSidebar = observer(() => {
-  const { totalPrice, uniqueItemsCount, totalItems, checkout, isCartUpdating } =
-    cartM;
+  const {
+    totalPrice,
+    uniqueItemsCount,
+    totalItems,
+    checkout,
+    isCartUpdating,
+    isCheckingAvailability,
+    hasAvailableItems,
+  } = cartM;
 
   const priceText = formatPrice(totalPrice);
   const pluralizeItems = pluralize("товар", "товара", "товаров");
@@ -49,7 +56,12 @@ export const CartSidebar = observer(() => {
             </span>{" "}
           </p>
         </div>
-        <Button className={s.checkoutBtn} onClick={checkout}>
+        <Button
+          className={s.checkoutBtn}
+          onClick={checkout}
+          disabled={!hasAvailableItems}
+          loading={isCheckingAvailability}
+        >
           Оформить заказ
         </Button>
       </div>

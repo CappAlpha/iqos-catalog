@@ -22,11 +22,21 @@ export const AddCartButton = observer(
       addToCart,
       getCartItem,
       getItemState,
-      isInitialized,
-      canAdd,
+      canModify,
+      isProductAvailable,
     } = cartM;
 
     const itemInCart = getCartItem(selectedProduct.id);
+
+    if (!isProductAvailable(selectedProduct)) {
+      return (
+        <div onClick={(e) => e.stopPropagation()}>
+          <Button className={cn(s.button, className)} disabled>
+            Нет в наличии
+          </Button>
+        </div>
+      );
+    }
 
     const {
       isAddLoading,
@@ -52,14 +62,14 @@ export const AddCartButton = observer(
             onIncrease={() =>
               setQuantity(selectedProduct.id, itemInCart.quantity + 1)
             }
-            disabled={!isInitialized || !canChangeQuantity || isPending}
+            disabled={!canChangeQuantity || isPending}
           />
         ) : (
           <Button
             className={cn(s.button, className)}
-            loading={!isInitialized || !canAdd || isAddLoading}
+            loading={!canModify || isAddLoading}
             onClick={() => addToCart(selectedProduct)}
-            disabled={!isInitialized || !canAdd || isPending}
+            disabled={!canModify || isPending}
           >
             Добавить
           </Button>

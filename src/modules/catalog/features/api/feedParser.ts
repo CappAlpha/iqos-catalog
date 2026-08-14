@@ -1,6 +1,3 @@
-import currency from "currency.js";
-import DOMPurify from "dompurify";
-
 import { UNCAT_TITLE, UNCAT_ID } from "../model/constants";
 import type { FeedResult, Category, Product } from "../model/types";
 
@@ -18,27 +15,67 @@ const getAttr = (el: Element, name: string): string | null =>
 const getChildText = (parent: Element, tagName: string): string | null =>
   getText(parent.querySelector(tagName));
 
-const getChildNum = (parent: Element, tagName: string): number | null => {
+const getChildPrice = (parent: Element, tagName: string): number | null => {
   const text = getChildText(parent, tagName);
-  return text ? currency(text).value : null;
+  if (!text || !/^[0-9]+(?:[.,][0-9]+)?$/.test(text)) return null;
+
+  const price = Number(text.replace(",", "."));
+  return Number.isFinite(price) ? price : null;
+};
+
+const getAvailable = (offer: Element): boolean | null => {
+  const rawValue = getAttr(offer, "available");
+  if (rawValue === null) return false;
+
+  const value = rawValue.toLowerCase();
+
+  if (value === "true") return true;
+  if (value === "false") return false;
+  return null;
+};
+
+const logInvalidProduct = (issues: string[], offer: Element): void => {
+  if (!import.meta.env.DEV) return;
+
+  console.warn("Пропущен некорректный товар каталога", {
+    id: getAttr(offer, "id"),
+    name: getChildText(offer, "name"),
+    issues,
+  });
 };
 
 let decodeTextarea: HTMLTextAreaElement | null = null;
 
-const decodeHtml = (html: string): string => {
+const decodeHtml = (
+  html: string,
+  sanitize: (val: string) => string,
+): string => {
   if (!html) return "";
   if (typeof document === "undefined") return html;
 
   decodeTextarea ??= document.createElement("textarea");
   decodeTextarea.innerHTML = html;
-  return DOMPurify.sanitize(decodeTextarea.value);
+  return sanitize(decodeTextarea.value);
 };
 
-export const parseXmlCatalog = (xmlText: string): FeedResult => {
+export const parseXmlCatalog = async (xmlText: string): Promise<FeedResult> => {
+  const { default: DOMPurify } = await import("dompurify");
+
   const doc = new DOMParser().parseFromString(xmlText, "application/xml");
 
   if (doc.querySelector("parsererror")) {
     throw new Error("Некорректный XML (ошибка парсинга).");
+  }
+
+  const shop = doc.querySelector("shop");
+  const offerElements = doc.querySelectorAll(SELECTORS.offers);
+
+  if (!shop?.querySelector("offers")) {
+    throw new Error("В XML отсутствует обязательная секция offers.");
+  }
+
+  if (offerElements.length === 0) {
+    throw new Error("В XML отсутствуют товары.");
   }
 
   const categories: Category[] = [];
@@ -61,11 +98,24 @@ export const parseXmlCatalog = (xmlText: string): FeedResult => {
   const products: Product[] = [];
   let hasNoCategory = false;
 
-  for (const offer of doc.querySelectorAll(SELECTORS.offers)) {
+  for (const offer of offerElements) {
     const id = getAttr(offer, "id");
     const name = getChildText(offer, "name");
+    const available = getAvailable(offer);
+    const price = getChildPrice(offer, "price");
 
-    if (!id || !name) continue;
+    if (!id || !name || available === null || price === null) {
+      logInvalidProduct(
+        [
+          !id && "id",
+          !name && "name",
+          available === null && "available",
+          price === null && "price",
+        ].filter((issue): issue is string => Boolean(issue)),
+        offer,
+      );
+      continue;
+    }
 
     let categoryId = getChildText(offer, "categoryId");
     let categoryTitle: string | null;
@@ -81,9 +131,12 @@ export const parseXmlCatalog = (xmlText: string): FeedResult => {
     products.push({
       id,
       name,
-      available: getAttr(offer, "available")?.toLowerCase() !== "false",
-      description: decodeHtml(getChildText(offer, "description") ?? ""),
-      price: getChildNum(offer, "price"),
+      available,
+      description: decodeHtml(
+        getChildText(offer, "description") ?? "",
+        (dirty) => DOMPurify.sanitize(dirty),
+      ),
+      price,
       currencyId: getChildText(offer, "currencyId"),
       categoryId,
       categoryTitle,
@@ -94,6 +147,10 @@ export const parseXmlCatalog = (xmlText: string): FeedResult => {
 
   if (hasNoCategory && !catTitleById.has(UNCAT_ID)) {
     categories.push({ id: UNCAT_ID, title: UNCAT_TITLE, parentId: null });
+  }
+
+  if (products.length === 0) {
+    throw new Error("В XML не найдено ни одного корректного товара.");
   }
 
   return { categories, products };

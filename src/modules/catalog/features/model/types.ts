@@ -24,9 +24,10 @@ export type MergedCategory = Category & {
 
 export type Product = {
   id: string;
+  originalId?: string;
   name: string;
   description: string | null;
-  price: number | null;
+  price: number;
   currencyId: string | null;
   categoryId: string | null;
   categoryTitle: string | null;

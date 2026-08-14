@@ -4,6 +4,7 @@ import type { SortKey } from "./types";
 
 export const RESERVE_FEED_URL = mindboxFeedUrl;
 export const FEED_URL = "https://www.iqos.ru/mindbox_feed.xml";
+export const CATALOG_QUERY_KEY = ["catalog"] as const;
 
 export const UNCAT_ID = "uncategorized" as const;
 export const UNCAT_TITLE = "Без категории" as const;

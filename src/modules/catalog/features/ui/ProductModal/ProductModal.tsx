@@ -104,15 +104,13 @@ export const ProductModal = ({
         </div>
 
         <div className={s.stickyFooter}>
-          {price && (
-            <div className={s.priceWrap}>
-              <span className={s.priceLabel}>Цена:</span>
-              <b className={cn(s.priceValue, isPending && s.priceSkeleton)}>
-                {formatPrice(price)}
-              </b>
-              <span className={s.priceUnit}>шт.</span>
-            </div>
-          )}
+          <div className={s.priceWrap}>
+            <span className={s.priceLabel}>Цена:</span>
+            <b className={cn(s.priceValue, isPending && s.priceSkeleton)}>
+              {formatPrice(price)}
+            </b>
+            <span className={s.priceUnit}>шт.</span>
+          </div>
           <AddCartButton
             className={s.btn}
             selectedProduct={selectedProduct}

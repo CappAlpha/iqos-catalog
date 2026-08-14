@@ -1,6 +1,7 @@
 import babel from "@rolldown/plugin-babel";
 import react, { reactCompilerPreset } from "@vitejs/plugin-react";
 import path from "node:path";
+import { visualizer } from "rollup-plugin-visualizer";
 import { defineConfig, type CSSOptions } from "vite";
 import svgr from "vite-plugin-svgr";
 
@@ -16,6 +17,7 @@ export default defineConfig(({ mode }) => {
         include: /\.(jsx|tsx|js|ts)$/,
         exclude: /node_modules/,
       }),
+      visualizer({ open: true, filename: "bundle-stats.html" }),
     ],
     css: {
       preprocessorOptions: {
@@ -34,8 +36,40 @@ export default defineConfig(({ mode }) => {
       rollupOptions: {
         output: {
           manualChunks(id) {
-            if (id.includes("node_modules")) {
-              return "vendor";
+            if (!id.includes("node_modules")) return;
+
+            if (
+              id.includes("node_modules/react/") ||
+              id.includes("node_modules/react-dom/") ||
+              id.includes("node_modules/scheduler/")
+            ) {
+              return "vendor-react";
+            }
+
+            if (id.includes("node_modules/react-router")) {
+              return "vendor-router";
+            }
+
+            if (
+              id.includes("node_modules/mobx") ||
+              id.includes("node_modules/@tanstack")
+            ) {
+              return "vendor-state";
+            }
+
+            if (
+              id.includes("node_modules/@capacitor") ||
+              id.includes("node_modules/@capawesome")
+            ) {
+              return "vendor-capacitor";
+            }
+
+            if (
+              id.includes("node_modules/axios") ||
+              id.includes("node_modules/dompurify") ||
+              id.includes("node_modules/sonner")
+            ) {
+              return "vendor-utils";
             }
           },
           assetFileNames: (assetInfo) => {

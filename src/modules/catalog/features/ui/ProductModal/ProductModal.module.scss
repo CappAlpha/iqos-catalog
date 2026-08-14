@@ -101,7 +101,7 @@
   flex: 1 1 0;
   flex-direction: column;
   justify-content: center;
-  height: clamp(280px, 32vw, 420px);
+  height: clamp(280px, 32 * var(--vw), 420px);
   min-height: 280px;
   align-self: center;
 
