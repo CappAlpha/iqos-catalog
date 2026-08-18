@@ -4,7 +4,6 @@ import prettierConfig from "eslint-config-prettier";
 import pluginMobx from "eslint-plugin-mobx";
 import reactHooksPlugin from "eslint-plugin-react-hooks";
 import reactRefreshPlugin from "eslint-plugin-react-refresh";
-import reactYouMightNotNeedAnEffect from "eslint-plugin-react-you-might-not-need-an-effect";
 import globals from "globals";
 import tsEslint from "typescript-eslint";
 
@@ -36,28 +35,30 @@ export default [
       "@eslint-react": reactPlugin,
       "react-hooks": reactHooksPlugin,
       "react-refresh": reactRefreshPlugin,
-      "react-you-might-not-need-an-effect": reactYouMightNotNeedAnEffect,
       mobx: pluginMobx,
     },
     rules: {
       ...reactPlugin.configs.recommended.rules,
+      
       ...reactHooksPlugin.configs.recommended.rules,
+
       ...reactRefreshPlugin.configs.recommended.rules,
-      ...pluginMobx.configs.recommended.rules,
-      ...reactYouMightNotNeedAnEffect.configs.recommended.rules,
       "react-refresh/only-export-components": [
         "warn",
         { allowConstantExport: true },
       ],
+
+      ...pluginMobx.configs.recommended.rules,
+      "mobx/exhaustive-make-observable": "warn",
+      "mobx/unconditional-make-observable": "error",
+      "mobx/missing-make-observable": "error",
+      "mobx/missing-observer": "off",
+
       "@typescript-eslint/consistent-type-imports": "warn",
       "@typescript-eslint/no-misused-promises": [
         "error",
         { checksVoidReturn: false },
       ],
-      "mobx/exhaustive-make-observable": "warn",
-      "mobx/unconditional-make-observable": "error",
-      "mobx/missing-make-observable": "error",
-      "mobx/missing-observer": "off",
     },
   },
 
@@ -74,6 +75,6 @@ export default [
       globals: globals.node,
     },
   },
-  
+
   prettierConfig,
 ];

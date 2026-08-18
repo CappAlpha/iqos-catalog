@@ -17,7 +17,8 @@ let package = Package(
         .package(name: "CapacitorFileTransfer", path: "..\..\..\node_modules\@capacitor\file-transfer"),
         .package(name: "CapacitorFilesystem", path: "..\..\..\node_modules\@capacitor\filesystem"),
         .package(name: "CapacitorPreferences", path: "..\..\..\node_modules\@capacitor\preferences"),
-        .package(name: "CapawesomeTeamCapacitorFileOpener", path: "..\..\..\node_modules\@capawesome-team\capacitor-file-opener")
+        .package(name: "CapawesomeTeamCapacitorFileOpener", path: "..\..\..\node_modules\@capawesome-team\capacitor-file-opener"),
+        .package(name: "LeeskiesCapacitorUsbSerial", path: "..\..\..\node_modules\@leeskies\capacitor-usb-serial")
     ],
     targets: [
         .target(
@@ -30,7 +31,8 @@ let package = Package(
                 .product(name: "CapacitorFileTransfer", package: "CapacitorFileTransfer"),
                 .product(name: "CapacitorFilesystem", package: "CapacitorFilesystem"),
                 .product(name: "CapacitorPreferences", package: "CapacitorPreferences"),
-                .product(name: "CapawesomeTeamCapacitorFileOpener", package: "CapawesomeTeamCapacitorFileOpener")
+                .product(name: "CapawesomeTeamCapacitorFileOpener", package: "CapawesomeTeamCapacitorFileOpener"),
+                .product(name: "LeeskiesCapacitorUsbSerial", package: "LeeskiesCapacitorUsbSerial")
             ]
         )
     ]

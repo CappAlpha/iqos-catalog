@@ -1,4 +1,4 @@
-import cn from "classnames";
+import clsx from "clsx";
 import { observer } from "mobx-react-lite";
 
 import { cartM } from "@/modules/cart/features/model/cartM";
@@ -31,7 +31,7 @@ export const AddCartButton = observer(
     if (!isProductAvailable(selectedProduct)) {
       return (
         <div onClick={(e) => e.stopPropagation()}>
-          <Button className={cn(s.button, className)} disabled>
+          <Button className={clsx(s.button, className)} disabled>
             Нет в наличии
           </Button>
         </div>
@@ -51,7 +51,7 @@ export const AddCartButton = observer(
       <div onClick={(e) => e.stopPropagation()}>
         {itemInCart ? (
           <CounterBtns
-            className={cn(s.counter, className)}
+            className={clsx(s.counter, className)}
             quantity={itemInCart.quantity}
             isDecLoading={isDecLoading || isRemoveLoading}
             isIncLoading={isIncLoading}
@@ -66,7 +66,7 @@ export const AddCartButton = observer(
           />
         ) : (
           <Button
-            className={cn(s.button, className)}
+            className={clsx(s.button, className)}
             loading={!canModify || isAddLoading}
             onClick={() => addToCart(selectedProduct)}
             disabled={!canModify || isPending}

@@ -1,4 +1,4 @@
-import cn from "classnames";
+import clsx from "clsx";
 import type { ReactNode } from "react";
 
 import { NotFoundDevice } from "@/assets/icons";
@@ -22,7 +22,7 @@ export const StatusPage = ({
   title,
   variant,
 }: StatusPageProps) => (
-  <main className={cn(s.root, s[variant])}>
+  <main className={clsx(s.root, s[variant])}>
     <div className={s.content}>
       <div className={s.copy}>
         <span className={s.eyebrow}>{eyebrow}</span>

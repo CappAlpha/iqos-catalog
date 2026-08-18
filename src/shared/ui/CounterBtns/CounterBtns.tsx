@@ -1,4 +1,4 @@
-import cn from "classnames";
+import clsx from "clsx";
 
 import { Button } from "../Button";
 
@@ -26,7 +26,7 @@ export const CounterBtns = ({
   className,
 }: Props) => {
   return (
-    <div className={cn(s.root, className)}>
+    <div className={clsx(s.root, className)}>
       <Button
         className={s.counterBtn}
         onClick={onDecrease}
@@ -37,7 +37,7 @@ export const CounterBtns = ({
       </Button>
 
       <span
-        className={cn(
+        className={clsx(
           s.quantity,
           isCountChanged && s.updatingText,
           disabled && s.disabledText,

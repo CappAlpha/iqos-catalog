@@ -1,4 +1,4 @@
-import cn from "classnames";
+import clsx from "clsx";
 import { observer } from "mobx-react-lite";
 import { useRef } from "react";
 
@@ -31,7 +31,7 @@ const CatalogPage = observer(() => {
     <main className={s.root} ref={topRef}>
       <CatalogHeader />
 
-      <div className={cn(s.wrap, error && s.wrapError)}>
+      <div className={clsx(s.wrap, error && s.wrapError)}>
         {!isTablet &&
           !error &&
           (isLoading ? (

@@ -1,4 +1,4 @@
-import cn from "classnames";
+import clsx from "clsx";
 
 import { Button } from "@/shared/ui/Button";
 
@@ -23,7 +23,7 @@ export const VariantsSizes = ({
     {variants.map(({ id, variantLabel }, idx) => (
       <Button
         key={id}
-        className={cn(s.variantBtn, selectedIdx === idx && s.activeVariant)}
+        className={clsx(s.variantBtn, selectedIdx === idx && s.activeVariant)}
         onClick={() => onSelect(idx)}
         disabled={selectedIdx === idx || isPending}
       >

@@ -1,4 +1,4 @@
-import cn from "classnames";
+import clsx from "clsx";
 import { useRef, useState } from "react";
 
 import { useMobileM } from "@/shared/hooks/useBreakpoint";
@@ -81,7 +81,7 @@ export const ProductModal = ({
           <div className={s.infoBlock}>
             {categoryTitle && <p className={s.category}>{categoryTitle}</p>}
 
-            <h2 className={cn(s.title, isPending && s.titleSkeleton)}>
+            <h2 className={clsx(s.title, isPending && s.titleSkeleton)}>
               {name}
             </h2>
 
@@ -106,7 +106,7 @@ export const ProductModal = ({
         <div className={s.stickyFooter}>
           <div className={s.priceWrap}>
             <span className={s.priceLabel}>Цена:</span>
-            <b className={cn(s.priceValue, isPending && s.priceSkeleton)}>
+            <b className={clsx(s.priceValue, isPending && s.priceSkeleton)}>
               {formatPrice(price)}
             </b>
             <span className={s.priceUnit}>шт.</span>

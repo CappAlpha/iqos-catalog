@@ -1,4 +1,4 @@
-import cn from "classnames";
+import clsx from "clsx";
 
 import { useMobileS } from "@/shared/hooks/useBreakpoint";
 
@@ -46,7 +46,7 @@ export const Pagination = ({ page, totalPages, onChange }: Props) => {
           return (
             <li key={`page-${item.value}`}>
               <button
-                className={cn(s.btn, isActive && s.active)}
+                className={clsx(s.btn, isActive && s.active)}
                 onClick={() => onChange(item.value)}
                 aria-label={`Страница ${item.value}`}
                 aria-current={isActive ? "page" : undefined}

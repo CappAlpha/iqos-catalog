@@ -1,4 +1,4 @@
-import cn from "classnames";
+import clsx from "clsx";
 
 import { useMobileM } from "@/shared/hooks/useBreakpoint";
 import { Button } from "@/shared/ui/Button";
@@ -40,7 +40,7 @@ export const VariantsColors = ({
           <button
             key={id}
             type="button"
-            className={cn(
+            className={clsx(
               s.colorBtn,
               selectedIdx === idx && s.activeColor,
               isHidden && s.hiddenColor,

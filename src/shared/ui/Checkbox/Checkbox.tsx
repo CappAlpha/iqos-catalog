@@ -1,4 +1,4 @@
-import cn from "classnames";
+import clsx from "clsx";
 import type { ChangeEvent, ReactNode } from "react";
 
 import s from "./Checkbox.module.scss";
@@ -23,7 +23,7 @@ export const Checkbox = ({
   disabled,
   className,
 }: CheckboxProps) => {
-  const styles = cn(s.root, disabled && s.disabled, className);
+  const styles = clsx(s.root, disabled && s.disabled, className);
 
   return (
     <label className={styles}>

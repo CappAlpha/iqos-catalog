@@ -1,4 +1,4 @@
-import cn from "classnames";
+import clsx from "clsx";
 import { observer } from "mobx-react-lite";
 
 import { formatPrice } from "@/shared/lib/formatPrice";
@@ -31,17 +31,17 @@ export const CartSidebar = observer(() => {
         </h3>
         <div className={s.summaryRow}>
           <p>
-            <span className={cn(isCartUpdating && s.updatingText)}>
+            <span className={clsx(isCartUpdating && s.updatingText)}>
               {uniqueItemsCount}
             </span>{" "}
             {pluralizeItems(uniqueItemsCount)},{" "}
-            <span className={cn(isCartUpdating && s.updatingText)}>
+            <span className={clsx(isCartUpdating && s.updatingText)}>
               {totalItems}
             </span>{" "}
             шт.
           </p>
           <p>
-            <span className={cn(isCartUpdating && s.updatingText)}>
+            <span className={clsx(isCartUpdating && s.updatingText)}>
               {priceText}
             </span>{" "}
           </p>
@@ -51,7 +51,7 @@ export const CartSidebar = observer(() => {
             <b>Итого</b>
           </p>
           <p>
-            <span className={cn(isCartUpdating && s.updatingText)}>
+            <span className={clsx(isCartUpdating && s.updatingText)}>
               <b>{priceText}</b>
             </span>{" "}
           </p>

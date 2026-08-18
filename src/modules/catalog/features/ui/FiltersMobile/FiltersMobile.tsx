@@ -1,4 +1,4 @@
-import cn from "classnames";
+import clsx from "clsx";
 import { observer } from "mobx-react-lite";
 import { useRef, useState } from "react";
 
@@ -34,7 +34,7 @@ export const FiltersMobile = observer(() => {
         {isAnyFilterSelected && <span className={s.activeBadge} />}
       </Button>
 
-      <div className={cn(s.root, isOpen && s.open)}>
+      <div className={clsx(s.root, isOpen && s.open)}>
         <div className={s.overlay} aria-hidden="true" />
 
         <div ref={wrapRef} className={s.drawer}>

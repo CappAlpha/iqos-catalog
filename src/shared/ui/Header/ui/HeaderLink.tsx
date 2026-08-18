@@ -1,4 +1,4 @@
-import cn from "classnames";
+import clsx from "clsx";
 import { observer } from "mobx-react-lite";
 
 import { bluetoothM } from "@/modules/bluetooth/features/model/bluetoothM";
@@ -24,10 +24,10 @@ export const HeaderLink = observer(
       <TransitionNavLink
         to={to}
         className={({ isActive, isPending }) =>
-          cn(s.navLink, { [s.active]: isActive, [s.pending]: isPending })
+          clsx(s.navLink, { [s.active]: isActive, [s.pending]: isPending })
         }
       >
-        <div className={cn(s.iconWrap, isCart && s.cartIconWrap)}>
+        <div className={clsx(s.iconWrap, isCart && s.cartIconWrap)}>
           {showStatusDot && (
             <div className={s.status}>
               <span className={s.statusDot} />
@@ -36,7 +36,7 @@ export const HeaderLink = observer(
           <Icon className={s.icon} />
           {isCart && uniqueItemsCount > 0 && (
             <b
-              className={cn(s.badge, {
+              className={clsx(s.badge, {
                 [s.cartInitial]: uniqueItemsCount === 1,
                 [s.updatingBadge]: uniqueItemsCount > 1 && isCartUpdating,
               })}

@@ -1,4 +1,4 @@
-import cn from "classnames";
+import clsx from "clsx";
 import { useState } from "react";
 
 import { formatPrice } from "@/shared/lib/formatPrice";
@@ -17,7 +17,7 @@ export const HistoryCard = ({ order, isNew = false }: Props) => {
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <div className={cn(s.root, isNew && s.cardIntro)}>
+    <div className={clsx(s.root, isNew && s.cardIntro)}>
       <div className={s.left}>
         <p className={s.title}>
           <b>Заказ #{order.id}</b>
@@ -44,7 +44,7 @@ export const HistoryCard = ({ order, isNew = false }: Props) => {
         </Button>
       </div>
 
-      <div className={cn(s.itemsWrapper, expanded && s.itemsWrapperOpen)}>
+      <div className={clsx(s.itemsWrapper, expanded && s.itemsWrapperOpen)}>
         <div className={s.items}>
           {order.items.map(({ product: { name, id }, quantity }) => (
             <div key={id} className={s.item}>

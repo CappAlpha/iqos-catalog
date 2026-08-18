@@ -1,4 +1,4 @@
-import cn from "classnames";
+import clsx from "clsx";
 import { type ReactNode } from "react";
 
 import { TransitionNavLink } from "../TransitionNavLink";
@@ -34,7 +34,7 @@ export const Button = ({
   to,
   targetBlank = false,
 }: ButtonProps) => {
-  const styles = cn(
+  const styles = clsx(
     s.root,
     color && s[`color_${color}`],
     noPadding && s.noPadding,

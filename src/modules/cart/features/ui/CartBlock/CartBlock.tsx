@@ -1,4 +1,4 @@
-import cn from "classnames";
+import clsx from "clsx";
 import { observer } from "mobx-react-lite";
 
 import { Button } from "@/shared/ui/Button";
@@ -32,7 +32,7 @@ export const CartBlock = observer(() => {
         </div>
       ) : (
         <div
-          className={cn(
+          className={clsx(
             s.wrap,
             isCartTransitioningToEmpty && s.emptyStateSkeleton,
           )}

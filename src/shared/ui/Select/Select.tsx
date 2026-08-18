@@ -1,4 +1,4 @@
-import cn from "classnames";
+import clsx from "clsx";
 import { useState, useRef, type MouseEvent } from "react";
 
 import { useMobileM } from "@/shared/hooks/useBreakpoint";
@@ -50,11 +50,11 @@ export const Select = <T extends string | number>({
   return (
     <div
       ref={selectRef}
-      className={cn(s.root, disabled && s.disabled, className)}
+      className={clsx(s.root, disabled && s.disabled, className)}
     >
       <button
         type="button"
-        className={cn(s.select, isOpen && s.open)}
+        className={clsx(s.select, isOpen && s.open)}
         onClick={handleToggle}
         disabled={disabled}
         aria-haspopup="listbox"
@@ -64,13 +64,13 @@ export const Select = <T extends string | number>({
         <div className={s.chevron} />
       </button>
 
-      <ul className={cn(s.options, isOpen && s.open)} role="listbox">
+      <ul className={clsx(s.options, isOpen && s.open)} role="listbox">
         {options.map(({ id, label }) => (
           <li
             key={id}
             role="option"
             aria-selected={id === value}
-            className={cn(s.option, id === value && s.selected)}
+            className={clsx(s.option, id === value && s.selected)}
             onClick={(e) => handleSelect(id, e)}
           >
             {label}

@@ -1,4 +1,4 @@
-import cn from "classnames";
+import clsx from "clsx";
 import { useEffect, useRef, useState } from "react";
 
 import { getColorHex } from "../../lib/getColorHex";
@@ -197,9 +197,9 @@ export const ProductImage = ({
 
   return (
     <>
-      {!isLoaded && <div className={cn(className, s.skeleton)} />}
+      {!isLoaded && <div className={clsx(className, s.skeleton)} />}
       <img
-        className={cn(className, s.image, isLoaded && s.imageLoaded)}
+        className={clsx(className, s.image, isLoaded && s.imageLoaded)}
         src={src}
         alt={alt}
         loading={loading}

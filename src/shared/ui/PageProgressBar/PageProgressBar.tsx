@@ -1,25 +1,24 @@
-import NProgress from "nprogress";
-import "nprogress/nprogress.css";
+import { BProgress } from "@bprogress/core";
 import { useEffect } from "react";
 import type { Navigation } from "react-router";
 
-NProgress.configure({
+BProgress.configure({
   showSpinner: false,
   speed: 350,
-  trickleSpeed: 170,
+  trickleSpeed: 150,
   minimum: 0.05,
 });
 
 export const PageProgressBar = ({ state }: Pick<Navigation, "state">) => {
   useEffect(() => {
     if (state === "loading" || state === "submitting") {
-      NProgress.start();
+      BProgress.start();
     } else {
-      NProgress.done();
+      BProgress.done();
     }
 
     return () => {
-      NProgress.done();
+      BProgress.done();
     };
   }, [state]);
 

@@ -1,4 +1,4 @@
-import cn from "classnames";
+import clsx from "clsx";
 import { observer } from "mobx-react-lite";
 
 import { Checkbox } from "@/shared/ui/Checkbox";
@@ -20,7 +20,7 @@ export const FiltersGroup = observer(({ className }: Props) => {
         if (categories.length === 0) return null;
 
         return (
-          <div key={key} className={cn(s.root, className)}>
+          <div key={key} className={clsx(s.root, className)}>
             <h4 className={s.title}>
               <b>{title}</b>
             </h4>

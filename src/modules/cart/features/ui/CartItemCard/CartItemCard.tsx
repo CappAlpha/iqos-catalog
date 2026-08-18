@@ -1,4 +1,4 @@
-import cn from "classnames";
+import clsx from "clsx";
 import { observer } from "mobx-react-lite";
 import { useState } from "react";
 
@@ -39,14 +39,14 @@ export const CartItemCard = observer(({ item }: Props) => {
 
   return (
     <div
-      className={cn(
+      className={clsx(
         s.root,
         isAddLoading && s.cardAdding,
         isRemoveLoading && s.cardRemoving,
         !available && s.unavailable,
       )}
     >
-      <div className={cn(s.imgWrap, !available && s.unavailable)}>
+      <div className={clsx(s.imgWrap, !available && s.unavailable)}>
         {pictureUrl && !hasImageError ? (
           <img
             className={s.img}
@@ -61,7 +61,7 @@ export const CartItemCard = observer(({ item }: Props) => {
       </div>
 
       <div className={s.info}>
-        <div className={cn(s.header, !available && s.unavailable)}>
+        <div className={clsx(s.header, !available && s.unavailable)}>
           <h5 className={s.title}>
             <b>{name}</b>
           </h5>
@@ -87,7 +87,7 @@ export const CartItemCard = observer(({ item }: Props) => {
               />
 
               {price != null && (
-                <b className={cn(s.price, isCountChanged && s.updatingText)}>
+                <b className={clsx(s.price, isCountChanged && s.updatingText)}>
                   {formatPrice(price, quantity)}
                 </b>
               )}

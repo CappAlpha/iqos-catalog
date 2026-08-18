@@ -1,4 +1,4 @@
-import cn from "classnames";
+import clsx from "clsx";
 import { observer } from "mobx-react-lite";
 import { useState } from "react";
 
@@ -68,7 +68,7 @@ export const ProductCard = observer(
             </h5>
             {type === "color" && variants.length > 1 && (
               <h6 className={s.selectedColorName}>
-                <span className={cn(isPending && s.selectedSkeleton)} />
+                <span className={clsx(isPending && s.selectedSkeleton)} />
                 {selectedProduct.variantLabel}
               </h6>
             )}
@@ -85,7 +85,7 @@ export const ProductCard = observer(
             />
 
             <div className={s.bottomWrap}>
-              <b className={cn(s.price, isPending && s.priceSkeleton)}>
+              <b className={clsx(s.price, isPending && s.priceSkeleton)}>
                 {formatPrice(price)}
               </b>
 
