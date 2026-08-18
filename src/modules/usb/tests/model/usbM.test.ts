@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 
-import type { IAppLogger } from "@/modules/logs/features/model/types";
+import type { IAppLogger } from "@/shared/lib/logger";
 
 import type {
   IUsbConnectionResult,

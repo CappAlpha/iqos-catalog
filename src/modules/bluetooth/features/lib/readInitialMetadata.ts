@@ -1,4 +1,4 @@
-import { logsM } from "@/modules/logs/features/model/logsM";
+import { logsM } from "@/shared/lib/logger";
 
 import { GAP } from "../model/constants";
 import type { IBluetoothDeviceInfo } from "../model/types";

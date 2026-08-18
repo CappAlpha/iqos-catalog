@@ -1,4 +1,4 @@
-import { logsM } from "@/modules/logs/features/model/logsM";
+import { logsM } from "@/shared/lib/logger";
 
 const decoder = new TextDecoder("utf-8");
 

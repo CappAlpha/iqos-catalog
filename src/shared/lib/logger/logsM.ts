@@ -18,8 +18,6 @@ class LogsM implements IAppLogger {
   private readonly maxLogsCount = 500;
   private logCounter = 0;
 
-  //private readonly enableConsole = process.env.NODE_ENV !== "production";
-
   constructor() {
     makeAutoObservable(this, {
       logs: observable.shallow,

@@ -1,7 +1,5 @@
 import { makeAutoObservable, observable, runInAction } from "mobx";
 
-import { logsM } from "@/modules/logs/features/model/logsM";
-import type { IAppLogger } from "@/modules/logs/features/model/types";
 import {
   IS_ANDROID,
   IS_CAPACITOR,
@@ -10,6 +8,7 @@ import {
 } from "@/shared/config/platform";
 import { actionPromiseWithTimeout } from "@/shared/lib/actionPromiseWithTimeout";
 import { getErrorMessage } from "@/shared/lib/getErrorMessage";
+import { logsM, type IAppLogger } from "@/shared/lib/logger";
 
 import { getUsbStrategy } from "../lib/getUsbStrategy";
 import { UNSUPPORTED_MESSAGE, USB_CONFIG } from "./constants";

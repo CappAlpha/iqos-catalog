@@ -1,3 +1,5 @@
+import { logsM, type IAppLogger } from "@/shared/lib/logger";
+
 import { UNCAT_TITLE, UNCAT_ID } from "../model/constants";
 import type { FeedResult, Category, Product } from "../model/types";
 
@@ -34,14 +36,16 @@ const getAvailable = (offer: Element): boolean | null => {
   return null;
 };
 
-const logInvalidProduct = (issues: string[], offer: Element): void => {
-  if (!import.meta.env.DEV) return;
-
-  console.warn("Пропущен некорректный товар каталога", {
-    id: getAttr(offer, "id"),
-    name: getChildText(offer, "name"),
-    issues,
-  });
+const logInvalidProduct = (
+  issues: string[],
+  offer: Element,
+  logger: IAppLogger = logsM,
+): void => {
+  const id = getAttr(offer, "id") ?? "без ID";
+  const name = getChildText(offer, "name") ?? "без названия";
+  logger.warn(
+    `[FEED] Пропущен некорректный товар (id: ${id}, name: "${name}", проблемы: ${issues.join(", ")})`,
+  );
 };
 
 let decodeTextarea: HTMLTextAreaElement | null = null;
@@ -58,12 +62,16 @@ const decodeHtml = (
   return sanitize(decodeTextarea.value);
 };
 
-export const parseXmlCatalog = async (xmlText: string): Promise<FeedResult> => {
+export const parseXmlCatalog = async (
+  xmlText: string,
+  logger: IAppLogger = logsM,
+): Promise<FeedResult> => {
   const { default: DOMPurify } = await import("dompurify");
 
   const doc = new DOMParser().parseFromString(xmlText, "application/xml");
 
   if (doc.querySelector("parsererror")) {
+    logger.error("[FEED] Некорректный XML (ошибка парсинга).");
     throw new Error("Некорректный XML (ошибка парсинга).");
   }
 
@@ -71,10 +79,12 @@ export const parseXmlCatalog = async (xmlText: string): Promise<FeedResult> => {
   const offerElements = doc.querySelectorAll(SELECTORS.offers);
 
   if (!shop?.querySelector("offers")) {
+    logger.error("[FEED] В XML отсутствует обязательная секция offers.");
     throw new Error("В XML отсутствует обязательная секция offers.");
   }
 
   if (offerElements.length === 0) {
+    logger.error("[FEED] В XML отсутствуют товары.");
     throw new Error("В XML отсутствуют товары.");
   }
 
@@ -113,6 +123,7 @@ export const parseXmlCatalog = async (xmlText: string): Promise<FeedResult> => {
           price === null && "price",
         ].filter((issue): issue is string => Boolean(issue)),
         offer,
+        logger,
       );
       continue;
     }
@@ -150,6 +161,7 @@ export const parseXmlCatalog = async (xmlText: string): Promise<FeedResult> => {
   }
 
   if (products.length === 0) {
+    logger.error("[FEED] В XML не найдено ни одного корректного товара.");
     throw new Error("В XML не найдено ни одного корректного товара.");
   }
 

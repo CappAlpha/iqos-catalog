@@ -1,4 +1,4 @@
-import type { IAppLogger } from "@/modules/logs/features/model/types";
+import type { IAppLogger } from "@/shared/lib/logger";
 
 import { getErrorMessage } from "./getErrorMessage";
 

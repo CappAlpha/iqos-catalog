@@ -1,12 +1,12 @@
 import { createBrowserRouter, RouterProvider } from "react-router";
 
-import { ErrorPage } from "@/modules/error/pages/ui/ErrorPage";
-import { NotFoundPage } from "@/modules/not-found/pages/ui/NotFoundPage";
 import { IS_CAPACITOR } from "@/shared/config/platform";
 import { Header } from "@/shared/ui/Header";
 import { PageLoader } from "@/shared/ui/PageLoader";
 
 import { AppLayout } from "../layout/AppLayout";
+import { ErrorPage } from "./ui/ErrorPage";
+import { NotFoundPage } from "./ui/NotFoundPage";
 
 const ROUTER_BASENAME = IS_CAPACITOR ? "/" : "/iqos-catalog/";
 

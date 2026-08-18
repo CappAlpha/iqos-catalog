@@ -1,7 +1,7 @@
-import { logsM } from "@/modules/logs/features/model/logsM";
 import { actionPromiseWithTimeout } from "@/shared/lib/actionPromiseWithTimeout";
 import { BaseConnectionStrategy } from "@/shared/lib/baseConnectionStrategy";
 import { getErrorMessage } from "@/shared/lib/getErrorMessage";
+import { logsM } from "@/shared/lib/logger";
 
 import { createCharReader } from "../lib/readCharacteristic";
 import { getEmptyDeviceInfo } from "../lib/readDeviceInfo";

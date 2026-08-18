@@ -1,9 +1,9 @@
 import { BleClient } from "@capacitor-community/bluetooth-le";
 
-import { logsM } from "@/modules/logs/features/model/logsM";
 import { IS_ANDROID, IS_IOS } from "@/shared/config/platform";
 import { BaseConnectionStrategy } from "@/shared/lib/baseConnectionStrategy";
 import { getErrorMessage } from "@/shared/lib/getErrorMessage";
+import { logsM } from "@/shared/lib/logger";
 
 import { createCharReader } from "../lib/readCharacteristic";
 import { readInitialMetadata } from "../lib/readInitialMetadata";

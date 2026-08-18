@@ -1,7 +1,5 @@
 import { makeAutoObservable, observable, runInAction } from "mobx";
 
-import { logsM } from "@/modules/logs/features/model/logsM";
-import type { IAppLogger } from "@/modules/logs/features/model/types";
 import {
   IS_CAPACITOR,
   IS_NATIVE_BLUETOOTH_AVAILABLE,
@@ -9,6 +7,7 @@ import {
 } from "@/shared/config/platform";
 import { actionPromiseWithTimeout } from "@/shared/lib/actionPromiseWithTimeout";
 import { getErrorMessage } from "@/shared/lib/getErrorMessage";
+import { logsM, type IAppLogger } from "@/shared/lib/logger";
 
 import { getBluetoothStrategy } from "../lib/getBluetoothStrategy";
 import { getEmptyDeviceInfo } from "../lib/readDeviceInfo";

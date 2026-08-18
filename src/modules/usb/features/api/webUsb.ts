@@ -1,5 +1,5 @@
-import { logsM } from "@/modules/logs/features/model/logsM";
 import { BaseConnectionStrategy } from "@/shared/lib/baseConnectionStrategy";
+import { logsM } from "@/shared/lib/logger";
 
 import {
   DEFAULT_CONFIGURATION,
