@@ -2,7 +2,7 @@ import { useEffect } from "react";
 
 export const useVH = () => {
   useEffect(() => {
-    if (typeof CSS !== "undefined" && CSS.supports("height: 1dvh")) return;
+    if (typeof CSS !== "undefined" && CSS.supports("height: 1svh")) return;
 
     let lastWidth = globalThis.window.innerWidth ?? 0;
 

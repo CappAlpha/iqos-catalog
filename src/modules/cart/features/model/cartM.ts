@@ -108,7 +108,7 @@ class CartM {
     return this.loadStore();
   };
 
-  private loadStore = async () => {
+  loadStore = async () => {
     try {
       const [{ value: cart }, { value: orders }] = await Promise.all([
         storage.get(CART_STORAGE_KEY),
@@ -509,3 +509,4 @@ class CartM {
 }
 
 export const cartM = new CartM();
+void cartM.loadStore();
