@@ -35,8 +35,8 @@
     "@capacitor/filesystem": "^8.1.2",
     "@capacitor/ios": "^8.5.0",
     "@capacitor/preferences": "^8.0.1",
-    "@capawesome-team/capacitor-file-opener": "^8.0.1",
-    "@leeskies/capacitor-usb-serial": "^0.1.0",
+    "@capawesome-team/capacitor-file-opener": "^8.0.2",
+    "@leeskies/capacitor-usb-serial": "^0.2.0",
     "@tanstack/query-core": "^5.101.4",
     "axios": "^1.19.0",
     "classnames": "^2.5.1",
@@ -88,6 +88,7 @@
     "zod-validation-error": "^5.0.0"
   },
   "allowScripts": {
-    "simple-git-hooks@2.13.1": true
+    "simple-git-hooks@2.13.1": true,
+    "@parcel/watcher@2.6.0": true
   }
 }
