@@ -136,7 +136,7 @@ export const checkApkUpdate = async (): Promise<void> => {
         customToastTemplate({
           title: `Доступна версия v${remoteVersion}`,
           type: "info",
-          description: "Нажмите кнопку ниже для установки обновлений.",
+          description: "Нажмите кнопку для установки обновления.",
           buttonLabel: "Обновить",
           action: () => {
             void downloadAndInstall(downloadUrl, remoteVersion);
