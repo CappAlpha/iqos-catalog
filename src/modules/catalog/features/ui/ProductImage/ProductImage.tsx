@@ -1,5 +1,5 @@
 import clsx from "clsx";
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 
 import { getColorHex } from "../../lib/getColorHex";
 import type { ProductGroup } from "../../model/types";
@@ -156,23 +156,7 @@ export const ProductImage = ({
   isFallback,
   onError,
 }: ProductImageProps) => {
-  const [prevSrc, setPrevSrc] = useState(src);
   const [isLoaded, setIsLoaded] = useState(false);
-  const loadTimerRef = useRef<number | null>(null);
-
-  if (src !== prevSrc) {
-    setPrevSrc(src);
-    setIsLoaded(false);
-  }
-
-  useEffect(() => {
-    return () => {
-      if (loadTimerRef.current !== null) {
-        window.clearTimeout(loadTimerRef.current);
-        loadTimerRef.current = null;
-      }
-    };
-  }, [src]);
 
   if (!src || isFallback) {
     return (
@@ -184,26 +168,20 @@ export const ProductImage = ({
     );
   }
 
-  const handleLoad = () => {
-    if (loadTimerRef.current !== null) {
-      window.clearTimeout(loadTimerRef.current);
-    }
-
-    loadTimerRef.current = window.setTimeout(() => {
-      setIsLoaded(true);
-      loadTimerRef.current = null;
-    }, 400);
-  };
-
   return (
     <>
       {!isLoaded && <div className={clsx(className, s.skeleton)} />}
       <img
-        className={clsx(className, s.image, isLoaded && s.imageLoaded)}
+        ref={(imgNode) => {
+          if (imgNode?.complete && imgNode.naturalWidth > 0 && !isLoaded) {
+            setIsLoaded(true);
+          }
+        }}
+        className={clsx(className, s.image, !isLoaded && s.hidden)}
         src={src}
         alt={alt}
         loading={loading}
-        onLoad={handleLoad}
+        onLoad={() => setIsLoaded(true)}
         onError={onError}
       />
     </>

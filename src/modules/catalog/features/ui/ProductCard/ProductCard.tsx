@@ -4,7 +4,7 @@ import { useState } from "react";
 
 import { formatPrice } from "@/shared/lib/formatPrice";
 
-import { useVariantTransition } from "../../lib/useVariantTransition";
+import { useVariantTransition } from "../../hooks/useVariantTransition";
 import type { ProductGroup } from "../../model/types";
 import { AddCartButton } from "../AddCartButton";
 import { ProductImage } from "../ProductImage/ProductImage";
@@ -22,8 +22,7 @@ export const ProductCard = observer(
   ({ productGroup, loading }: Readonly<Props>) => {
     const { baseName, type, variants } = productGroup;
 
-    const { selectedIdx, isPending, handleSelect } =
-      useVariantTransition(variants);
+    const { selectedIdx, isPending, handleSelect } = useVariantTransition();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [failedImageUrl, setFailedImageUrl] = useState<string | null>(null);
 
@@ -44,6 +43,7 @@ export const ProductCard = observer(
           <div className={s.imgWrap}>
             {isPending && <div className={s.imgWrapSkeleton} />}
             <ProductImage
+              key={pictureUrl}
               src={pictureUrl}
               alt={baseName}
               type={type}

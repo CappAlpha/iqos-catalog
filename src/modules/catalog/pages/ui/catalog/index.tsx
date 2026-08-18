@@ -2,7 +2,7 @@ import clsx from "clsx";
 import { observer } from "mobx-react-lite";
 import { useRef } from "react";
 
-import { useCatalogUrlSync } from "@/modules/catalog/features/lib/useCatalogUrlSync";
+import { useCatalogUrlSync } from "@/modules/catalog/features/hooks/useCatalogUrlSync";
 import { catalogM } from "@/modules/catalog/features/model/catalogM";
 import { CatalogGrid } from "@/modules/catalog/features/ui/CatalogGrid";
 import { CatalogHeader } from "@/modules/catalog/features/ui/CatalogHeader";

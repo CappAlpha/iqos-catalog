@@ -2,8 +2,12 @@ import { runInAction, reaction } from "mobx";
 import { useEffect } from "react";
 import { useSearchParams } from "react-router";
 
+import {
+  normalizeSort,
+  normalizePage,
+  getCleanCatsParam,
+} from "../lib/catalogPage";
 import { catalogM } from "../model/catalogM";
-import { normalizeSort, normalizePage, getCleanCatsParam } from "./catalogPage";
 
 export const useCatalogUrlSync = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -16,7 +20,7 @@ export const useCatalogUrlSync = () => {
     const urlPage = normalizePage(searchParams.get("page"));
 
     runInAction(() => {
-      if (catalogM.selectedCategoriesQuery !== urlCatsStr) {
+      if ((catalogM.selectedCategoriesQuery || null) !== urlCatsStr) {
         catalogM.selectedCategoryIds.clear();
         if (urlCatsStr) {
           urlCatsStr.split(",").forEach((id) => catalogM.setCategory(id));
