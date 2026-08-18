@@ -3,8 +3,17 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 
 import App from "./app/App";
+import { IS_CAPACITOR, IS_ANDROID } from "./shared/config/platform";
 
 BProgress.start();
+
+if (IS_CAPACITOR && IS_ANDROID) {
+  void import("@/shared/lib/apkUpdater")
+    .then(({ checkApkUpdate }) => checkApkUpdate())
+    .catch((error: unknown) => {
+      console.error("Ошибка проверки обновления приложения", error);
+    });
+}
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>

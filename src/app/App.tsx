@@ -4,7 +4,6 @@ import { Toaster } from "sonner";
 import "@/app/styles/global.scss";
 import { cartM } from "@/modules/cart/features/model/cartM";
 import { useVH } from "@/shared/hooks/useVh";
-import { LazyApkUpdaterToast } from "@/shared/ui/ApkUpdaterToast";
 import { PageLoader } from "@/shared/ui/PageLoader";
 
 import { AppRoutes } from "./routes/AppRoutes";
@@ -21,7 +20,7 @@ function App() {
       <Suspense fallback={<PageLoader />}>
         <AppRoutes />
       </Suspense>
-      <LazyApkUpdaterToast />
+      {/* <LazyApkUpdaterToast /> */}
       <Toaster position="top-center" richColors className="toast-root" />
     </>
   );
