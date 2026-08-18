@@ -15,7 +15,6 @@ function App() {
       <Suspense fallback={<PageLoader />}>
         <AppRoutes />
       </Suspense>
-      {/* <LazyApkUpdaterToast /> */}
       <Toaster position="top-center" richColors className="toast-root" />
     </>
   );
