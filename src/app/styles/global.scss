@@ -125,8 +125,6 @@ body[data-no-scroll="true"] {
 }
 
 .bprogress {
-  pointer-events: none;
-
   .bar {
     background: var(--accent-color);
     position: fixed;
