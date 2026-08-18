@@ -1,1 +1,0 @@
-import{c as e}from"./vendor-capacitor-2--phiIm.js";export{e as FilesystemWeb};
