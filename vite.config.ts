@@ -31,7 +31,7 @@ export default defineConfig(({ mode }) => {
       },
     } as CSSOptions,
     build: {
-      target: "es2020",
+      target: "es2022",
       minify: true,
       rollupOptions: {
         output: {
