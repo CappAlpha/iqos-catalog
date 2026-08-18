@@ -1,5 +1,4 @@
-import { useEffect } from "react";
-import { useNavigate } from "react-router";
+import { Navigate } from "react-router";
 
 import { UsbConnect } from "@/modules/usb/features/ui/UsbConnect";
 import { UsbInfo } from "@/modules/usb/features/ui/UsbInfo";
@@ -8,15 +7,9 @@ import { IS_IOS } from "@/shared/config/platform";
 import s from "./UsbPage.module.scss";
 
 const UsbPage = () => {
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    if (IS_IOS) {
-      void navigate("/bluetooth", { replace: true });
-    }
-  }, [navigate]);
-
-  if (IS_IOS) return null;
+  if (IS_IOS) {
+    return <Navigate to="/bluetooth" replace />;
+  }
 
   return (
     <main className={s.root}>
