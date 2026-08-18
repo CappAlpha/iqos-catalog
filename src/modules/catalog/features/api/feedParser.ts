@@ -27,7 +27,7 @@ const getChildPrice = (parent: Element, tagName: string): number | null => {
 
 const getAvailable = (offer: Element): boolean | null => {
   const rawValue = getAttr(offer, "available");
-  if (rawValue === null) return false;
+  if (rawValue === null) return true;
 
   const value = rawValue.toLowerCase();
 

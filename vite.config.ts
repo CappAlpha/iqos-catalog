@@ -86,7 +86,7 @@ export default defineConfig(({ mode }) => {
             if (isFont) {
               return `fonts/[name][extname]`;
             }
-            return `[name][extname]`;
+            return `[name]-[hash][extname]`;
           },
           entryFileNames: "[name]-[hash].js",
           chunkFileNames: "[name]-[hash].js",
