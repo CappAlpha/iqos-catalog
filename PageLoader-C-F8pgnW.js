@@ -1,0 +1,1 @@
+import{t as e}from"./vendor-react-pd-WdUHl.js";import{i as t}from"./Button-BOruyO6k.js";var n={root:`_root_1jiwt_1`,overlay:`_overlay_1jiwt_14`,loader:`_loader_1jiwt_20`,loaderSpin:`_loaderSpin_1jiwt_1`},r=e(),i=({hasOverlay:e=!1,className:i})=>(0,r.jsx)(`div`,{className:t(n.root,e&&n.overlay,i),children:(0,r.jsx)(`div`,{className:n.loader})});export{i as t};
