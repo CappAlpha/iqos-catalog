@@ -1,6 +1,7 @@
 import clsx from "clsx";
 import { observer } from "mobx-react-lite";
 
+import { ROUTES } from "@/shared/config";
 import { Button } from "@/shared/ui/Button";
 
 import { cartM } from "../../model/cartM";
@@ -26,7 +27,7 @@ export const CartBlock = observer(() => {
         <div className={s.emptyState}>
           <h2>Ваша корзина пуста</h2>
           <p>Добавьте товары из каталога, чтобы оформить заказ.</p>
-          <Button to="/" className={s.linkCatalog}>
+          <Button to={ROUTES.CATALOG} className={s.linkCatalog}>
             Перейти в каталог
           </Button>
         </div>

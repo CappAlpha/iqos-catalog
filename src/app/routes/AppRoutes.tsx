@@ -1,14 +1,13 @@
 import { createBrowserRouter, RouterProvider } from "react-router";
 
-import { IS_CAPACITOR } from "@/shared/config/platform";
+import { ROUTER_BASENAME, ROUTES } from "@/shared/config";
+import { lazyRoute } from "@/shared/lib/routePreload";
 import { Header } from "@/shared/ui/Header";
 import { PageLoader } from "@/shared/ui/PageLoader";
 
 import { AppLayout } from "../layout/AppLayout";
 import { ErrorPage } from "./ui/ErrorPage";
 import { NotFoundPage } from "./ui/NotFoundPage";
-
-const ROUTER_BASENAME = IS_CAPACITOR ? "/" : "/iqos-catalog/";
 
 const router = createBrowserRouter(
   [
@@ -23,30 +22,20 @@ const router = createBrowserRouter(
       ),
       children: [
         {
-          path: "/",
-          lazy: async () => ({
-            Component: (await import("@/modules/catalog/pages/ui/catalog"))
-              .default,
-          }),
+          path: ROUTES.CATALOG,
+          lazy: lazyRoute(ROUTES.CATALOG),
         },
         {
-          path: "/cart",
-          lazy: async () => ({
-            Component: (await import("@/modules/cart/pages/ui/cart")).default,
-          }),
+          path: ROUTES.CART,
+          lazy: lazyRoute(ROUTES.CART),
         },
         {
-          path: "/bluetooth",
-          lazy: async () => ({
-            Component: (await import("@/modules/bluetooth/pages/ui/bluetooth"))
-              .default,
-          }),
+          path: ROUTES.BLUETOOTH,
+          lazy: lazyRoute(ROUTES.BLUETOOTH),
         },
         {
-          path: "/usb",
-          lazy: async () => ({
-            Component: (await import("@/modules/usb/pages/ui/usb")).default,
-          }),
+          path: ROUTES.USB,
+          lazy: lazyRoute(ROUTES.USB),
         },
         {
           path: "*",

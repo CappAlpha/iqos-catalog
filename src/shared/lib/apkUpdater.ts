@@ -3,9 +3,9 @@ import { FileTransfer } from "@capacitor/file-transfer";
 import { Filesystem, Directory } from "@capacitor/filesystem";
 import { FileOpener } from "@capawesome-team/capacitor-file-opener";
 
+import { GITHUB_RELEASES_API } from "@/shared/config";
 import { customToastTemplate } from "@/shared/lib/customToastTemplate";
 
-const GITHUB_REPO = "CappAlpha/iqos-catalog";
 const VERSION_REGEX = /^v?(\d+)(?:\.(\d+))?(?:\.(\d+))?(?:[-+].*)?$/;
 
 interface GitHubAsset {
@@ -114,9 +114,7 @@ export const checkApkUpdate = async (): Promise<void> => {
 
   try {
     const appInfo = await App.getInfo();
-    const response = await fetch(
-      `https://api.github.com/repos/${GITHUB_REPO}/releases/latest`,
-    );
+    const response = await fetch(GITHUB_RELEASES_API);
 
     if (!response.ok) return;
 

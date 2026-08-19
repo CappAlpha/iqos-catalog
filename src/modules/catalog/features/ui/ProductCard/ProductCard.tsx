@@ -1,14 +1,15 @@
 import clsx from "clsx";
 import { observer } from "mobx-react-lite";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 
 import { formatPrice } from "@/shared/lib/formatPrice";
+import { PageLoader } from "@/shared/ui/PageLoader";
 
 import { useVariantTransition } from "../../hooks/useVariantTransition";
 import type { ProductGroup } from "../../model/types";
 import { AddCartButton } from "../AddCartButton";
 import { ProductImage } from "../ProductImage/ProductImage";
-import { ProductModal } from "../ProductModal";
+import { LazyProductModal, preloadProductModal } from "../ProductModal";
 import { ProductVariants } from "../ProductVariants";
 
 import s from "./ProductCard.module.scss";
@@ -39,7 +40,12 @@ export const ProductCard = observer(
 
     return (
       <>
-        <div className={s.root} onClick={() => setIsModalOpen(true)}>
+        <div
+          className={s.root}
+          onClick={() => setIsModalOpen(true)}
+          onMouseEnter={preloadProductModal}
+          onTouchStart={preloadProductModal}
+        >
           <div className={s.imgWrap}>
             {isPending && <div className={s.imgWrapSkeleton} />}
             <ProductImage
@@ -98,13 +104,15 @@ export const ProductCard = observer(
         </div>
 
         {isModalOpen && (
-          <ProductModal
-            productGroup={productGroup}
-            selectedIdx={selectedIdx}
-            isPending={isPending}
-            onSelect={handleSelect}
-            onClose={onClose}
-          />
+          <Suspense fallback={<PageLoader hasOverlay />}>
+            <LazyProductModal
+              productGroup={productGroup}
+              selectedIdx={selectedIdx}
+              isPending={isPending}
+              onSelect={handleSelect}
+              onClose={onClose}
+            />
+          </Suspense>
         )}
       </>
     );

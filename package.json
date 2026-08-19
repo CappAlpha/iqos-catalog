@@ -41,7 +41,6 @@
     "@tanstack/query-core": "^5.101.4",
     "axios": "^1.19.0",
     "currency.js": "^2.0.4",
-    "dompurify": "^3.4.13",
     "mobx": "^6.16.1",
     "mobx-react-lite": "^4.1.1",
     "mobx-tanstack-query": "^7.3.0",
@@ -81,7 +80,7 @@
     "typescript-eslint": "^8.67.0",
     "vite": "^8.2.1",
     "vite-plugin-svgr": "^5.2.0",
-    "vitest": "^4.1.10"
+    "vitest": "^4.1.11"
   },
   "allowScripts": {
     "simple-git-hooks@2.13.1": true,

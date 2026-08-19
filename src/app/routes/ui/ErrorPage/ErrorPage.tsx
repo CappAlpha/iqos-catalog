@@ -1,3 +1,4 @@
+import { ROUTES } from "@/shared/config";
 import { Button } from "@/shared/ui/Button";
 import { Header } from "@/shared/ui/Header";
 import { StatusPage } from "@/shared/ui/StatusPage";
@@ -11,7 +12,7 @@ export const ErrorPage = () => (
           <Button onClick={() => window.location.reload()}>
             Обновить страницу
           </Button>
-          <Button color="transparent" to="/">
+          <Button color="transparent" to={ROUTES.CATALOG}>
             Вернуться в каталог
           </Button>
         </>

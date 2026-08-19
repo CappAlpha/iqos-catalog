@@ -11,6 +11,16 @@
   z-index: 9999;
 }
 
+.overlay {
+  @include overlay;
+  backdrop-filter: blur(5px);
+
+  .loader {
+    border-color: var(--white);
+    border-top-color: transparent;
+  }
+}
+
 .loader {
   display: inline-block;
   width: 40px;

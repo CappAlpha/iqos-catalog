@@ -1,10 +1,11 @@
 import axios from "axios";
 
+import { FEED_URL } from "@/shared/config";
 import { formatError } from "@/shared/lib/axiosFormatError";
 import { customToastTemplate } from "@/shared/lib/customToastTemplate";
 import { logsM, type IAppLogger } from "@/shared/lib/logger";
 
-import { FEED_URL, RESERVE_FEED_URL } from "../model/constants";
+import { RESERVE_FEED_URL } from "../model/constants";
 import type { FeedResult } from "../model/types";
 import { parseXmlCatalog } from "./feedParser";
 
@@ -73,7 +74,7 @@ const loadFeed = async (
   logger: IAppLogger = logsM,
 ): Promise<FeedResult> => {
   const xmlData = await executeRequest(url, signal, timeout, logger);
-  const result = await parseXmlCatalog(xmlData, logger);
+  const result = parseXmlCatalog(xmlData, logger);
 
   logger.success(
     `${LOG_PREFIX} Фид успешно загружен и обработан (${url}): ${result.products.length} товаров, ${result.categories.length} категорий.`,

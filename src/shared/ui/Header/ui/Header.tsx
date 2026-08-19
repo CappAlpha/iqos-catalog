@@ -6,7 +6,7 @@ import {
   LogoLil,
   USBIcon,
 } from "@/assets/icons";
-import { IS_IOS } from "@/shared/config/platform";
+import { IS_IOS, ROUTES } from "@/shared/config";
 import { useMobile, useMobileM } from "@/shared/hooks/useBreakpoint";
 
 import { TransitionNavLink } from "../../TransitionNavLink";
@@ -22,14 +22,14 @@ export interface INavLinkItem {
 }
 
 const NAV_LINKS: INavLinkItem[] = [
-  { to: "/", text: "Каталог", Icon: CatalogIcon },
-  { to: "/bluetooth", text: "Bluetooth", Icon: BluetoothIcon },
-  { to: "/usb", text: "USB", Icon: USBIcon },
-  { to: "/cart", text: "Корзина", Icon: CartIcon, isCart: true },
+  { to: ROUTES.CATALOG, text: "Каталог", Icon: CatalogIcon },
+  { to: ROUTES.BLUETOOTH, text: "Bluetooth", Icon: BluetoothIcon },
+  { to: ROUTES.USB, text: "USB", Icon: USBIcon },
+  { to: ROUTES.CART, text: "Корзина", Icon: CartIcon, isCart: true },
 ];
 
 const ALLOWED_NAV_LINKS = NAV_LINKS.filter(
-  ({ to }) => !(to === "/usb" && IS_IOS),
+  ({ to }) => !(to === ROUTES.USB && IS_IOS),
 );
 
 export const Header = () => {
@@ -37,7 +37,7 @@ export const Header = () => {
   const isMobileM = useMobileM();
 
   const logoLink = (
-    <TransitionNavLink key="logo-mobile" to="/" className={s.logo}>
+    <TransitionNavLink key="logo-mobile" to={ROUTES.CATALOG} className={s.logo}>
       <LogoIqos />
       <LogoLil />
     </TransitionNavLink>

@@ -1,5 +1,7 @@
 import { makeAutoObservable, observable } from "mobx";
 
+import { IS_DEV } from "@/shared/config";
+
 import type { IAppLogger, ILogEntry, LogType } from "./types";
 
 const timeFormatter = new Intl.DateTimeFormat("ru-RU", {
@@ -9,7 +11,7 @@ const timeFormatter = new Intl.DateTimeFormat("ru-RU", {
   hour12: false,
 });
 
-const CONSOLE_LOG_LEVELS: readonly LogType[] = import.meta.env.DEV
+const CONSOLE_LOG_LEVELS: readonly LogType[] = IS_DEV
   ? ["info", "success", "warn", "error"]
   : ["warn", "error"];
 

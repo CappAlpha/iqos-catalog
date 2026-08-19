@@ -19,7 +19,7 @@ const getChildText = (parent: Element, tagName: string): string | null =>
 
 const getChildPrice = (parent: Element, tagName: string): number | null => {
   const text = getChildText(parent, tagName);
-  if (!text || !/^[0-9]+(?:[.,][0-9]+)?$/.test(text)) return null;
+  if (!text || !/^\d+(?:[.,]\d+)?$/.test(text)) return null;
 
   const price = Number(text.replace(",", "."));
   return Number.isFinite(price) ? price : null;
@@ -50,24 +50,19 @@ const logInvalidProduct = (
 
 let decodeTextarea: HTMLTextAreaElement | null = null;
 
-const decodeHtml = (
-  html: string,
-  sanitize: (val: string) => string,
-): string => {
+const decodeHtml = (html: string): string => {
   if (!html) return "";
   if (typeof document === "undefined") return html;
 
   decodeTextarea ??= document.createElement("textarea");
   decodeTextarea.innerHTML = html;
-  return sanitize(decodeTextarea.value);
+  return decodeTextarea.value;
 };
 
-export const parseXmlCatalog = async (
+export const parseXmlCatalog = (
   xmlText: string,
   logger: IAppLogger = logsM,
-): Promise<FeedResult> => {
-  const { default: DOMPurify } = await import("dompurify");
-
+): FeedResult => {
   const doc = new DOMParser().parseFromString(xmlText, "application/xml");
 
   if (doc.querySelector("parsererror")) {
@@ -143,10 +138,7 @@ export const parseXmlCatalog = async (
       id,
       name,
       available,
-      description: decodeHtml(
-        getChildText(offer, "description") ?? "",
-        (dirty) => DOMPurify.sanitize(dirty),
-      ),
+      description: decodeHtml(getChildText(offer, "description") ?? ""),
       price,
       currencyId: getChildText(offer, "currencyId"),
       categoryId,

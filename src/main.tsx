@@ -2,8 +2,9 @@ import { BProgress } from "@bprogress/core";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 
+import { IS_ANDROID, IS_CAPACITOR } from "@/shared/config";
+
 import App from "./app/App";
-import { IS_CAPACITOR, IS_ANDROID } from "./shared/config/platform";
 
 BProgress.start();
 

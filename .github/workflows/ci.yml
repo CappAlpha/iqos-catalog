@@ -28,6 +28,10 @@ jobs:
         continue-on-error: true
       - run: npm test
       - run: npm run build
+        env:
+          VITE_IQOS_ORIGIN: ${{ vars.VITE_IQOS_ORIGIN }}
+          VITE_FEED_URL: ${{ vars.VITE_FEED_URL }}
+          VITE_GITHUB_REPO: ${{ vars.VITE_GITHUB_REPO }}
 
       # Fix 404 error on page update
       - name: Create 404 fallback for SPA routing

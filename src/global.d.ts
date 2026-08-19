@@ -16,4 +16,14 @@ declare global {
   interface Window {
     Capacitor?: CapacitorGlobal;
   }
+
+  interface ImportMetaEnv {
+    readonly VITE_IQOS_ORIGIN?: string;
+    readonly VITE_FEED_URL?: string;
+    readonly VITE_GITHUB_REPO?: string;
+  }
+
+  interface ImportMeta {
+    readonly env: ImportMetaEnv;
+  }
 }

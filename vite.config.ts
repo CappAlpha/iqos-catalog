@@ -59,7 +59,6 @@ export default defineConfig(({ mode }) => {
 
             if (
               id.includes("node_modules/axios") ||
-              id.includes("node_modules/dompurify") ||
               id.includes("node_modules/sonner")
             ) {
               return "vendor-utils";

@@ -181,6 +181,8 @@ export const ProductImage = ({
         src={src}
         alt={alt}
         loading={loading}
+        fetchPriority={loading === "eager" ? "high" : "auto"}
+        decoding="async"
         onLoad={() => setIsLoaded(true)}
         onError={onError}
       />

@@ -2,13 +2,13 @@ import { Navigate } from "react-router";
 
 import { UsbConnect } from "@/modules/usb/features/ui/UsbConnect";
 import { UsbInfo } from "@/modules/usb/features/ui/UsbInfo";
-import { IS_IOS } from "@/shared/config/platform";
+import { IS_IOS, ROUTES } from "@/shared/config";
 
 import s from "./UsbPage.module.scss";
 
 const UsbPage = () => {
   if (IS_IOS) {
-    return <Navigate to="/bluetooth" replace />;
+    return <Navigate to={ROUTES.BLUETOOTH} replace />;
   }
 
   return (
