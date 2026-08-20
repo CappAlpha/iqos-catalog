@@ -17,18 +17,20 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@v7
+
       - uses: pnpm/action-setup@v6
+
       - uses: actions/setup-node@v7
         with:
           node-version: 24
-          cache: "npm"
+          cache: "pnpm"
 
-      - run: npm ci
-      - run: npm run lint
-      - run: npm run knip
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run lint
+      - run: pnpm run knip
         continue-on-error: true
-      - run: npm test
-      - run: npm run build
+      - run: pnpm run test
+      - run: pnpm run build
         env:
           VITE_IQOS_ORIGIN: ${{ vars.VITE_IQOS_ORIGIN }}
           VITE_FEED_URL: ${{ vars.VITE_FEED_URL }}
@@ -72,10 +74,12 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
+      - uses: pnpm/action-setup@v6
+
       - uses: actions/setup-node@v7
         with:
           node-version: 24
-          cache: "npm"
+          cache: "pnpm"
 
       - name: Set up Java JDK
         uses: actions/setup-java@v5
@@ -83,9 +87,9 @@ jobs:
           distribution: 'temurin'
           java-version: '21'
 
-      - run: npm ci
+      - run: pnpm install --frozen-lockfile
 
-      - run: npm run build:capacitor
+      - run: pnpm run build:capacitor
 
       - name: Make gradlew executable
         run: chmod +x android/gradlew
