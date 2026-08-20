@@ -1,5 +1,4 @@
-import babel from "@rolldown/plugin-babel";
-import react, { reactCompilerPreset } from "@vitejs/plugin-react";
+import react from "@vitejs/plugin-react";
 import path from "node:path";
 import { visualizer } from "rollup-plugin-visualizer";
 import { defineConfig, type CSSOptions } from "vite";
@@ -10,13 +9,8 @@ export default defineConfig(({ mode }) => {
   return {
     base: mode === "capacitor" ? "./" : "/iqos-catalog/",
     plugins: [
-      react(),
+      react({ compiler: true }),
       svgr(),
-      babel({
-        presets: [reactCompilerPreset()],
-        include: /\.(jsx|tsx|js|ts)$/,
-        exclude: /node_modules/,
-      }),
       visualizer({ open: true, filename: "bundle-stats.html" }),
     ],
     css: {
