@@ -19,11 +19,11 @@ import type {
   IUsbDeviceInfo,
 } from "./types";
 
-type UsbStatus = "disconnected" | "connecting" | "connected" | "disconnecting";
+type TUsbStatus = "disconnected" | "connecting" | "connected" | "disconnecting";
 
 export class UsbM {
   device: IUsbDeviceInfo | null = null;
-  status: UsbStatus = "disconnected";
+  status: TUsbStatus = "disconnected";
   error: string | null = null;
   batteryAvailable = false;
   batteryLevel: number | null = null;

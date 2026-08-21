@@ -2,7 +2,7 @@ import clsx from "clsx";
 
 import s from "./PageLoader.module.scss";
 
-interface PageLoaderProps {
+interface IPageLoaderProps {
   hasOverlay?: boolean;
   className?: string;
 }
@@ -10,7 +10,7 @@ interface PageLoaderProps {
 export const PageLoader = ({
   hasOverlay = false,
   className,
-}: Readonly<PageLoaderProps>) => {
+}: Readonly<IPageLoaderProps>) => {
   return (
     <div className={clsx(s.root, hasOverlay && s.overlay, className)}>
       <div className={s.loader} />

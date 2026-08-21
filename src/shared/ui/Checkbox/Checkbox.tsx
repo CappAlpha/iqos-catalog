@@ -3,7 +3,7 @@ import type { ChangeEvent, ReactNode } from "react";
 
 import s from "./Checkbox.module.scss";
 
-interface CheckboxProps {
+interface ICheckboxProps {
   checked: boolean;
   onChange: (checked: boolean, event: ChangeEvent<HTMLInputElement>) => void;
 
@@ -22,7 +22,7 @@ export const Checkbox = ({
   name,
   disabled,
   className,
-}: CheckboxProps) => {
+}: ICheckboxProps) => {
   const styles = clsx(s.root, disabled && s.disabled, className);
 
   return (

@@ -1,2 +1,2 @@
 export { logsM } from "./logsM";
-export type { IAppLogger, ILogEntry, LogType } from "./types";
+export type { IAppLogger, ILogEntry, TLogType } from "./types";

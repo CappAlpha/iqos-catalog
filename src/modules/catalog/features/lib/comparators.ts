@@ -1,4 +1,4 @@
-import type { SortKey, Product } from "../model/types";
+import type { TSortKey, TProduct } from "../model/types";
 
 const collator = new Intl.Collator("ru", {
   sensitivity: "base",
@@ -19,7 +19,7 @@ const comparePrices = (
   return isDesc ? b - a : a - b;
 };
 
-const COMPARATORS: Record<SortKey, (a: Product, b: Product) => number> = {
+const COMPARATORS: Record<TSortKey, (a: TProduct, b: TProduct) => number> = {
   nameAsc: (a, b) => compareText(a.name, b.name),
   nameDesc: (a, b) => compareText(b.name, a.name),
 
@@ -29,4 +29,4 @@ const COMPARATORS: Record<SortKey, (a: Product, b: Product) => number> = {
     comparePrices(a.price, b.price, true) || compareText(a.name, b.name),
 };
 
-export const getComparator = (key: SortKey) => COMPARATORS[key] ?? (() => 0);
+export const getComparator = (key: TSortKey) => COMPARATORS[key] ?? (() => 0);

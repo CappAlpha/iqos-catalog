@@ -1,9 +1,9 @@
-export type SortKey = "nameAsc" | "nameDesc" | "priceAsc" | "priceDesc";
+export type TSortKey = "nameAsc" | "nameDesc" | "priceAsc" | "priceDesc";
 
-export type FilterGroupKey = "devices" | "sticks" | "accessories";
+export type TFilterGroupKey = "devices" | "sticks" | "accessories";
 
-export interface FilterGroup {
-  key: FilterGroupKey;
+export interface IFilterGroup {
+  key: TFilterGroupKey;
   title: string;
   categories: Array<{
     id: string;
@@ -11,18 +11,18 @@ export interface FilterGroup {
   }>;
 }
 
-export type Category = {
+export type TCategory = {
   id: string;
   title: string;
   parentId: string | null;
 };
 
-export type MergedCategory = Category & {
+export type TMergedCategory = TCategory & {
   ids: string[];
   isAll?: boolean;
 };
 
-export type Product = {
+export type TProduct = {
   id: string;
   originalId?: string;
   name: string;
@@ -36,17 +36,17 @@ export type Product = {
   available: boolean;
 };
 
-export interface ProductGroup {
+export interface IProductGroup {
   id: string;
   baseName: string;
   type: "size" | "color";
-  variants: (Product & { variantLabel: string })[];
+  variants: (TProduct & { variantLabel: string })[];
 }
 
-export type FeedResult = {
-  categories: Category[];
-  products: Product[];
+export type TFeedResult = {
+  categories: TCategory[];
+  products: TProduct[];
 };
 
-export type PaginationItem =
+export type TPaginationItem =
   { type: "page"; value: number } | { type: "dots"; side: "left" | "right" };

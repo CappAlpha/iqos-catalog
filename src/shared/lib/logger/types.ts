@@ -1,9 +1,9 @@
-export type LogType = "info" | "success" | "warn" | "error";
+export type TLogType = "info" | "success" | "warn" | "error";
 
 export interface ILogEntry {
   id: string;
   timestamp: Date;
-  type: LogType;
+  type: TLogType;
   message: string;
   error?: string | undefined;
 }

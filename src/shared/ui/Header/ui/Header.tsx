@@ -17,7 +17,7 @@ import s from "../Header.module.scss";
 export interface INavLinkItem {
   to: string;
   text: string;
-  Icon: IconType;
+  Icon: TIconType;
   isCart?: boolean;
 }
 

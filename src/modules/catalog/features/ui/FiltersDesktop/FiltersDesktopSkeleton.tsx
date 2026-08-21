@@ -1,12 +1,12 @@
 import groupS from "../FiltersGroup/FiltersGroup.module.scss";
 import s from "./FiltersDesktop.module.scss";
 
-interface Props {
+interface IProps {
   arrays: number;
   count: number;
 }
 
-export const FiltersDesktopSkeleton = ({ arrays, count }: Props) => {
+export const FiltersDesktopSkeleton = ({ arrays, count }: IProps) => {
   return (
     <div className={s.root}>
       <div className={s.titleSkeleton} />

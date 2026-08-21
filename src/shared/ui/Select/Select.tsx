@@ -7,14 +7,14 @@ import { useOutsideClick } from "@/shared/hooks/useOutsideClick";
 
 import s from "./Select.module.scss";
 
-interface Option<T> {
+interface IOption<T> {
   id: T;
   label: string;
 }
 
-interface CustomSelectProps<T> {
+interface ICustomSelectProps<T> {
   value: T;
-  options: Option<T>[];
+  options: IOption<T>[];
   onChange: (value: T, event?: MouseEvent) => void;
   disabled?: boolean;
   className?: string;
@@ -26,7 +26,7 @@ export const Select = <T extends string | number>({
   onChange,
   disabled = false,
   className,
-}: CustomSelectProps<T>) => {
+}: ICustomSelectProps<T>) => {
   const [isOpen, setIsOpen] = useState(false);
   const selectRef = useRef<HTMLDivElement>(null);
 

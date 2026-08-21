@@ -1,10 +1,10 @@
 import s from "./InterfacesSection.module.scss";
 
-export interface Props {
+export interface IProps {
   interfaces: USBInterface[];
 }
 
-export const InterfacesSection = ({ interfaces }: Props) => {
+export const InterfacesSection = ({ interfaces }: IProps) => {
   if (interfaces.length === 0) return null;
 
   return (

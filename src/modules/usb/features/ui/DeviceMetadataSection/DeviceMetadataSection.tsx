@@ -8,13 +8,13 @@ import { usbM } from "../../model/usbM";
 
 import s from "./DeviceMetadataSection.module.scss";
 
-type AllowedDeviceKeys = Extract<
+type TAllowedDeviceKeys = Extract<
   keyof IUsbDeviceInfo,
   "manufacturerName" | "productName" | "vendorId" | "productId"
 >;
 
 interface IMetadataField {
-  key: AllowedDeviceKeys;
+  key: TAllowedDeviceKeys;
   label: string;
 }
 
@@ -25,11 +25,11 @@ const METADATA_FIELDS: IMetadataField[] = [
   { key: "productId", label: "Product ID" },
 ];
 
-interface Props {
+interface IProps {
   device: IUsbDeviceInfo;
 }
 
-export const DeviceMetadataSection = observer(({ device }: Props) => {
+export const DeviceMetadataSection = observer(({ device }: IProps) => {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const { batteryAvailable, batteryLevel } = usbM;
 

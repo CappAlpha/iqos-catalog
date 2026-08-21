@@ -24,12 +24,12 @@ import type {
   IBluetoothDevice,
 } from "./types";
 
-type BluetoothStatus =
+type TBluetoothStatus =
   "disconnected" | "connecting" | "connected" | "disconnecting";
 
 export class BluetoothM {
   device: IBluetoothDevice | null = null;
-  status: BluetoothStatus = "disconnected";
+  status: TBluetoothStatus = "disconnected";
   error: string | null = null;
   batteryLevel: number | null = null;
   isRefreshingBattery = false;

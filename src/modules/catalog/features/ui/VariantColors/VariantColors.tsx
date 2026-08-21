@@ -4,14 +4,14 @@ import { useMobileM } from "@/shared/hooks/useBreakpoint";
 import { Button } from "@/shared/ui/Button";
 
 import { getColorHex } from "../../lib/getColorHex";
-import type { ProductGroup } from "../../model/types";
+import type { IProductGroup } from "../../model/types";
 
 import s from "./VariantColors.module.scss";
 
 const MAX_VISIBLE_COLORS = 7;
 
-interface Props {
-  variants: ProductGroup["variants"];
+interface IProps {
+  variants: IProductGroup["variants"];
   selectedIdx: number;
   isPending: boolean;
   onSelect: (idx: number) => void;
@@ -26,7 +26,7 @@ export const VariantsColors = ({
   onSelect,
   onExpand,
   forceShowAll,
-}: Props) => {
+}: IProps) => {
   const isMobileM = useMobileM();
   const hasMore =
     !forceShowAll && !isMobileM && variants.length > MAX_VISIBLE_COLORS;

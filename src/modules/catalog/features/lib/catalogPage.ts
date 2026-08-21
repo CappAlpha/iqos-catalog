@@ -1,8 +1,8 @@
 import { CATALOG_DEFAULT, SORT_OPTIONS } from "../model/constants";
-import type { SortKey } from "../model/types";
+import type { TSortKey } from "../model/types";
 
-export const normalizeSort = (v: string | null): SortKey => {
-  if (v && SORT_OPTIONS.some((opt) => opt.id === v)) return v as SortKey;
+export const normalizeSort = (v: string | null): TSortKey => {
+  if (v && SORT_OPTIONS.some((opt) => opt.id === v)) return v as TSortKey;
   return CATALOG_DEFAULT.sort;
 };
 

@@ -6,13 +6,13 @@ import { buildPagination } from "../../lib/pagination";
 
 import s from "./Pagination.module.scss";
 
-interface Props {
+interface IProps {
   page: number;
   totalPages: number;
   onChange: (page: number) => void;
 }
 
-export const Pagination = ({ page, totalPages, onChange }: Props) => {
+export const Pagination = ({ page, totalPages, onChange }: IProps) => {
   const isMobileS = useMobileS();
   const items = buildPagination(page, totalPages);
 

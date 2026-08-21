@@ -10,8 +10,8 @@ export const breakpoints = {
   desktopL: 1600,
 } as const;
 
-type Breakpoint = keyof typeof breakpoints;
-type BreakpointType = "max" | "min";
+type TBreakpoint = keyof typeof breakpoints;
+type TBreakpointType = "max" | "min";
 
 export const useMedia = (query: string, defaultState: boolean = false) => {
   const getServerSnapshot = () => defaultState;
@@ -31,8 +31,8 @@ export const useMedia = (query: string, defaultState: boolean = false) => {
 };
 
 export const useBreakpoint = (
-  breakpoint: Breakpoint,
-  type: BreakpointType = "min",
+  breakpoint: TBreakpoint,
+  type: TBreakpointType = "min",
   defaultState: boolean = false,
 ) => {
   const value = breakpoints[breakpoint];

@@ -17,17 +17,17 @@ import {
   SIZE_VARIANT_REGEX,
 } from "./constants";
 import type {
-  FilterGroup,
-  FilterGroupKey,
-  MergedCategory,
-  Product,
-  ProductGroup,
-  SortKey,
+  IFilterGroup,
+  TFilterGroupKey,
+  TMergedCategory,
+  TProduct,
+  IProductGroup,
+  TSortKey,
 } from "./types";
 
 class CatalogM {
   selectedCategoryIds = observable.set<string>();
-  sort: SortKey = CATALOG_DEFAULT.sort;
+  sort: TSortKey = CATALOG_DEFAULT.sort;
   page = CATALOG_DEFAULT.page;
   pageSize = CATALOG_DEFAULT.pageSize;
 
@@ -72,7 +72,7 @@ class CatalogM {
     return map;
   }
 
-  get groupedCategories(): MergedCategory[] {
+  get groupedCategories(): TMergedCategory[] {
     const groups = Map.groupBy(this.categories, (cat) =>
       cat.title.trim().toLowerCase(),
     );
@@ -83,10 +83,10 @@ class CatalogM {
     }));
   }
 
-  get groupIdsMap(): Map<FilterGroupKey, Set<string>> {
-    const map = new Map<FilterGroupKey, Set<string>>();
+  get groupIdsMap(): Map<TFilterGroupKey, Set<string>> {
+    const map = new Map<TFilterGroupKey, Set<string>>();
 
-    for (const key of Object.keys(GROUP_KEYWORDS) as FilterGroupKey[]) {
+    for (const key of Object.keys(GROUP_KEYWORDS) as TFilterGroupKey[]) {
       const root = this.categories.find(
         ({ title }) =>
           GROUP_KEYWORDS[key].trim().toLocaleLowerCase() ===
@@ -102,7 +102,7 @@ class CatalogM {
     return map;
   }
 
-  get categoryFilters(): FilterGroup[] {
+  get categoryFilters(): IFilterGroup[] {
     const childToParentId = new Map<string, string>();
     for (const { id: parentId, ids } of this.groupedCategories) {
       for (const childId of ids) {
@@ -118,7 +118,7 @@ class CatalogM {
       }
     }
 
-    const groupKeys = Object.keys(GROUP_KEYWORDS) as FilterGroupKey[];
+    const groupKeys = Object.keys(GROUP_KEYWORDS) as TFilterGroupKey[];
 
     return groupKeys.map((key) => {
       const groupIds = this.groupIdsMap.get(key) ?? new Set();
@@ -143,7 +143,7 @@ class CatalogM {
     });
   }
 
-  get baseProductGroups(): ProductGroup[] {
+  get baseProductGroups(): IProductGroup[] {
     const parsedProducts = this.products.map((product) => ({
       ...product,
       meta: this.parseProductData(product),
@@ -175,7 +175,7 @@ class CatalogM {
     });
   }
 
-  get filteredProductGroups(): ProductGroup[] {
+  get filteredProductGroups(): IProductGroup[] {
     if (this.selectedCategoryIds.size === 0) return this.baseProductGroups;
 
     const expandedIds = this.groupedCategories.flatMap((group) =>
@@ -194,7 +194,7 @@ class CatalogM {
       .filter((group) => group.variants.length > 0);
   }
 
-  get sortedProductGroups(): ProductGroup[] {
+  get sortedProductGroups(): IProductGroup[] {
     const compare = getComparator(this.sort);
     return this.filteredProductGroups.toSorted(
       (a, b) =>
@@ -204,11 +204,11 @@ class CatalogM {
     );
   }
 
-  private isFullyUnavailable(group: ProductGroup) {
+  private isFullyUnavailable(group: IProductGroup) {
     return group.variants.every(({ available }) => !available);
   }
 
-  get pagedProductGroups(): ProductGroup[] {
+  get pagedProductGroups(): IProductGroup[] {
     const start = (this.safePage - 1) * this.pageSize;
     return this.sortedProductGroups.slice(start, start + this.pageSize);
   }
@@ -278,7 +278,7 @@ class CatalogM {
     return result;
   }
 
-  private parseProductData({ id, name }: Product) {
+  private parseProductData({ id, name }: TProduct) {
     if (SIZE_VARIANT_REGEX.test(name)) {
       return {
         type: "size" as const,
@@ -314,7 +314,7 @@ class CatalogM {
     updateFn();
   }
 
-  setSort = (key: SortKey) => {
+  setSort = (key: TSortKey) => {
     if (this.sort === key) return;
     this.updateWithTransition(() => {
       this.sort = key;

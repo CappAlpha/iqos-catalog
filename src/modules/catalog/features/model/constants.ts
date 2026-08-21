@@ -1,6 +1,6 @@
 import mindboxFeedUrl from "@/assets/feed/mindbox_feed.xml?url";
 
-import type { SortKey } from "./types";
+import type { TSortKey } from "./types";
 
 export const RESERVE_FEED_URL = mindboxFeedUrl;
 export const CATALOG_QUERY_KEY = ["catalog"] as const;
@@ -9,12 +9,12 @@ export const UNCAT_ID = "uncategorized" as const;
 export const UNCAT_TITLE = "Без категории" as const;
 
 export const CATALOG_DEFAULT = {
-  sort: "nameAsc" as SortKey,
+  sort: "nameAsc" as TSortKey,
   page: 1,
   pageSize: 12,
 };
 
-export const SORT_OPTIONS: { id: SortKey; label: string }[] = [
+export const SORT_OPTIONS: { id: TSortKey; label: string }[] = [
   { id: "nameAsc", label: "Название (A→Я)" },
   { id: "nameDesc", label: "Название (Я→A)" },
   { id: "priceAsc", label: "Сначала дешевле" },

@@ -1,6 +1,6 @@
 import { toast, type ToastT } from "sonner";
 
-interface ToastOptions {
+interface IToastOptions {
   title: string;
   type?: ToastT["type"];
   description?: string;
@@ -18,7 +18,7 @@ export const customToastTemplate = ({
   action,
   duration = 5000,
   position,
-}: ToastOptions) => {
+}: IToastOptions) => {
   const options: Parameters<typeof toast>[1] = {
     duration,
     position,

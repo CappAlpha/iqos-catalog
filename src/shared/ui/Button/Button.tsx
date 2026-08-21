@@ -5,7 +5,7 @@ import { TransitionNavLink } from "../TransitionNavLink";
 
 import s from "./Button.module.scss";
 
-interface ButtonProps {
+interface IButtonProps {
   color?: "transparent" | "outline" | "error";
   noPadding?: boolean;
   onClick?: (event?: React.MouseEvent<HTMLButtonElement> | MouseEvent) => void;
@@ -33,7 +33,7 @@ export const Button = ({
   href,
   to,
   targetBlank = false,
-}: ButtonProps) => {
+}: IButtonProps) => {
   const styles = clsx(
     s.root,
     color && s[`color_${color}`],

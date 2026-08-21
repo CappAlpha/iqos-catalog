@@ -5,14 +5,14 @@ import { NotFoundDevice } from "@/assets/icons";
 
 import s from "./StatusPage.module.scss";
 
-type StatusPageVariant = "error" | "not-found";
+type TStatusPageVariant = "error" | "not-found";
 
-interface StatusPageProps {
+interface IStatusPageProps {
   actions: ReactNode;
   description: ReactNode;
   eyebrow: string;
   title: ReactNode;
-  variant: StatusPageVariant;
+  variant: TStatusPageVariant;
 }
 
 export const StatusPage = ({
@@ -21,7 +21,7 @@ export const StatusPage = ({
   eyebrow,
   title,
   variant,
-}: StatusPageProps) => (
+}: IStatusPageProps) => (
   <main className={clsx(s.root, s[variant])}>
     <div className={s.content}>
       <div className={s.copy}>

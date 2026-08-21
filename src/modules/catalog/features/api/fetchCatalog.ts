@@ -6,10 +6,10 @@ import { customToastTemplate } from "@/shared/lib/customToastTemplate";
 import { logsM, type IAppLogger } from "@/shared/lib/logger";
 
 import { RESERVE_FEED_URL } from "../model/constants";
-import type { FeedResult } from "../model/types";
+import type { TFeedResult } from "../model/types";
 import { parseXmlCatalog } from "./feedParser";
 
-interface FetchParams {
+interface IFetchParams {
   feedUrl?: string;
   signal?: AbortSignal;
   timeout?: number;
@@ -72,7 +72,7 @@ const loadFeed = async (
   signal: AbortSignal | undefined,
   timeout: number,
   logger: IAppLogger = logsM,
-): Promise<FeedResult> => {
+): Promise<TFeedResult> => {
   const xmlData = await executeRequest(url, signal, timeout, logger);
   const result = parseXmlCatalog(xmlData, logger);
 
@@ -106,7 +106,7 @@ export async function fetchCatalog({
   signal,
   timeout = 30_000,
   logger = logsM,
-}: FetchParams = {}): Promise<FeedResult> {
+}: IFetchParams = {}): Promise<TFeedResult> {
   logger.info(`${LOG_PREFIX} Начало загрузки каталога...`);
 
   try {

@@ -9,15 +9,15 @@ import { CounterBtns } from "@/shared/ui/CounterBtns";
 import { ImagePlaceholder } from "@/shared/ui/ImagePlaceholder";
 
 import { cartM } from "../../model/cartM";
-import type { CartItem } from "../../model/types";
+import type { TCartItem } from "../../model/types";
 
 import s from "./CartItemCard.module.scss";
 
-interface Props {
-  item: CartItem;
+interface IProps {
+  item: TCartItem;
 }
 
-export const CartItemCard = observer(({ item }: Props) => {
+export const CartItemCard = observer(({ item }: IProps) => {
   const [failedImageUrl, setFailedImageUrl] = useState<string | null>(null);
   const {
     product: { pictureUrl, name, categoryTitle, id, price, available },

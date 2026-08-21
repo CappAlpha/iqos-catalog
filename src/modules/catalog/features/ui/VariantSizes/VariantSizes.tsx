@@ -2,12 +2,12 @@ import clsx from "clsx";
 
 import { Button } from "@/shared/ui/Button";
 
-import type { ProductGroup } from "../../model/types";
+import type { IProductGroup } from "../../model/types";
 
 import s from "./VariantSizes.module.scss";
 
-interface Props {
-  variants: ProductGroup["variants"];
+interface IProps {
+  variants: IProductGroup["variants"];
   selectedIdx: number;
   isPending: boolean;
   onSelect: (idx: number) => void;
@@ -18,7 +18,7 @@ export const VariantsSizes = ({
   selectedIdx,
   isPending,
   onSelect,
-}: Props) => (
+}: IProps) => (
   <div className={s.root} onClick={(e) => e.stopPropagation()}>
     {variants.map(({ id, variantLabel }, idx) => (
       <Button

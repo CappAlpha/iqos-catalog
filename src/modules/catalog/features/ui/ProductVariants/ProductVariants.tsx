@@ -1,9 +1,9 @@
-import type { ProductGroup } from "../../model/types";
+import type { IProductGroup } from "../../model/types";
 import { VariantsColors } from "../VariantColors";
 import { VariantsSizes } from "../VariantSizes";
 
-interface Props {
-  productGroup: ProductGroup;
+interface IProps {
+  productGroup: IProductGroup;
   selectedIdx: number;
   isPending: boolean;
   onSelect: (idx: number) => void;
@@ -18,7 +18,7 @@ export const ProductVariants = ({
   onSelect,
   onExpand,
   forceShowAllColors,
-}: Props) => {
+}: IProps) => {
   const { type, variants } = productGroup;
 
   if (variants.length <= 1) {

@@ -1,10 +1,10 @@
 import s from "./EndpointsSection.module.scss";
 
-export interface Props {
+export interface IProps {
   interfaces: USBInterface[];
 }
 
-export const EndpointsSection = ({ interfaces }: Props) => {
+export const EndpointsSection = ({ interfaces }: IProps) => {
   const endpoints = interfaces.flatMap((iface) => {
     const alternate = iface.alternate ?? iface.alternates[0];
     const endpointList = alternate?.endpoints ?? [];

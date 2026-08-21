@@ -3,37 +3,37 @@ import { queryClient } from "mobx-tanstack-query/preset";
 
 import { fetchCatalog } from "@/modules/catalog/features/api/fetchCatalog";
 import { CATALOG_QUERY_KEY } from "@/modules/catalog/features/model/constants";
-import type { Product } from "@/modules/catalog/features/model/types";
+import type { TProduct } from "@/modules/catalog/features/model/types";
 import { customToastTemplate } from "@/shared/lib/customToastTemplate";
 import { parseSafe } from "@/shared/lib/parseSafe";
 
 import { parseCartItems, parseOrders } from "../lib/cartValidation";
 import { storage } from "../lib/getStorage";
 import { CART_STORAGE_KEY, ORDERS_STORAGE_KEY } from "./constants";
-import type { CartItem, Order } from "./types";
+import type { TCartItem, TOrder } from "./types";
 
-type GlobalActionType = "checkout" | "clear" | null;
-type CartActionType = "add" | "inc" | "dec" | "remove";
+type TGlobalActionType = "checkout" | "clear" | null;
+type TCartActionType = "add" | "inc" | "dec" | "remove";
 
-const getProductKey = (product: Product): string =>
+const getProductKey = (product: TProduct): string =>
   `${product.originalId ?? product.id}:::${product.name.trim()}`;
 
 class CartM {
-  items: CartItem[] = [];
-  orderHistory: Order[] = [];
+  items: TCartItem[] = [];
+  orderHistory: TOrder[] = [];
   isInitialized = false;
   isCheckingAvailability = false;
   recentOrderId: string | null = null;
 
-  activeTransitions = new Map<string, CartActionType>();
-  globalAction: GlobalActionType = null;
+  activeTransitions = new Map<string, TCartActionType>();
+  globalAction: TGlobalActionType = null;
 
   #globalTimer: ReturnType<typeof setTimeout> | null = null;
   readonly #cartItemsTimers = new Map<string, ReturnType<typeof setTimeout>>();
   #recentOrderTimer: ReturnType<typeof setTimeout> | null = null;
   #storageWriteQueue: Promise<void> = Promise.resolve();
   #undoGeneration = 0;
-  #catalogProducts = new Map<string, Product>();
+  #catalogProducts = new Map<string, TProduct>();
 
   constructor() {
     makeAutoObservable(this, {}, { autoBind: true });
@@ -61,7 +61,7 @@ class CartM {
   };
 
   private runGlobalTransition(
-    action: GlobalActionType,
+    action: TGlobalActionType,
     updateFn: () => void,
     ms = 400,
   ) {
@@ -82,7 +82,7 @@ class CartM {
 
   private updateItemWithTransition(
     productId: string,
-    action: CartActionType,
+    action: TCartActionType,
     callbacks: { onStart?: () => void; onEnd?: () => void } = {},
     ms = 400,
   ) {
@@ -129,7 +129,7 @@ class CartM {
     }
   };
 
-  syncCatalogAndNotify = (products: Product[]) => {
+  syncCatalogAndNotify = (products: TProduct[]) => {
     this.#catalogProducts = new Map(
       products.map((product) => [getProductKey(product), product]),
     );
@@ -202,7 +202,7 @@ class CartM {
     });
   };
 
-  isProductAvailable = (product: Product) => {
+  isProductAvailable = (product: TProduct) => {
     return (
       this.#catalogProducts.get(getProductKey(product))?.available ??
       product.available
@@ -285,7 +285,7 @@ class CartM {
     return this.availableItems.length > 0;
   }
 
-  addToCart = (product: Product) => {
+  addToCart = (product: TProduct) => {
     if (!this.canModify || !this.isProductAvailable(product)) return;
 
     const existingItem = this.getCartItem(product.id);
@@ -308,7 +308,7 @@ class CartM {
 
   private returnItemToCart(
     productId: string,
-    item: CartItem,
+    item: TCartItem,
     undoGeneration: number,
   ) {
     if (
@@ -438,10 +438,10 @@ class CartM {
   };
 
   private notifyAvailabilityDiff = (
-    newlyUnavailable: CartItem[],
-    newlyAvailable: CartItem[],
+    newlyUnavailable: TCartItem[],
+    newlyAvailable: TCartItem[],
   ) => {
-    const formatNames = (items: CartItem[]) =>
+    const formatNames = (items: TCartItem[]) =>
       items.map(({ product }) => product.name).join(", ");
 
     if (newlyUnavailable.length > 0 && newlyAvailable.length === 0) {

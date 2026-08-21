@@ -2,11 +2,11 @@ import { IS_ANDROID } from "@/shared/config/platform";
 
 import type { IUsbStrategy } from "../model/types";
 
-type UsbStrategyFactory = () => IUsbStrategy;
+type TUsbStrategyFactory = () => IUsbStrategy;
 
-let strategyFactoryPromise: Promise<UsbStrategyFactory> | null = null;
+let strategyFactoryPromise: Promise<TUsbStrategyFactory> | null = null;
 
-const createStrategyFactory = async (): Promise<UsbStrategyFactory> => {
+const createStrategyFactory = async (): Promise<TUsbStrategyFactory> => {
   if (IS_ANDROID) {
     const { AndroidNativeUsb } = await import("../api/androidNativeUsb");
     return () => new AndroidNativeUsb();

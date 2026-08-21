@@ -1,13 +1,13 @@
-import type { Product } from "@/modules/catalog/features/model/types";
+import type { TProduct } from "@/modules/catalog/features/model/types";
 
-export type CartItem = {
-  product: Product;
+export type TCartItem = {
+  product: TProduct;
   quantity: number;
 };
 
-export type Order = {
+export type TOrder = {
   id: string;
   date: string;
-  items: CartItem[];
+  items: TCartItem[];
   totalPrice: number;
 };

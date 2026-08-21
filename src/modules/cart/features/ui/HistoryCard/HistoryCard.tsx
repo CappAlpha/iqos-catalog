@@ -4,16 +4,16 @@ import { useState } from "react";
 import { formatPrice } from "@/shared/lib/formatPrice";
 import { Button } from "@/shared/ui/Button";
 
-import type { Order } from "../../model/types";
+import type { TOrder } from "../../model/types";
 
 import s from "./HistoryCard.module.scss";
 
-interface Props {
-  order: Order;
+interface IProps {
+  order: TOrder;
   isNew?: boolean;
 }
 
-export const HistoryCard = ({ order, isNew = false }: Props) => {
+export const HistoryCard = ({ order, isNew = false }: IProps) => {
   const [expanded, setExpanded] = useState(false);
 
   return (

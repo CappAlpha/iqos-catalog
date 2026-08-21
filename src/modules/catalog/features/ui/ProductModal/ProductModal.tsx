@@ -8,15 +8,15 @@ import { useScrollBlock } from "@/shared/hooks/useScrollBlock";
 import { formatPrice } from "@/shared/lib/formatPrice";
 import { Button } from "@/shared/ui/Button";
 
-import type { ProductGroup } from "../../model/types";
+import type { IProductGroup } from "../../model/types";
 import { AddCartButton } from "../AddCartButton";
 import { ProductImage } from "../ProductImage/ProductImage";
 import { ProductVariants } from "../ProductVariants";
 
 import s from "./ProductModal.module.scss";
 
-interface ModalProps {
-  productGroup: ProductGroup;
+interface IModalProps {
+  productGroup: IProductGroup;
   selectedIdx: number;
   isPending: boolean;
   onSelect: (idx: number) => void;
@@ -29,7 +29,7 @@ export const ProductModal = ({
   isPending,
   onSelect,
   onClose,
-}: ModalProps) => {
+}: IModalProps) => {
   const selectedProduct = productGroup.variants[selectedIdx];
   const { name, description, pictureUrl, categoryTitle, price } =
     selectedProduct;

@@ -4,7 +4,7 @@ import { Button } from "../Button";
 
 import s from "./CounterBtns.module.scss";
 
-interface Props {
+interface IProps {
   quantity: number;
   isDecLoading: boolean;
   isIncLoading: boolean;
@@ -24,7 +24,7 @@ export const CounterBtns = ({
   onIncrease,
   disabled,
   className,
-}: Props) => {
+}: IProps) => {
   return (
     <div className={clsx(s.root, className)}>
       <Button

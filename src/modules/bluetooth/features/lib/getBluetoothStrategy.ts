@@ -2,10 +2,10 @@ import { IS_ANDROID, IS_IOS } from "@/shared/config/platform";
 
 import type { IBluetoothStrategy } from "../model/types";
 
-type BluetoothStrategyFactory = () => IBluetoothStrategy;
+type TBluetoothStrategyFactory = () => IBluetoothStrategy;
 
 let bleClientInitialization: Promise<void> | null = null;
-let strategyFactoryPromise: Promise<BluetoothStrategyFactory> | null = null;
+let strategyFactoryPromise: Promise<TBluetoothStrategyFactory> | null = null;
 
 const initializeBleClient = async (): Promise<void> => {
   bleClientInitialization ??= import("@capacitor-community/bluetooth-le")

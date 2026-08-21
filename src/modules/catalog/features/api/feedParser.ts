@@ -1,7 +1,7 @@
 import { logsM, type IAppLogger } from "@/shared/lib/logger";
 
 import { UNCAT_TITLE, UNCAT_ID } from "../model/constants";
-import type { FeedResult, Category, Product } from "../model/types";
+import type { TFeedResult, TCategory, TProduct } from "../model/types";
 
 const SELECTORS = {
   categories: "shop > categories > category",
@@ -62,7 +62,7 @@ const decodeHtml = (html: string): string => {
 export const parseXmlCatalog = (
   xmlText: string,
   logger: IAppLogger = logsM,
-): FeedResult => {
+): TFeedResult => {
   const doc = new DOMParser().parseFromString(xmlText, "application/xml");
 
   if (doc.querySelector("parsererror")) {
@@ -83,7 +83,7 @@ export const parseXmlCatalog = (
     throw new Error("В XML отсутствуют товары.");
   }
 
-  const categories: Category[] = [];
+  const categories: TCategory[] = [];
   const catTitleById = new Map<string, string>();
 
   for (const category of doc.querySelectorAll(SELECTORS.categories)) {
@@ -100,7 +100,7 @@ export const parseXmlCatalog = (
     catTitleById.set(id, title);
   }
 
-  const products: Product[] = [];
+  const products: TProduct[] = [];
   let hasNoCategory = false;
 
   for (const offer of offerElements) {

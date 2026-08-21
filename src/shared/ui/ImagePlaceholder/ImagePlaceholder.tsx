@@ -2,7 +2,7 @@ import clsx from "clsx";
 
 import s from "./ImagePlaceholder.module.scss";
 
-interface ImagePlaceholderProps {
+interface IImagePlaceholderProps {
   className?: string;
   label?: string;
 }
@@ -10,7 +10,7 @@ interface ImagePlaceholderProps {
 export const ImagePlaceholder = ({
   className,
   label = "Нет фото",
-}: ImagePlaceholderProps) => {
+}: IImagePlaceholderProps) => {
   return (
     <div className={clsx(s.root, className)} role="img" aria-label={label}>
       <svg className={s.icon} viewBox="0 0 48 48" aria-hidden="true">

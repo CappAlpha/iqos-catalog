@@ -4,7 +4,7 @@ import type { FunctionComponent, SVGProps } from "react";
 export {};
 
 declare global {
-  type IconType = FunctionComponent<
+  type TIconType = FunctionComponent<
     SVGProps<SVGSVGElement> & {
       title?: string;
       titleId?: string;

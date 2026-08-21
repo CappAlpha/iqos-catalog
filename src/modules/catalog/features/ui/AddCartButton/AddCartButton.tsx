@@ -5,18 +5,18 @@ import { cartM } from "@/modules/cart/features/model/cartM";
 import { Button } from "@/shared/ui/Button";
 import { CounterBtns } from "@/shared/ui/CounterBtns";
 
-import type { Product } from "../../model/types";
+import type { TProduct } from "../../model/types";
 
 import s from "./AddCartButton.module.scss";
 
-interface Props {
-  selectedProduct: Product;
+interface IProps {
+  selectedProduct: TProduct;
   isPending?: boolean;
   className?: string;
 }
 
 export const AddCartButton = observer(
-  ({ selectedProduct, isPending, className }: Props) => {
+  ({ selectedProduct, isPending, className }: IProps) => {
     const {
       setQuantity,
       addToCart,

@@ -8,14 +8,14 @@ import { customToastTemplate } from "@/shared/lib/customToastTemplate";
 
 const VERSION_REGEX = /^v?(\d+)(?:\.(\d+))?(?:\.(\d+))?(?:[-+].*)?$/;
 
-interface GitHubAsset {
+interface IGitHubAsset {
   name: string;
   browser_download_url: string;
 }
 
-interface GitHubRelease {
+interface IGitHubRelease {
   tag_name?: string;
-  assets?: GitHubAsset[];
+  assets?: IGitHubAsset[];
 }
 
 let isDownloadInProgress = false;
@@ -118,7 +118,7 @@ export const checkApkUpdate = async (): Promise<void> => {
 
     if (!response.ok) return;
 
-    const release = (await response.json()) as unknown as GitHubRelease;
+    const release = (await response.json()) as unknown as IGitHubRelease;
     if (!release?.tag_name) return;
 
     const remoteVersion = release.tag_name.replace(/^v/, "");

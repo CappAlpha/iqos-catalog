@@ -2,7 +2,7 @@ import { makeAutoObservable, observable } from "mobx";
 
 import { IS_DEV } from "@/shared/config";
 
-import type { IAppLogger, ILogEntry, LogType } from "./types";
+import type { IAppLogger, ILogEntry, TLogType } from "./types";
 
 const timeFormatter = new Intl.DateTimeFormat("ru-RU", {
   hour: "2-digit",
@@ -11,7 +11,7 @@ const timeFormatter = new Intl.DateTimeFormat("ru-RU", {
   hour12: false,
 });
 
-const CONSOLE_LOG_LEVELS: readonly LogType[] = IS_DEV
+const CONSOLE_LOG_LEVELS: readonly TLogType[] = IS_DEV
   ? ["info", "success", "warn", "error"]
   : ["warn", "error"];
 
@@ -27,7 +27,7 @@ class LogsM implements IAppLogger {
   }
 
   private readonly addLog = (
-    type: LogType,
+    type: TLogType,
     message: string,
     error?: string,
   ) => {

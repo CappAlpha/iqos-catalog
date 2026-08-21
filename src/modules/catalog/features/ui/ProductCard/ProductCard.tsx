@@ -6,7 +6,7 @@ import { formatPrice } from "@/shared/lib/formatPrice";
 import { PageLoader } from "@/shared/ui/PageLoader";
 
 import { useVariantTransition } from "../../hooks/useVariantTransition";
-import type { ProductGroup } from "../../model/types";
+import type { IProductGroup } from "../../model/types";
 import { AddCartButton } from "../AddCartButton";
 import { ProductImage } from "../ProductImage/ProductImage";
 import { LazyProductModal, preloadProductModal } from "../ProductModal";
@@ -14,13 +14,13 @@ import { ProductVariants } from "../ProductVariants";
 
 import s from "./ProductCard.module.scss";
 
-interface Props {
-  productGroup: ProductGroup;
+interface IProps {
+  productGroup: IProductGroup;
   loading: "eager" | "lazy";
 }
 
 export const ProductCard = observer(
-  ({ productGroup, loading }: Readonly<Props>) => {
+  ({ productGroup, loading }: Readonly<IProps>) => {
     const { baseName, type, variants } = productGroup;
 
     const { selectedIdx, isPending, handleSelect } = useVariantTransition();

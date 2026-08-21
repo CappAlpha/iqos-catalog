@@ -7,11 +7,11 @@ import { catalogM } from "../../model/catalogM";
 
 import s from "./FiltersGroup.module.scss";
 
-interface Props {
+interface IProps {
   className?: string;
 }
 
-export const FiltersGroup = observer(({ className }: Props) => {
+export const FiltersGroup = observer(({ className }: IProps) => {
   const { categoryFilters, selectedCategoryIds, toggleCategory } = catalogM;
 
   return (

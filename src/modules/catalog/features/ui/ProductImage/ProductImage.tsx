@@ -2,14 +2,14 @@ import clsx from "clsx";
 import { useState } from "react";
 
 import { getColorHex } from "../../lib/getColorHex";
-import type { ProductGroup } from "../../model/types";
+import type { IProductGroup } from "../../model/types";
 
 import s from "./ProductImage.module.scss";
 
-interface ProductImageProps {
+interface IProductImageProps {
   src: string | null;
   alt: string;
-  type: ProductGroup["type"];
+  type: IProductGroup["type"];
   variantLabel: string;
   className: string;
   placeholderClassName: string;
@@ -22,7 +22,7 @@ const ProductPlaceholder = ({
   type,
   variantLabel,
   className,
-}: Pick<ProductImageProps, "type" | "variantLabel"> & {
+}: Pick<IProductImageProps, "type" | "variantLabel"> & {
   className: string;
 }) => {
   const accentColor = type === "color" ? getColorHex(variantLabel) : "#5d6268";
@@ -155,7 +155,7 @@ export const ProductImage = ({
   loading,
   isFallback,
   onError,
-}: ProductImageProps) => {
+}: IProductImageProps) => {
   const [isLoaded, setIsLoaded] = useState(false);
 
   if (!src || isFallback) {

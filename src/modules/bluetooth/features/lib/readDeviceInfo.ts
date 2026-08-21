@@ -1,7 +1,7 @@
 import { DEVICE_INFO } from "../model/constants";
 import type { IBluetoothDeviceInfo } from "../model/types";
 
-type ReadChar = (
+type TReadChar = (
   serviceUuid: string,
   charUuid: string,
 ) => Promise<string | null>;
@@ -16,7 +16,7 @@ const EMPTY_DEVICE_INFO: IBluetoothDeviceInfo = {
 };
 
 export const readDeviceInfo = async (
-  read: ReadChar,
+  read: TReadChar,
 ): Promise<IBluetoothDeviceInfo> => {
   const s = DEVICE_INFO.SERVICE;
 

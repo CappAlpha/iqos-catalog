@@ -2,7 +2,7 @@ import axios from "axios";
 
 import { customToastTemplate } from "./customToastTemplate";
 
-interface FormatErrorOptions {
+interface IFormatErrorOptions {
   prefix?: string;
   showToast?: boolean;
 }
@@ -10,7 +10,7 @@ interface FormatErrorOptions {
 export function formatError(
   error: unknown,
   timeout: number,
-  options: FormatErrorOptions | string = {},
+  options: IFormatErrorOptions | string = {},
 ): Error {
   const opts = typeof options === "string" ? { prefix: options } : options;
   const { prefix, showToast = true } = opts;
