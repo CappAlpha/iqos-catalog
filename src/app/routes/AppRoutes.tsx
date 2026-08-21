@@ -1,7 +1,7 @@
 import { createBrowserRouter, RouterProvider } from "react-router";
 
-import { ROUTER_BASENAME, ROUTES } from "@/shared/config";
-import { lazyRoute } from "@/shared/lib/routePreload";
+import { ROUTER_BASENAME } from "@/shared/config";
+import { lazyRouteChildren } from "@/shared/lib/routePreload";
 import { Header } from "@/shared/ui/Header";
 import { PageLoader } from "@/shared/ui/PageLoader";
 
@@ -21,22 +21,7 @@ const router = createBrowserRouter(
         </>
       ),
       children: [
-        {
-          path: ROUTES.CATALOG,
-          lazy: lazyRoute(ROUTES.CATALOG),
-        },
-        {
-          path: ROUTES.CART,
-          lazy: lazyRoute(ROUTES.CART),
-        },
-        {
-          path: ROUTES.BLUETOOTH,
-          lazy: lazyRoute(ROUTES.BLUETOOTH),
-        },
-        {
-          path: ROUTES.USB,
-          lazy: lazyRoute(ROUTES.USB),
-        },
+        ...lazyRouteChildren(),
         {
           path: "*",
           element: <NotFoundPage />,

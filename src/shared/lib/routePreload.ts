@@ -1,4 +1,5 @@
 import type { ComponentType } from "react";
+import type { RouteObject } from "react-router";
 
 import { ROUTES } from "@/shared/config";
 
@@ -19,7 +20,13 @@ export const preloadRoute = (to: string): void => {
   }
 };
 
-export const lazyRoute = (path: TRoutePath) => async () => {
+const lazyRoute = (path: TRoutePath) => async () => {
   const module = await routeLoaders[path]();
   return { Component: module.default as ComponentType };
 };
+
+export const lazyRouteChildren = (): RouteObject[] =>
+  Object.keys(routeLoaders).map((path) => ({
+    path,
+    lazy: lazyRoute(path as TRoutePath),
+  }));

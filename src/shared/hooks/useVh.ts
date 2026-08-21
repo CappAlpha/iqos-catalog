@@ -1,10 +1,10 @@
 import { useEffect } from "react";
 
-export const useVH = () => {
+export const useVh = () => {
   useEffect(() => {
     if (typeof CSS !== "undefined" && CSS.supports("height: 1svh")) return;
 
-    let lastWidth = globalThis.window.innerWidth ?? 0;
+    let lastWidth = globalThis.window.innerWidth;
 
     const setVH = () => {
       const vh = globalThis.window.innerHeight * 0.01;
