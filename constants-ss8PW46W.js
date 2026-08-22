@@ -1,1 +1,0 @@
-var e={VENDOR_ID:10073,PRODUCT_ID:3},t={requestType:`vendor`,recipient:`device`,request:1,value:0,index:0},n=`USB не поддерживается на этой платформе.`;export{n,e as r,t};
