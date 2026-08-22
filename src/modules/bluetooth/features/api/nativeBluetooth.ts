@@ -72,7 +72,7 @@ export class NativeBluetooth extends BaseConnectionStrategy<
       }
 
       const device = await BleClient.requestDevice({
-        // TODO: remove comment on release
+        // TODO: remove comment on release, need all devices for test now
         // services: config.services,
         optionalServices: [...REQUIRED_SERVICES],
       });

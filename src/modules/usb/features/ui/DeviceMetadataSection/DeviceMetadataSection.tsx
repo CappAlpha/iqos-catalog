@@ -1,10 +1,6 @@
-import { observer } from "mobx-react-lite";
-import { useState } from "react";
-
 import { Button } from "@/shared/ui/Button";
 
 import type { IUsbDeviceInfo } from "../../model/types";
-import { usbM } from "../../model/usbM";
 
 import s from "./DeviceMetadataSection.module.scss";
 
@@ -27,21 +23,19 @@ const METADATA_FIELDS: IMetadataField[] = [
 
 interface IProps {
   device: IUsbDeviceInfo;
+  batteryAvailable: boolean;
+  batteryLevel: number | null;
+  isRefreshingBattery: boolean;
+  onRefreshBattery: () => void;
 }
 
-export const DeviceMetadataSection = observer(({ device }: IProps) => {
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  const { batteryAvailable, batteryLevel } = usbM;
-
-  const refreshBattery = async () => {
-    setIsRefreshing(true);
-    try {
-      await usbM.refreshBattery();
-    } finally {
-      setIsRefreshing(false);
-    }
-  };
-
+export const DeviceMetadataSection = ({
+  device,
+  batteryAvailable,
+  batteryLevel,
+  isRefreshingBattery,
+  onRefreshBattery,
+}: IProps) => {
   return (
     <section className={s.root}>
       <h3 className={s.title}>Информация об устройстве:</h3>
@@ -57,23 +51,23 @@ export const DeviceMetadataSection = observer(({ device }: IProps) => {
           );
         })}
 
-        <div className={s.batteryRow}>
-          <p className={s.row}>
-            <b>Заряд батареи:</b>{" "}
-            {batteryLevel !== null ? `${batteryLevel}%` : "Недоступен"}
-          </p>
-          {batteryAvailable && (
+        {batteryAvailable && (
+          <div className={s.batteryRow}>
+            <p className={s.row}>
+              <b>Заряд батареи:</b>{" "}
+              {batteryLevel !== null ? `${batteryLevel}%` : "—"}
+            </p>
             <Button
               color="outline"
-              onClick={refreshBattery}
-              loading={isRefreshing}
+              onClick={onRefreshBattery}
+              loading={isRefreshingBattery}
               aria-label="Обновить заряд батареи"
             >
               Обновить
             </Button>
-          )}
-        </div>
+          </div>
+        )}
       </div>
     </section>
   );
-});
+};

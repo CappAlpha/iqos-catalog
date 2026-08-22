@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import type { IAppLogger } from "@/shared/lib/logger";
 
+import { USB_CONFIG } from "../../features/model/constants";
 import type {
   IUsbConnectionResult,
   IUsbDeviceConfig,
@@ -53,7 +54,7 @@ describe("UsbM", () => {
     await usb.refreshBattery();
 
     expect(strategy.connect).toHaveBeenCalledWith(
-      usb.deviceConfig,
+      USB_CONFIG,
       expect.any(Function),
     );
     expect(usb.isConnected).toBe(true);

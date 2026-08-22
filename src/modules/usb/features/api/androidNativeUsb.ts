@@ -45,12 +45,6 @@ export class AndroidNativeUsb extends BaseConnectionStrategy<
   ): Promise<IUsbConnectionResult> => {
     const { vendorId, productId } = config;
 
-    if (vendorId === undefined || productId === undefined) {
-      throw new Error(
-        "Неверная конфигурация: отсутствуют vendorId или productId.",
-      );
-    }
-
     logsM.info(
       `${LOG_PREFIX} Поиск устройства VID=${vendorId}, PID=${productId}.`,
     );

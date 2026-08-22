@@ -3,9 +3,24 @@ import { useState } from "react";
 
 import { Button } from "@/shared/ui/Button";
 
+import type { TUsbStatus } from "../../model/types";
 import { usbM } from "../../model/usbM";
 
 import s from "./UsbConnect.module.scss";
+
+const BUTTON_TEXT: Record<TUsbStatus, string> = {
+  disconnected: "Подключить устройство",
+  connecting: "Подключение...",
+  connected: "Подключить устройство",
+  disconnecting: "Отключение...",
+};
+
+const STATUS_TEXT: Record<TUsbStatus, string> = {
+  disconnected: "Устройство не подключено",
+  connecting: "Поиск и подключение",
+  connected: "Устройство подключено",
+  disconnecting: "Отключение",
+};
 
 export const UsbConnect = observer(() => {
   const [isHideError, setIsHideError] = useState(false);
@@ -22,51 +37,33 @@ export const UsbConnect = observer(() => {
 
   const isDisabled = isConnecting || isDisconnecting || !isSupported;
 
-  const handleConnect = () => {
-    void connect();
-    setIsHideError(false);
-  };
-
-  const handleDisconnect = () => {
-    void disconnect();
-    setIsHideError(false);
-  };
-
-  const buttonText = isConnecting
-    ? "Подключение..."
-    : isDisconnecting
-      ? "Отключение..."
-      : "Подключить устройство";
-
-  const statusText = isConnected
-    ? "Устройство подключено"
-    : isConnecting
-      ? "Поиск и подключение"
-      : isDisconnecting
-        ? "Отключение"
-        : "Устройство не подключено";
-
   return (
     <section className={s.root}>
       <div className={s.subtitle}>
         <h3>Подключение</h3>
         <div className={s.status} data-status={status}>
           <span className={s.statusDot} />
-          {statusText}
+          {STATUS_TEXT[status]}
         </div>
       </div>
       <div className={s.infoBlock}>
         <div className={s.controls}>
           <Button
-            onClick={handleConnect}
+            onClick={() => {
+              void connect();
+              setIsHideError(false);
+            }}
             disabled={isDisabled}
             className={s.btnConnect}
           >
-            {buttonText}
+            {BUTTON_TEXT[status]}
           </Button>
           {isConnected && (
             <Button
-              onClick={handleDisconnect}
+              onClick={() => {
+                void disconnect();
+                setIsHideError(false);
+              }}
               disabled={isDisconnecting}
               className={s.btnDisconnect}
               color="error"

@@ -32,9 +32,9 @@
 
 - Установите зависимости: `pnpm install`
 - Соберите проект: `pnpm build:capacitor`
-- Добавить android config `npx cap add android`
-- Синхронизируйте изменения с Android Studio: `npx cap sync`
-- Откройте проект в Android Studio: `npx cap open android`
+- Добавить android config `pnpm exec cap add android`
+- Синхронизируйте изменения с Android Studio: `pnpm exec cap sync`
+- Откройте проект в Android Studio: `pnpm exec cap open android`
 - Сделать сборку стартового проекта
 - В android/build.gradle добавить:
 

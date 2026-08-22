@@ -49,7 +49,7 @@ export class WebUsb extends BaseConnectionStrategy<
   ): Promise<IUsbConnectionResult> => {
     return this.withDisconnectCallback(onDisconnect, async () => {
       const device = await navigator.usb.requestDevice({
-        // TODO: remove comment on release
+        // TODO: remove comment on release, need all devices for test now
         filters: [
           //config
         ],
@@ -78,11 +78,11 @@ export class WebUsb extends BaseConnectionStrategy<
 
       return {
         device: {
-          manufacturerName: device.manufacturerName ?? null,
-          productName: device.productName ?? null,
-          vendorId: device.vendorId ?? null,
-          productId: device.productId ?? null,
-          configuration: device.configuration ?? null,
+          manufacturerName: device.manufacturerName,
+          productName: device.productName,
+          vendorId: device.vendorId,
+          productId: device.productId,
+          configuration: device.configuration,
         },
         batteryAvailable: this.batteryAvailable,
         batteryLevel,

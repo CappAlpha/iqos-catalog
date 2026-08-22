@@ -11,15 +11,26 @@ import { getErrorMessage } from "@/shared/lib/getErrorMessage";
 import { logsM, type IAppLogger } from "@/shared/lib/logger";
 
 import { getUsbStrategy } from "../lib/getUsbStrategy";
-import { UNSUPPORTED_MESSAGE, USB_CONFIG } from "./constants";
+import {
+  BATTERY_REFRESH_ERROR_MESSAGE,
+  CONNECT_ERROR_FALLBACK_MESSAGE,
+  CONNECTION_LOST_MESSAGE,
+  CONNECT_TIMEOUT_MESSAGE,
+  DEVICE_NOT_SELECTED_ERROR,
+  DISCONNECT_TIMEOUT_MESSAGE,
+  UNSUPPORTED_MESSAGE,
+  USB_CONFIG,
+  USB_CONNECT_TIMEOUT_MS,
+  USB_DISCONNECT_TIMEOUT_MS,
+} from "./constants";
 import type {
   IUsbStrategy,
-  IUsbDeviceConfig,
   IUsbConnectionResult,
   IUsbDeviceInfo,
+  TUsbStatus,
 } from "./types";
 
-type TUsbStatus = "disconnected" | "connecting" | "connected" | "disconnecting";
+const LOG_PREFIX = "[USB]";
 
 export class UsbM {
   device: IUsbDeviceInfo | null = null;
@@ -28,10 +39,6 @@ export class UsbM {
   batteryAvailable = false;
   batteryLevel: number | null = null;
   isRefreshingBattery = false;
-  readonly deviceConfig: IUsbDeviceConfig = {
-    vendorId: USB_CONFIG.VENDOR_ID,
-    productId: USB_CONFIG.PRODUCT_ID,
-  };
 
   readonly #getStrategy: () => Promise<IUsbStrategy>;
   readonly #logsM: IAppLogger;
@@ -42,10 +49,7 @@ export class UsbM {
   constructor(getStrategy: () => Promise<IUsbStrategy>, logsM: IAppLogger) {
     this.#getStrategy = getStrategy;
     this.#logsM = logsM;
-    makeAutoObservable(this, {
-      device: observable.ref,
-      deviceConfig: false,
-    });
+    makeAutoObservable(this, { device: observable.ref });
   }
 
   get isConnected() {
@@ -84,17 +88,29 @@ export class UsbM {
     this.batteryLevel = null;
   };
 
+  readonly #isStale = (connectionId: number): boolean =>
+    connectionId !== this.#currentConnectionId;
+
+  private readonly isCancelled = (err: unknown): boolean => {
+    const message = getErrorMessage(err, "");
+
+    return (
+      message === DEVICE_NOT_SELECTED_ERROR ||
+      (err instanceof DOMException &&
+        (err.name === "NotFoundError" || err.name === "AbortError"))
+    );
+  };
+
   connect = async () => {
     if (this.isConnecting || this.isDisconnecting) {
       this.#logsM.warn(
-        `[USB] Повторное подключение отклонено. Статус: ${this.status}`,
+        `${LOG_PREFIX} Повторное подключение отклонено. Статус: ${this.status}`,
       );
       return;
     }
 
     if (!this.isSupported) {
-      runInAction(() => this.reset(UNSUPPORTED_MESSAGE));
-      this.#logsM.warn(`[USB] ${UNSUPPORTED_MESSAGE}`);
+      this.#logsM.warn(`${LOG_PREFIX} ${UNSUPPORTED_MESSAGE}`);
       return;
     }
 
@@ -113,7 +129,7 @@ export class UsbM {
     try {
       strategy = await this.#getStrategy();
 
-      if (connectionId !== this.#currentConnectionId) {
+      if (this.#isStale(connectionId)) {
         await strategy.disconnect();
         return;
       }
@@ -121,56 +137,50 @@ export class UsbM {
       this.#strategy = strategy;
 
       const result = await actionPromiseWithTimeout(
-        strategy.connect(this.deviceConfig, this.handleDisconnect),
-        20000,
-        "Подключения по USB не удалось, попробуйте ещё раз.",
+        strategy.connect(USB_CONFIG, this.handleDisconnect),
+        USB_CONNECT_TIMEOUT_MS,
+        CONNECT_TIMEOUT_MESSAGE,
       );
 
-      if (connectionId !== this.#currentConnectionId) {
+      if (this.#isStale(connectionId)) {
         await strategy.disconnect().catch((error) => {
-          this.#logsM.error("[USB] Ошибка при освобождении ресурсов", error);
+          this.#logsM.error(
+            `${LOG_PREFIX} Ошибка при освобождении ресурсов`,
+            error,
+          );
         });
         return;
       }
 
       runInAction(() => this.setConnected(result));
     } catch (err) {
-      if (connectionId !== this.#currentConnectionId) return;
+      if (this.#isStale(connectionId)) return;
 
       await strategy?.disconnect().catch((error) => {
-        this.#logsM.error("[USB] Ошибка при принудительном отключении", error);
+        this.#logsM.error(
+          `${LOG_PREFIX} Ошибка при принудительном отключении`,
+          error,
+        );
       });
 
-      let errMsg = getErrorMessage(err, "Ошибка подключения по USB.");
-
-      if (
-        errMsg ===
-        "Failed to execute 'requestDevice' on 'USB': No device selected."
-      ) {
-        errMsg = "Вы отменили выбор устройства.";
-      }
-
-      runInAction(() => this.reset(errMsg));
+      runInAction(() =>
+        this.reset(
+          this.isCancelled(err)
+            ? null
+            : getErrorMessage(err, CONNECT_ERROR_FALLBACK_MESSAGE),
+        ),
+      );
     }
   };
 
   private readonly handleDisconnect = () => {
     this.#currentConnectionId++;
-
-    if (this.isDisconnecting) {
-      this.reset();
-    } else {
-      this.reset(
-        "Соединение разорвано: устройство отключено или извлечено из USB-порта.",
-      );
-    }
+    this.reset(this.isDisconnecting ? null : CONNECTION_LOST_MESSAGE);
   };
 
   disconnect = async () => {
     if (this.isDisconnecting || (!this.isConnected && !this.isConnecting))
       return;
-
-    const wasConnecting = this.isConnecting;
 
     runInAction(() => {
       this.status = "disconnecting";
@@ -182,18 +192,16 @@ export class UsbM {
     try {
       await actionPromiseWithTimeout(
         this.#strategy?.disconnect() ?? Promise.resolve(),
-        3000,
-        "Таймаут физического отключения",
+        USB_DISCONNECT_TIMEOUT_MS,
+        DISCONNECT_TIMEOUT_MESSAGE,
       );
     } catch (err) {
       this.#logsM.error(
-        "[USB] Физическое отключение не завершилось штатно",
+        `${LOG_PREFIX} Физическое отключение не завершилось штатно`,
         err,
       );
     } finally {
-      runInAction(() =>
-        this.reset(wasConnecting ? "Подключение отменено." : null),
-      );
+      runInAction(() => this.reset(null));
     }
   };
 
@@ -206,19 +214,17 @@ export class UsbM {
     try {
       const battery = await this.#strategy?.getBatteryLevel();
 
-      if (!this.isConnected || connectionId !== this.#currentConnectionId)
-        return;
+      if (!this.isConnected || this.#isStale(connectionId)) return;
 
       runInAction(() => {
         if (battery == null) this.batteryAvailable = false;
         this.batteryLevel = battery ?? null;
       });
     } catch (err) {
-      if (!this.isConnected || connectionId !== this.#currentConnectionId)
-        return;
+      if (!this.isConnected || this.#isStale(connectionId)) return;
 
       runInAction(() => {
-        this.error = getErrorMessage(err, "Не удалось обновить заряд батареи.");
+        this.error = getErrorMessage(err, BATTERY_REFRESH_ERROR_MESSAGE);
       });
     } finally {
       runInAction(() => {

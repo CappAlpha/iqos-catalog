@@ -59,7 +59,7 @@ export class WebBluetooth extends BaseConnectionStrategy<
     return this.withDisconnectCallback(onDisconnect, async () => {
       const selectedDevice: BluetoothDevice =
         await navigator.bluetooth.requestDevice({
-          // TODO: remove comment and acceptAllDevices on release
+          // TODO: remove comment and acceptAllDevices on release, need all devices for test now
           // filters: [{ services: config.services }],
           acceptAllDevices: true,
           optionalServices: [...REQUIRED_SERVICES],

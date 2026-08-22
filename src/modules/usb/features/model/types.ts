@@ -1,3 +1,6 @@
+export type TUsbStatus =
+  "disconnected" | "connecting" | "connected" | "disconnecting";
+
 export interface IUsbDeviceInfo {
   manufacturerName: string | null;
   productName: string | null;

@@ -8,13 +8,25 @@ import { InterfacesSection } from "../InterfacesSection";
 import s from "./UsbInfo.module.scss";
 
 export const UsbInfo = observer(() => {
-  const { device } = usbM;
+  const {
+    device,
+    batteryAvailable,
+    batteryLevel,
+    isRefreshingBattery,
+    refreshBattery,
+  } = usbM;
   if (!device) return null;
 
   const interfaces = device.configuration?.interfaces ?? [];
   return (
     <div className={s.root}>
-      <DeviceMetadataSection device={device} />
+      <DeviceMetadataSection
+        device={device}
+        batteryAvailable={batteryAvailable}
+        batteryLevel={batteryLevel}
+        isRefreshingBattery={isRefreshingBattery}
+        onRefreshBattery={() => void refreshBattery()}
+      />
       <InterfacesSection interfaces={interfaces} />
       <EndpointsSection interfaces={interfaces} />
     </div>
