@@ -5,6 +5,7 @@ import type {
   IBluetoothConnectionResult,
   IBluetoothDeviceInfo,
 } from "../model/types";
+import { normalizeBatteryLevel } from "./normalizeBatteryLevel";
 import { createCharReader } from "./readCharacteristic";
 import { getEmptyDeviceInfo, readDeviceInfo } from "./readDeviceInfo";
 
@@ -56,10 +57,9 @@ export async function readInitialMetadata(
   const deviceInfo =
     infoResult.status === "fulfilled" ? infoResult.value : getEmptyDeviceInfo();
 
-  let batteryLevel: number | null = null;
-  if (batteryResult.status === "fulfilled" && batteryResult.value !== null) {
-    batteryLevel = batteryResult.value;
-  }
+  const batteryLevel = normalizeBatteryLevel(
+    batteryResult.status === "fulfilled" ? batteryResult.value : null,
+  );
 
   return { deviceName, deviceInfo, batteryLevel };
 }

@@ -10,6 +10,7 @@ import { getErrorMessage } from "@/shared/lib/getErrorMessage";
 import { logsM, type IAppLogger } from "@/shared/lib/logger";
 
 import { getBluetoothStrategy } from "../lib/getBluetoothStrategy";
+import { normalizeBatteryLevel } from "../lib/normalizeBatteryLevel";
 import { getEmptyDeviceInfo } from "../lib/readDeviceInfo";
 import {
   BATTERY_REFRESH_ERROR_MESSAGE,
@@ -285,7 +286,9 @@ export class BluetoothM {
     this.isRefreshingBattery = true;
 
     try {
-      const level = (await this.#strategy?.getBatteryLevel()) ?? null;
+      const level = normalizeBatteryLevel(
+        (await this.#strategy?.getBatteryLevel()) ?? null,
+      );
 
       if (!this.isConnected || this.isStale(connectionId)) {
         this.#logsM.warn(

@@ -141,9 +141,9 @@ export class NativeBluetooth
   /** Закрывает native GATT-соединение и очищает идентификатор устройства. */
   protected doDisconnect = async (): Promise<void> => {
     const idToDisconnect = this.deviceId;
-    this.deviceId = null;
     if (idToDisconnect) {
       await BleClient.disconnect(idToDisconnect);
+      this.deviceId = null;
     }
   };
 
