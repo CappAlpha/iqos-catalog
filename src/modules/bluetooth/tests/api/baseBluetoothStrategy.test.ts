@@ -27,7 +27,6 @@ class TestBluetoothStrategy extends BaseConnectionStrategy<
 > {
   protected readonly logPrefix = "[TestBluetooth]";
   protected readonly disconnectErrorMessage = "Ошибка тестового отключения";
-  protected readonly manualDisconnectMessage = "Тестовое отключение.";
   readonly disconnectPhysical = vi.fn(() => Promise.resolve());
 
   constructor() {

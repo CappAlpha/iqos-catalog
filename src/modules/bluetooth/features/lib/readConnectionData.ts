@@ -1,7 +1,11 @@
 import { logsM } from "@/shared/lib/logger";
 
 import { GAP } from "../model/constants";
-import type { IBluetoothDeviceInfo } from "../model/types";
+import type {
+  IBluetoothConnectionResult,
+  IBluetoothDeviceInfo,
+} from "../model/types";
+import { createCharReader } from "./readCharacteristic";
 import { getEmptyDeviceInfo, readDeviceInfo } from "./readDeviceInfo";
 
 export interface IInitialMetadataResult {
@@ -29,6 +33,8 @@ export async function readInitialMetadata(
   fallbackName: string | null,
   signal?: AbortSignal,
 ): Promise<IInitialMetadataResult> {
+  signal?.throwIfAborted();
+
   const nameResult = await settle(readChar(GAP.SERVICE, GAP.DEVICE_NAME));
   const infoResult = await settle(readDeviceInfo(readChar));
   const batteryResult = await settle(getBatteryLevelFn());
@@ -41,13 +47,7 @@ export async function readInitialMetadata(
   const fallback = normalizeName(fallbackName);
   const deviceName = gapName ?? fallback;
 
-  if (gapName) {
-    logsM.info(`[BLE] Имя из GAP.DeviceName: "${gapName}".`);
-  } else if (fallback) {
-    logsM.info(
-      `[BLE] GAP.DeviceName не прочитано — имя из окна выбора: "${fallback}".`,
-    );
-  } else {
+  if (!deviceName) {
     logsM.warn(
       "[BLE] Имя устройства не получено: GAP.DeviceName и окно выбора пусты.",
     );
@@ -63,3 +63,39 @@ export async function readInitialMetadata(
 
   return { deviceName, deviceInfo, batteryLevel };
 }
+
+/**
+ * Читает имя, метаданные Device Information и заряд батареи, собирая
+ * итоговый результат подключения.
+ *
+ * Отсутствие отдельных BLE-характеристик не отменяет подключение:
+ * такие ошибки преобразуются в `null` внутри `readInitialMetadata`.
+ *
+ * @param deviceId идентификатор устройства, полученный от транспорта;
+ * @param fallbackName имя из окна выбора, если GAP.DeviceName недоступен;
+ * @param readRaw platform-specific чтение сырого значения характеристики;
+ * @param getBatteryLevelFn чтение заряда батареи конкретным транспортом;
+ * @param signal сигнал отмены текущей операции от стора;
+ */
+export const readConnectionData = async (
+  deviceId: string,
+  fallbackName: string | null,
+  readRaw: (serviceUuid: string, charUuid: string) => Promise<DataView>,
+  getBatteryLevelFn: () => Promise<number | null>,
+  signal?: AbortSignal,
+): Promise<IBluetoothConnectionResult> => {
+  const read = createCharReader(readRaw);
+
+  const { deviceName, deviceInfo, batteryLevel } = await readInitialMetadata(
+    read,
+    getBatteryLevelFn,
+    fallbackName,
+    signal,
+  );
+
+  return {
+    device: { id: deviceId, name: deviceName },
+    deviceInfo,
+    batteryLevel,
+  };
+};

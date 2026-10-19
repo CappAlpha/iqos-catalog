@@ -30,8 +30,6 @@ import type {
   TUsbStatus,
 } from "./types";
 
-const LOG_PREFIX = "[USB]";
-
 export class UsbM {
   device: IUsbDeviceInfo | null = null;
   status: TUsbStatus = "disconnected";
@@ -104,13 +102,13 @@ export class UsbM {
   connect = async () => {
     if (this.isConnecting || this.isDisconnecting) {
       this.#logsM.warn(
-        `${LOG_PREFIX} Повторное подключение отклонено. Статус: ${this.status}`,
+        `[USB_M] Повторное подключение отклонено. Статус: ${this.status}`,
       );
       return;
     }
 
     if (!this.isSupported) {
-      this.#logsM.warn(`${LOG_PREFIX} ${UNSUPPORTED_MESSAGE}`);
+      this.#logsM.warn(`[USB_M] ${UNSUPPORTED_MESSAGE}`);
       return;
     }
 
@@ -130,6 +128,9 @@ export class UsbM {
       strategy = await this.#getStrategy();
 
       if (this.#isStale(connectionId)) {
+        this.#logsM.warn(
+          `[USB_M] [ID:${connectionId}] Подключение устарело (актуальный ID: ${this.#currentConnectionId}). Освобождение ресурсов.`,
+        );
         await strategy.disconnect();
         return;
       }
@@ -145,20 +146,25 @@ export class UsbM {
       if (this.#isStale(connectionId)) {
         await strategy.disconnect().catch((error) => {
           this.#logsM.error(
-            `${LOG_PREFIX} Ошибка при освобождении ресурсов`,
+            `[USB_M] [ID:${connectionId}] Ошибка при освобождении ресурсов`,
             error,
           );
         });
         return;
       }
 
+      this.#logsM.success(
+        `[USB_M] [ID:${connectionId}] Устройство подключено: ${result.device.productName ?? "без имени"}.`,
+      );
       runInAction(() => this.setConnected(result));
     } catch (err) {
       if (this.#isStale(connectionId)) return;
 
+      this.#logsM.error(`[USB_M] [ID:${connectionId}] Сбой подключения`, err);
+
       await strategy?.disconnect().catch((error) => {
         this.#logsM.error(
-          `${LOG_PREFIX} Ошибка при принудительном отключении`,
+          `[USB_M] [ID:${connectionId}] Ошибка при принудительном отключении`,
           error,
         );
       });
@@ -175,12 +181,28 @@ export class UsbM {
 
   private readonly handleDisconnect = () => {
     this.#currentConnectionId++;
-    this.reset(this.isDisconnecting ? null : CONNECTION_LOST_MESSAGE);
+
+    runInAction(() => {
+      if (this.status === "disconnecting") {
+        this.reset();
+      } else {
+        this.#logsM.warn(`[USB_M] ${CONNECTION_LOST_MESSAGE}`);
+        this.reset(CONNECTION_LOST_MESSAGE);
+      }
+    });
   };
 
   disconnect = async () => {
-    if (this.isDisconnecting || (!this.isConnected && !this.isConnecting))
+    if (this.isDisconnecting) {
+      this.#logsM.warn("[USB_M] Отключение уже выполняется.");
       return;
+    }
+    if (!this.isConnected && !this.isConnecting) {
+      this.#logsM.warn(
+        `[USB_M] Отключение отклонено: устройство не подключено. Статус: ${this.status}`,
+      );
+      return;
+    }
 
     runInAction(() => {
       this.status = "disconnecting";
@@ -197,7 +219,7 @@ export class UsbM {
       );
     } catch (err) {
       this.#logsM.error(
-        `${LOG_PREFIX} Физическое отключение не завершилось штатно`,
+        "[USB_M] Физическое отключение не завершилось штатно",
         err,
       );
     } finally {
@@ -222,6 +244,8 @@ export class UsbM {
       });
     } catch (err) {
       if (!this.isConnected || this.#isStale(connectionId)) return;
+
+      this.#logsM.error("[USB_M] Ошибка чтения заряда батареи", err);
 
       runInAction(() => {
         this.error = getErrorMessage(err, BATTERY_REFRESH_ERROR_MESSAGE);

@@ -20,7 +20,6 @@ export class AndroidNativeUsb extends BaseConnectionStrategy<
 > {
   protected readonly logPrefix = LOG_PREFIX;
   protected readonly disconnectErrorMessage = "Ошибка при отключении USB";
-  protected readonly manualDisconnectMessage = "Ручное отключение.";
 
   /** Создаёт стратегию native USB с общим logger приложения. */
   constructor() {
@@ -45,13 +44,8 @@ export class AndroidNativeUsb extends BaseConnectionStrategy<
   ): Promise<IUsbConnectionResult> => {
     const { vendorId, productId } = config;
 
-    logsM.info(
-      `${LOG_PREFIX} Поиск устройства VID=${vendorId}, PID=${productId}.`,
-    );
-
     return this.withDisconnectCallback(onDisconnect, async () => {
       const { devices } = await UsbSerial.listDevices();
-      logsM.info(`${LOG_PREFIX} Найдено USB-устройств: ${devices.length}.`);
 
       const targetDevice = devices.find(
         (d) => d.vendorId === vendorId && d.productId === productId,
@@ -66,7 +60,6 @@ export class AndroidNativeUsb extends BaseConnectionStrategy<
       );
 
       if (!targetDevice.hasPermission) {
-        logsM.info(`${LOG_PREFIX} Запрос разрешения на доступ к устройству.`);
         const { granted } = await UsbSerial.requestPermission({
           deviceId: targetDevice.deviceId,
         });
@@ -90,7 +83,6 @@ export class AndroidNativeUsb extends BaseConnectionStrategy<
         "detached",
         this.handleDetached,
       );
-      logsM.info(`${LOG_PREFIX} Listener отключения зарегистрирован.`);
 
       return {
         device: {
@@ -114,7 +106,6 @@ export class AndroidNativeUsb extends BaseConnectionStrategy<
    * @returns всегда `null`, если native USB battery API недоступен;
    */
   getBatteryLevel = (): Promise<number | null> => {
-    logsM.info(`${LOG_PREFIX} Native USB не предоставляет чтение батареи.`);
     return Promise.resolve(null);
   };
 
@@ -124,9 +115,7 @@ export class AndroidNativeUsb extends BaseConnectionStrategy<
     this.activeDeviceId = null;
 
     if (portKeyToClose) {
-      logsM.info(`${LOG_PREFIX} Закрытие USB-порта: ${portKeyToClose}.`);
       await UsbSerial.close({ portId: portKeyToClose });
-      logsM.success(`${LOG_PREFIX} USB-порт закрыт.`);
     }
   };
 
@@ -135,13 +124,11 @@ export class AndroidNativeUsb extends BaseConnectionStrategy<
     const listener = this.detachListener;
     this.detachListener = null;
     await listener?.remove();
-    logsM.info(`${LOG_PREFIX} Listener отключения снят.`);
   };
 
   /** Передаёт detach только для текущего устройства в общий lifecycle. */
   private readonly handleDetached = (event: { deviceId: string }) => {
     if (event.deviceId === this.activeDeviceId) {
-      logsM.warn(`${LOG_PREFIX} Устройство отключено системой.`);
       this.notifyDisconnected();
     }
   };

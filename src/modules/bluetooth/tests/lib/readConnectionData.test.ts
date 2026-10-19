@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 
-import { readInitialMetadata } from "../../features/lib/readInitialMetadata";
+import { readInitialMetadata } from "../../features/lib/readConnectionData";
 import { GAP } from "../../features/model/constants";
 
 describe("readInitialMetadata", () => {
@@ -93,17 +93,19 @@ describe("readInitialMetadata", () => {
     expect(result.batteryLevel).toBeNull();
   });
 
-  it("stops after metadata reads when the operation was aborted", async () => {
+  it("aborts before starting any read when the signal is already aborted", async () => {
     const controller = new AbortController();
     controller.abort();
+    const read = vi.fn(() => Promise.resolve(null));
 
     await expect(
       readInitialMetadata(
-        vi.fn(() => Promise.resolve(null)),
+        read,
         () => Promise.resolve(null),
         null,
         controller.signal,
       ),
     ).rejects.toMatchObject({ name: "AbortError" });
+    expect(read).not.toHaveBeenCalled();
   });
 });

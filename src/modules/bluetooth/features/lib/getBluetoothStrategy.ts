@@ -2,10 +2,7 @@ import { IS_ANDROID, IS_IOS } from "@/shared/config/platform";
 
 import type { IBluetoothStrategy } from "../model/types";
 
-type TBluetoothStrategyFactory = () => IBluetoothStrategy;
-
 let bleClientInitialization: Promise<void> | null = null;
-let strategyFactoryPromise: Promise<TBluetoothStrategyFactory> | null = null;
 
 const initializeBleClient = async (): Promise<void> => {
   bleClientInitialization ??= import("@capacitor-community/bluetooth-le")
@@ -25,23 +22,7 @@ export const getBluetoothStrategy = async (): Promise<IBluetoothStrategy> => {
     await initializeBleClient();
   }
 
-  strategyFactoryPromise ??= (
-    IS_ANDROID || IS_IOS
-      ? import("../api/nativeBluetooth").then(
-          ({ NativeBluetooth }) =>
-            () =>
-              new NativeBluetooth(),
-        )
-      : import("../api/webBluetooth").then(
-          ({ WebBluetooth }) =>
-            () =>
-              new WebBluetooth(),
-        )
-  ).catch((error: unknown) => {
-    strategyFactoryPromise = null;
-    throw error;
-  });
-
-  const createStrategy = await strategyFactoryPromise;
-  return createStrategy();
+  return IS_ANDROID || IS_IOS
+    ? new (await import("../api/nativeBluetooth")).NativeBluetooth()
+    : new (await import("../api/webBluetooth")).WebBluetooth();
 };

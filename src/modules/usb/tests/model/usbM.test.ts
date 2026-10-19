@@ -1,8 +1,11 @@
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { IAppLogger } from "@/shared/lib/logger";
 
-import { USB_CONFIG } from "../../features/model/constants";
+import {
+  UNSUPPORTED_MESSAGE,
+  USB_CONFIG,
+} from "../../features/model/constants";
 import type {
   IUsbConnectionResult,
   IUsbDeviceConfig,
@@ -10,12 +13,16 @@ import type {
 } from "../../features/model/types";
 import { UsbM } from "../../features/model/usbM";
 
-vi.mock("@/shared/config/platform", () => ({
+const platformState = vi.hoisted(() => ({
   IS_ANDROID: false,
   IS_CAPACITOR: false,
   IS_NATIVE_USB_AVAILABLE: false,
   IS_WEB_USB_SUPPORTED: true,
 }));
+
+const PLATFORM_DEFAULTS = { ...platformState };
+
+vi.mock("@/shared/config/platform", () => platformState);
 
 const CONNECTION_RESULT: IUsbConnectionResult = {
   device: {
@@ -28,12 +35,14 @@ const CONNECTION_RESULT: IUsbConnectionResult = {
   batteryLevel: 81,
 };
 
-const logger: IAppLogger = {
+const loggerMocks = {
   info: vi.fn(),
   success: vi.fn(),
   warn: vi.fn(),
   error: vi.fn(),
 };
+
+const logger: IAppLogger = loggerMocks;
 
 const createStrategy = (result = CONNECTION_RESULT) => ({
   connect: vi.fn((config: IUsbDeviceConfig, onDisconnect: () => void) => {
@@ -46,6 +55,60 @@ const createStrategy = (result = CONNECTION_RESULT) => ({
 });
 
 describe("UsbM", () => {
+  beforeEach(() => {
+    Object.assign(platformState, PLATFORM_DEFAULTS);
+  });
+
+  it("keeps state clean when the web API is unsupported", async () => {
+    platformState.IS_WEB_USB_SUPPORTED = false;
+    const strategy = createStrategy();
+    const usb = new UsbM(() => Promise.resolve(strategy), logger);
+
+    await usb.connect();
+
+    expect(strategy.connect).not.toHaveBeenCalled();
+    expect(usb.status).toBe("disconnected");
+    expect(usb.error).toBeNull();
+    expect(loggerMocks.warn).toHaveBeenCalledWith(
+      `[USB_M] ${UNSUPPORTED_MESSAGE}`,
+    );
+  });
+
+  it("keeps state clean when the native API is unsupported", async () => {
+    platformState.IS_WEB_USB_SUPPORTED = true;
+    platformState.IS_CAPACITOR = true;
+    platformState.IS_ANDROID = true;
+    platformState.IS_NATIVE_USB_AVAILABLE = false;
+    const strategy = createStrategy();
+    const usb = new UsbM(() => Promise.resolve(strategy), logger);
+
+    await usb.connect();
+
+    expect(strategy.connect).not.toHaveBeenCalled();
+    expect(usb.status).toBe("disconnected");
+    expect(usb.error).toBeNull();
+    expect(loggerMocks.warn).toHaveBeenCalledWith(
+      `[USB_M] ${UNSUPPORTED_MESSAGE}`,
+    );
+  });
+
+  it("connects when the native API is supported", async () => {
+    platformState.IS_WEB_USB_SUPPORTED = false;
+    platformState.IS_CAPACITOR = true;
+    platformState.IS_ANDROID = true;
+    platformState.IS_NATIVE_USB_AVAILABLE = true;
+    const strategy = createStrategy();
+    const usb = new UsbM(() => Promise.resolve(strategy), logger);
+
+    await usb.connect();
+
+    expect(strategy.connect).toHaveBeenCalledWith(
+      USB_CONFIG,
+      expect.any(Function),
+    );
+    expect(usb.isConnected).toBe(true);
+  });
+
   it("connects through the injected strategy and refreshes battery", async () => {
     const strategy = createStrategy();
     const usb = new UsbM(() => Promise.resolve(strategy), logger);

@@ -5,12 +5,12 @@ import { BaseConnectionStrategy } from "@/shared/lib/baseConnectionStrategy";
 import { getErrorMessage } from "@/shared/lib/getErrorMessage";
 import { logsM } from "@/shared/lib/logger";
 
-import { createCharReader } from "../lib/readCharacteristic";
-import { readInitialMetadata } from "../lib/readInitialMetadata";
+import { readConnectionData } from "../lib/readConnectionData";
 import { BATTERY, REQUIRED_SERVICES } from "../model/constants";
 import type {
   IBluetoothConnectionResult,
   IBluetoothDeviceConfig,
+  IBluetoothStrategy,
 } from "../model/types";
 
 const LOG_PREFIX = "[NativeBluetooth]";
@@ -23,29 +23,29 @@ const LOG_PREFIX = "[NativeBluetooth]";
  * Системное событие разрыва приходит через колбэк `BleClient.connect` и
  * транслируется в `notifyDisconnected()` базового класса.
  */
-export class NativeBluetooth extends BaseConnectionStrategy<
-  IBluetoothDeviceConfig,
-  IBluetoothConnectionResult
-> {
+export class NativeBluetooth
+  extends BaseConnectionStrategy<
+    IBluetoothDeviceConfig,
+    IBluetoothConnectionResult
+  >
+  implements IBluetoothStrategy
+{
   protected readonly logPrefix = LOG_PREFIX;
   protected readonly disconnectErrorMessage =
     "Ошибка при разрыве GATT-соединения";
-  protected readonly manualDisconnectMessage = "Ручной disconnect.";
+
+  private deviceId: string | null = null;
 
   /** Создаёт стратегию native Bluetooth с общим logger приложения. */
   constructor() {
     super(logsM);
   }
 
-  private deviceId: string | null = null;
-
   /**
    * Подключает BLE-устройство через Capacitor-плагин.
    *
    * Последовательность операции: проверка состояния Bluetooth, выбор устройства,
-   * GATT-подключение и чтение начальных метаданных. Ошибки отдельных BLE-
-   * характеристик обрабатываются внутри `readInitialMetadata` и не отменяют
-   * подключение, если само GATT-соединение успешно.
+   * GATT-подключение и чтение начальных метаданных через `readConnectionData`.
    *
    * @param config конфигурация BLE-сервисов;
    * @param onDisconnect callback системного отключения устройства;
@@ -100,26 +100,13 @@ export class NativeBluetooth extends BaseConnectionStrategy<
 
       signal?.throwIfAborted();
 
-      const read = createCharReader(async (svc, chr) => {
-        return await BleClient.read(device.deviceId, svc, chr);
-      });
-
-      const { deviceName, deviceInfo, batteryLevel } =
-        await readInitialMetadata(
-          read,
-          () => this.getBatteryLevel(),
-          device.name ?? null,
-          signal,
-        );
-
-      return {
-        device: {
-          id: device.deviceId,
-          name: deviceName,
-        },
-        deviceInfo,
-        batteryLevel,
-      };
+      return readConnectionData(
+        device.deviceId,
+        device.name ?? null,
+        (svc, chr) => BleClient.read(device.deviceId, svc, chr),
+        () => this.getBatteryLevel(),
+        signal,
+      );
     });
   };
 
@@ -135,8 +122,6 @@ export class NativeBluetooth extends BaseConnectionStrategy<
       return null;
     }
 
-    logsM.info(`${LOG_PREFIX} Чтение уровня заряда батареи...`);
-
     try {
       const value = await BleClient.read(
         this.deviceId,
@@ -144,9 +129,7 @@ export class NativeBluetooth extends BaseConnectionStrategy<
         BATTERY.LEVEL,
       );
       if (value.byteLength === 0) return null;
-      const level = value.getUint8(0);
-      logsM.info(`${LOG_PREFIX} Заряд батареи: ${level}%`);
-      return level;
+      return value.getUint8(0);
     } catch (err) {
       logsM.warn(
         `${LOG_PREFIX} Ошибка чтения заряда: ${getErrorMessage(err, "неизвестная")}`,
@@ -170,7 +153,6 @@ export class NativeBluetooth extends BaseConnectionStrategy<
    * класса, который вызовет onDisconnect-колбэк стора.
    */
   private readonly handlePluginDisconnect = (): void => {
-    logsM.warn(`${LOG_PREFIX} Системное событие отключения от плагина.`);
     this.notifyDisconnected();
   };
 }

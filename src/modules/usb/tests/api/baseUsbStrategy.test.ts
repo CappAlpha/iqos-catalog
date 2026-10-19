@@ -25,8 +25,8 @@ class TestUsbStrategy extends BaseConnectionStrategy<
 > {
   protected readonly logPrefix = "[TestUSB]";
   protected readonly disconnectErrorMessage = "Ошибка тестового отключения";
-  protected readonly manualDisconnectMessage = "Тестовое отключение.";
   readonly disconnectPhysical = vi.fn(() => Promise.resolve());
+  override readonly beforeDisconnect = vi.fn(() => Promise.resolve());
 
   constructor() {
     super(logsM);
@@ -65,16 +65,65 @@ describe("BaseConnectionStrategy (USB)", () => {
     expect(strategy.disconnectPhysical).toHaveBeenCalledTimes(1);
   });
 
-  it("notifies after a system disconnect cleanup", async () => {
+  it("does not run cleanup twice on overlapping disconnects", async () => {
+    let resolveDisconnect: (() => void) | undefined;
     const strategy = new TestUsbStrategy();
+    strategy.disconnectPhysical.mockImplementation(
+      () =>
+        new Promise<void>((resolve) => {
+          resolveDisconnect = resolve;
+        }),
+    );
+    const onDisconnect = vi.fn();
+
+    await strategy.connect({ vendorId: 10073, productId: 3 }, onDisconnect);
+    const firstDisconnect = strategy.disconnect();
+    let isFirstResolved = false;
+    void firstDisconnect.then(() => {
+      isFirstResolved = true;
+    });
+    const secondDisconnect = strategy.disconnect();
+    let isSecondResolved = false;
+    void secondDisconnect.then(() => {
+      isSecondResolved = true;
+    });
+
+    await Promise.resolve();
+    expect(isFirstResolved).toBe(false);
+    expect(isSecondResolved).toBe(false);
+    expect(strategy.beforeDisconnect).toHaveBeenCalledTimes(1);
+    expect(strategy.disconnectPhysical).toHaveBeenCalledTimes(1);
+
+    resolveDisconnect?.();
+    await Promise.all([firstDisconnect, secondDisconnect]);
+    expect(isFirstResolved).toBe(true);
+    expect(isSecondResolved).toBe(true);
+    expect(strategy.beforeDisconnect).toHaveBeenCalledTimes(1);
+    expect(strategy.disconnectPhysical).toHaveBeenCalledTimes(1);
+  });
+
+  it("notifies after a system disconnect cleanup", async () => {
+    let resolveDisconnect: (() => void) | undefined;
+    const strategy = new TestUsbStrategy();
+    strategy.disconnectPhysical.mockImplementation(
+      () =>
+        new Promise<void>((resolve) => {
+          resolveDisconnect = resolve;
+        }),
+    );
     const onDisconnect = vi.fn();
 
     await strategy.connect({ vendorId: 10073, productId: 3 }, onDisconnect);
     strategy.notifySystemDisconnect();
     await new Promise((resolve) => setTimeout(resolve, 0));
 
-    expect(onDisconnect).toHaveBeenCalledTimes(1);
+    expect(strategy.beforeDisconnect).toHaveBeenCalledTimes(1);
     expect(strategy.disconnectPhysical).toHaveBeenCalledTimes(1);
+    expect(onDisconnect).not.toHaveBeenCalled();
+
+    resolveDisconnect?.();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(onDisconnect).toHaveBeenCalledTimes(1);
   });
 
   it("waits for physical cleanup", async () => {

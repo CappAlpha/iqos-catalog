@@ -23,7 +23,6 @@ export class WebUsb extends BaseConnectionStrategy<
 > {
   protected readonly logPrefix = LOG_PREFIX;
   protected readonly disconnectErrorMessage = "Ошибка при отключении USB";
-  protected readonly manualDisconnectMessage = "Ручное отключение.";
 
   /** Создаёт стратегию WebUSB с общим logger приложения. */
   constructor() {
@@ -64,7 +63,6 @@ export class WebUsb extends BaseConnectionStrategy<
       }
 
       this.device = device;
-      logsM.info(`${LOG_PREFIX} Открытие USB-устройства.`);
       await this.configureWebUsbDevice(device);
 
       if (!this.isOperationActive()) {
@@ -72,7 +70,6 @@ export class WebUsb extends BaseConnectionStrategy<
         throw new DOMException("Подключение отменено.", "AbortError");
       }
       navigator.usb.addEventListener("disconnect", this.handleDisconnect);
-      logsM.info(`${LOG_PREFIX} Listener отключения зарегистрирован.`);
 
       const batteryLevel = await this.getBatteryLevel();
 
@@ -101,7 +98,6 @@ export class WebUsb extends BaseConnectionStrategy<
     if (!this.device || !this.isInterfaceClaimed) return null;
 
     try {
-      logsM.info(`${LOG_PREFIX} Чтение уровня заряда батареи.`);
       const result = await this.device.controlTransferIn(
         CUSTOM_BATTERY_REQUEST,
         BATTERY_RESPONSE_LENGTH,
@@ -122,13 +118,9 @@ export class WebUsb extends BaseConnectionStrategy<
   /** Открывает устройство, выбирает конфигурацию и пытается захватить интерфейс. */
   private readonly configureWebUsbDevice = async (device: USBDevice) => {
     await device.open();
-    logsM.info(`${LOG_PREFIX} USB-устройство открыто.`);
     try {
       if (device.configuration?.configurationValue !== DEFAULT_CONFIGURATION) {
         await device.selectConfiguration(DEFAULT_CONFIGURATION);
-        logsM.info(
-          `${LOG_PREFIX} Выбрана USB-конфигурация: ${DEFAULT_CONFIGURATION}.`,
-        );
       }
     } catch (err) {
       await device.close().catch(() => {});
@@ -152,7 +144,6 @@ export class WebUsb extends BaseConnectionStrategy<
   /** Передаёт физическое отключение выбранного устройства в общий lifecycle. */
   private readonly handleDisconnect = (event: USBConnectionEvent) => {
     if (this.device && event.device === this.device) {
-      logsM.warn(`${LOG_PREFIX} Устройство отключено системой.`);
       this.notifyDisconnected();
     }
   };
@@ -160,7 +151,6 @@ export class WebUsb extends BaseConnectionStrategy<
   /** Снимает browser listener перед закрытием USB-устройства. */
   protected override readonly beforeDisconnect = () => {
     navigator.usb.removeEventListener("disconnect", this.handleDisconnect);
-    logsM.info(`${LOG_PREFIX} Listener отключения снят.`);
   };
 
   /** Закрывает WebUSB-устройство и очищает локальное состояние стратегии. */
@@ -171,7 +161,6 @@ export class WebUsb extends BaseConnectionStrategy<
     this.batteryAvailable = false;
 
     if (deviceToClose) {
-      logsM.info(`${LOG_PREFIX} Закрытие USB-устройства.`);
       await deviceToClose.close().catch((err: unknown) => {
         const errorMessage = err instanceof Error ? err.message : String(err);
         if (
@@ -181,7 +170,6 @@ export class WebUsb extends BaseConnectionStrategy<
           logsM.error(`${LOG_PREFIX} Ошибка при закрытии USB-устройства.`, err);
         }
       });
-      logsM.success(`${LOG_PREFIX} USB-устройство закрыто.`);
     }
   };
 }

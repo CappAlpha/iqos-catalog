@@ -1,5 +1,4 @@
 import { observer } from "mobx-react-lite";
-import { useState } from "react";
 
 import { Button } from "@/shared/ui/Button";
 
@@ -23,19 +22,10 @@ const DEVICE_INFO_FIELDS: IDeviceInfoField[] = [
 ];
 
 export const BluetoothInfo = observer(() => {
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  const { batteryLevel, device, deviceInfo } = bluetoothM;
+  const { batteryLevel, device, deviceInfo, isRefreshingBattery } = bluetoothM;
   if (!device) return null;
 
   const { id, name } = device;
-  const refreshBattery = async () => {
-    setIsRefreshing(true);
-    try {
-      await bluetoothM.refreshBattery();
-    } finally {
-      setIsRefreshing(false);
-    }
-  };
 
   return (
     <section className={s.root}>
@@ -50,17 +40,22 @@ export const BluetoothInfo = observer(() => {
         </p>
 
         <div className={s.batteryRow}>
-          <p className={s.row} aria-live="polite">
-            <b>Заряд батареи:</b>{" "}
-            {batteryLevel != null ? `${batteryLevel}%` : "Недоступен"}
-          </p>
+          {batteryLevel != null && (
+            <p className={s.row} aria-live="polite">
+              <b>Заряд батареи:</b> {batteryLevel}%
+            </p>
+          )}
           <Button
             color="outline"
-            onClick={refreshBattery}
-            loading={isRefreshing}
-            aria-label="Обновить заряд батареи"
+            onClick={() => void bluetoothM.refreshBattery()}
+            loading={isRefreshingBattery}
+            aria-label={
+              batteryLevel != null
+                ? "Обновить заряд батареи"
+                : "Проверить заряд батареи"
+            }
           >
-            Обновить
+            {batteryLevel != null ? "Обновить" : "Проверить заряд"}
           </Button>
         </div>
 

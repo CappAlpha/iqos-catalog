@@ -119,6 +119,26 @@ describe("WebBluetooth", () => {
     expect(gatt.getPrimaryService).not.toHaveBeenCalled();
   });
 
+  it("returns null for an empty battery response without a read error", async () => {
+    const strategy = new WebBluetooth();
+    const value = new DataView(new ArrayBuffer(0));
+    const getUint8 = vi.spyOn(value, "getUint8");
+    (strategy as unknown as { device: BluetoothDevice }).device = {
+      gatt,
+    } as unknown as BluetoothDevice;
+    gatt.getPrimaryService.mockResolvedValueOnce({
+      getCharacteristic: vi.fn(() =>
+        Promise.resolve({
+          readValue: vi.fn(() => Promise.resolve(value)),
+        }),
+      ),
+    });
+
+    await expect(strategy.getBatteryLevel()).resolves.toBeNull();
+    expect(gatt.getPrimaryService).toHaveBeenCalledTimes(1);
+    expect(getUint8).not.toHaveBeenCalled();
+  });
+
   it("cleans up and rethrows when GATT connection fails", async () => {
     const strategy = new WebBluetooth();
     const connectError = new Error("GATT unavailable");

@@ -3,13 +3,13 @@ import { BaseConnectionStrategy } from "@/shared/lib/baseConnectionStrategy";
 import { getErrorMessage } from "@/shared/lib/getErrorMessage";
 import { logsM } from "@/shared/lib/logger";
 
-import { createCharReader } from "../lib/readCharacteristic";
+import { readConnectionData } from "../lib/readConnectionData";
 import { getEmptyDeviceInfo } from "../lib/readDeviceInfo";
-import { readInitialMetadata } from "../lib/readInitialMetadata";
 import { BATTERY, REQUIRED_SERVICES } from "../model/constants";
 import type {
   IBluetoothConnectionResult,
   IBluetoothDeviceConfig,
+  IBluetoothStrategy,
 } from "../model/types";
 
 const LOG_PREFIX = "[WebBluetooth]";
@@ -22,28 +22,30 @@ const GATT_CONNECT_TIMEOUT = 10_000;
  * Системное событие разрыва приходит через `gattserverdisconnected` и транслируется
  * в `notifyDisconnected()` базового класса.
  */
-export class WebBluetooth extends BaseConnectionStrategy<
-  IBluetoothDeviceConfig,
-  IBluetoothConnectionResult
-> {
+export class WebBluetooth
+  extends BaseConnectionStrategy<
+    IBluetoothDeviceConfig,
+    IBluetoothConnectionResult
+  >
+  implements IBluetoothStrategy
+{
   protected readonly logPrefix = LOG_PREFIX;
   protected readonly disconnectErrorMessage =
     "Ошибка при разрыве GATT-соединения";
-  protected readonly manualDisconnectMessage = "Ручной disconnect.";
+
+  private device: BluetoothDevice | null = null;
 
   constructor() {
     super(logsM);
   }
 
-  private device: BluetoothDevice | null = null;
-
   /**
    * Подключает устройство через Web Bluetooth API.
    *
    * Последовательность операции: выбор устройства в browser chooser, GATT-
-   * подключение и чтение начальных metadata. Отсутствие отдельных BLE-
-   * characteristics не отменяет подключение: такие ошибки преобразуются в
-   * необязательные значения внутри `readInitialMetadata`.
+   * подключение и чтение начальных metadata через `readConnectionData`.
+   * Отсутствие отдельных BLE-характеристик не отменяет подключение:
+   * такие ошибки преобразуются в `null` внутри `readInitialMetadata`.
    *
    * @param config конфигурация BLE-сервисов для будущих browser-фильтров;
    * @param onDisconnect callback события `gattserverdisconnected`;
@@ -107,28 +109,17 @@ export class WebBluetooth extends BaseConnectionStrategy<
         this.handleGattDisconnect,
       );
 
-      const read = createCharReader(async (svc, chr) => {
-        const service = await gatt.getPrimaryService(svc);
-        const characteristic = await service.getCharacteristic(chr);
-        return await characteristic.readValue();
-      });
-
-      const { deviceName, deviceInfo, batteryLevel } =
-        await readInitialMetadata(
-          read,
-          () => this.getBatteryLevel(),
-          selectedDevice.name ?? null,
-          signal,
-        );
-
-      return {
-        device: {
-          id: selectedDevice.id,
-          name: deviceName,
+      return readConnectionData(
+        selectedDevice.id,
+        selectedDevice.name ?? null,
+        async (svc, chr) => {
+          const service = await gatt.getPrimaryService(svc);
+          const characteristic = await service.getCharacteristic(chr);
+          return await characteristic.readValue();
         },
-        deviceInfo,
-        batteryLevel,
-      };
+        () => this.getBatteryLevel(),
+        signal,
+      );
     });
   };
 
@@ -147,14 +138,17 @@ export class WebBluetooth extends BaseConnectionStrategy<
       return null;
     }
 
-    logsM.info(`${LOG_PREFIX} Чтение уровня заряда батареи...`);
-
     try {
       const service = await gatt.getPrimaryService(BATTERY.SERVICE);
       const characteristic = await service.getCharacteristic(BATTERY.LEVEL);
-      const level = (await characteristic.readValue()).getUint8(0);
-      logsM.info(`${LOG_PREFIX} Заряд батареи: ${level}%`);
-      return level;
+      const value = await characteristic.readValue();
+      if (value.byteLength === 0) {
+        logsM.warn(
+          `${LOG_PREFIX} Заряд батареи не прочитан: пустой ответ устройства.`,
+        );
+        return null;
+      }
+      return value.getUint8(0);
     } catch (err) {
       logsM.warn(
         `${LOG_PREFIX} Ошибка чтения заряда: ${getErrorMessage(err, "неизвестная")}`,
@@ -185,7 +179,6 @@ export class WebBluetooth extends BaseConnectionStrategy<
    * notifyDisconnected() базового класса, который вызовет onDisconnect-колбэк стора.
    */
   private readonly handleGattDisconnect = () => {
-    logsM.warn(`${LOG_PREFIX} Системное событие gattserverdisconnected.`);
     this.notifyDisconnected();
   };
 }

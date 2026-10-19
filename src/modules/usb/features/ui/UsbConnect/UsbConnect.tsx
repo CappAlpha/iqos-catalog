@@ -23,7 +23,7 @@ const STATUS_TEXT: Record<TUsbStatus, string> = {
 };
 
 export const UsbConnect = observer(() => {
-  const [isHideError, setIsHideError] = useState(false);
+  const [dismissedError, setDismissedError] = useState<string | null>(null);
   const {
     isConnected,
     isConnecting,
@@ -37,6 +37,16 @@ export const UsbConnect = observer(() => {
 
   const isDisabled = isConnecting || isDisconnecting || !isSupported;
 
+  const handleConnect = () => {
+    setDismissedError(null);
+    void connect();
+  };
+
+  const handleDisconnect = () => {
+    setDismissedError(null);
+    void disconnect();
+  };
+
   return (
     <section className={s.root}>
       <div className={s.subtitle}>
@@ -49,10 +59,7 @@ export const UsbConnect = observer(() => {
       <div className={s.infoBlock}>
         <div className={s.controls}>
           <Button
-            onClick={() => {
-              void connect();
-              setIsHideError(false);
-            }}
+            onClick={handleConnect}
             disabled={isDisabled}
             className={s.btnConnect}
           >
@@ -60,10 +67,7 @@ export const UsbConnect = observer(() => {
           </Button>
           {isConnected && (
             <Button
-              onClick={() => {
-                void disconnect();
-                setIsHideError(false);
-              }}
+              onClick={handleDisconnect}
               disabled={isDisconnecting}
               className={s.btnDisconnect}
               color="error"
@@ -72,14 +76,14 @@ export const UsbConnect = observer(() => {
             </Button>
           )}
         </div>
-        {error && !isHideError && (
+        {error && error !== dismissedError && (
           <div className={s.errorWrap}>
             <div className={s.error}>
               <p>Ошибка: {error}</p>
             </div>
             <Button
               className={s.closeIconBtn}
-              onClick={() => setIsHideError(true)}
+              onClick={() => setDismissedError(error)}
               color="transparent"
             >
               &#10006;

@@ -4,11 +4,26 @@ import { useEffect, useState } from "react";
 import { Button } from "@/shared/ui/Button";
 
 import { bluetoothM } from "../../model/bluetoothM";
+import type { TBluetoothStatus } from "../../model/types";
 
 import s from "./BluetoothConnect.module.scss";
 
+const BUTTON_TEXT: Record<TBluetoothStatus, string> = {
+  disconnected: "Подключить устройство",
+  connecting: "Подключение...",
+  connected: "Подключить устройство",
+  disconnecting: "Отключение...",
+};
+
+const STATUS_TEXT: Record<TBluetoothStatus, string> = {
+  disconnected: "Устройство не подключено",
+  connecting: "Поиск и подключение",
+  connected: "Устройство подключено",
+  disconnecting: "Отключение",
+};
+
 export const BluetoothConnect = observer(() => {
-  const [isHideError, setIsHideError] = useState(false);
+  const [dismissedError, setDismissedError] = useState<string | null>(null);
   const {
     isConnected,
     isConnecting,
@@ -24,28 +39,14 @@ export const BluetoothConnect = observer(() => {
   const isDisabled = isConnecting || isDisconnecting || !isSupported;
 
   const handleConnect = () => {
+    setDismissedError(null);
     void connect();
-    setIsHideError(false);
   };
 
   const handleDisconnect = () => {
+    setDismissedError(null);
     void disconnect();
-    setIsHideError(false);
   };
-
-  const buttonText = isConnecting
-    ? "Подключение..."
-    : isDisconnecting
-      ? "Отключение..."
-      : "Подключить устройство";
-
-  const statusText = isConnected
-    ? "Устройство подключено"
-    : isConnecting
-      ? "Поиск и подключение"
-      : isDisconnecting
-        ? "Отключение"
-        : "Устройство не подключено";
 
   useEffect(() => {
     return () => {
@@ -59,7 +60,7 @@ export const BluetoothConnect = observer(() => {
         <h3>Подключение</h3>
         <div className={s.status} data-status={status}>
           <span className={s.statusDot} />
-          {statusText}
+          {STATUS_TEXT[status]}
         </div>
       </div>
       <div className={s.controls}>
@@ -68,7 +69,7 @@ export const BluetoothConnect = observer(() => {
           disabled={isDisabled}
           className={s.btnConnect}
         >
-          {buttonText}
+          {BUTTON_TEXT[status]}
         </Button>
         {isConnected && (
           <Button
@@ -81,14 +82,14 @@ export const BluetoothConnect = observer(() => {
           </Button>
         )}
       </div>
-      {error && !isHideError && (
+      {error && error !== dismissedError && (
         <div className={s.errorWrap}>
           <div className={s.error}>
             <p>Ошибка: {error}</p>
           </div>
           <Button
             className={s.closeIconBtn}
-            onClick={() => setIsHideError(true)}
+            onClick={() => setDismissedError(error)}
             color="transparent"
           >
             &#10006;

@@ -11,10 +11,10 @@ import { getErrorMessage } from "./getErrorMessage";
 export abstract class BaseConnectionStrategy<TConfig, TResult> {
   protected abstract readonly logPrefix: string;
   protected abstract readonly disconnectErrorMessage: string;
-  protected abstract readonly manualDisconnectMessage: string;
 
   private onDisconnectCallback: (() => void) | null = null;
   private isConnectionActive = false;
+  private cleanupPromise: Promise<void> | null = null;
   private readonly logger: IAppLogger;
 
   /**
@@ -90,21 +90,32 @@ export abstract class BaseConnectionStrategy<TConfig, TResult> {
   /**
    * Снимает callback, выполняет модульную очистку и закрывает физическое соединение.
    *
-   * Повторный вызов безопасен: после первой очистки callback уже обнулён.
+   * Параллельные вызовы ожидают один и тот же процесс очистки.
    */
   private async runCleanup(force = false): Promise<void> {
+    if (this.cleanupPromise) return this.cleanupPromise;
+
     const callback = this.onDisconnectCallback;
     this.onDisconnectCallback = null;
     this.isConnectionActive = false;
     if (callback === null && !force) return;
 
+    const cleanupPromise = (async () => {
+      try {
+        await this.beforeDisconnect?.();
+        await this.doDisconnect();
+      } catch (error: unknown) {
+        this.logger.warn(
+          `${this.logPrefix} ${this.disconnectErrorMessage}: ${getErrorMessage(error, "неизвестная")}`,
+        );
+      }
+    })();
+    this.cleanupPromise = cleanupPromise;
+
     try {
-      await this.beforeDisconnect?.();
-      await this.doDisconnect();
-    } catch (error: unknown) {
-      this.logger.warn(
-        `${this.logPrefix} ${this.disconnectErrorMessage}: ${getErrorMessage(error, "неизвестная")}`,
-      );
+      await cleanupPromise;
+    } finally {
+      this.cleanupPromise = null;
     }
   }
 
@@ -116,7 +127,6 @@ export abstract class BaseConnectionStrategy<TConfig, TResult> {
    * @returns Promise, завершающийся после физического отключения;
    */
   disconnect(): Promise<void> {
-    this.logger.info(`${this.logPrefix} ${this.manualDisconnectMessage}`);
     return this.runCleanup();
   }
 

@@ -1,19 +1,24 @@
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { IAppLogger } from "@/shared/lib/logger";
 
 import { BluetoothM } from "../../features/model/bluetoothM";
+import { UNSUPPORTED_MESSAGE } from "../../features/model/constants";
 import type {
   IBluetoothConnectionResult,
   IBluetoothDeviceConfig,
   IBluetoothStrategy,
 } from "../../features/model/types";
 
-vi.mock("@/shared/config/platform", () => ({
+const platformState = vi.hoisted(() => ({
   IS_CAPACITOR: false,
   IS_NATIVE_BLUETOOTH_AVAILABLE: false,
   IS_WEB_BLUETOOTH_SUPPORTED: true,
 }));
+
+const PLATFORM_DEFAULTS = { ...platformState };
+
+vi.mock("@/shared/config/platform", () => platformState);
 
 const CONNECTION_RESULT: IBluetoothConnectionResult = {
   device: { id: "device-id", name: "IQOS" },
@@ -28,12 +33,14 @@ const CONNECTION_RESULT: IBluetoothConnectionResult = {
   },
 };
 
-const logger: IAppLogger = {
+const loggerMocks = {
   info: vi.fn(),
   success: vi.fn(),
   warn: vi.fn(),
   error: vi.fn(),
 };
+
+const logger: IAppLogger = loggerMocks;
 
 const createStrategy = (result = CONNECTION_RESULT) =>
   ({
@@ -49,6 +56,26 @@ const createStrategy = (result = CONNECTION_RESULT) =>
   }) satisfies IBluetoothStrategy;
 
 describe("BluetoothM", () => {
+  beforeEach(() => {
+    Object.assign(platformState, PLATFORM_DEFAULTS);
+  });
+
+  it("keeps state clean when the API is unsupported", async () => {
+    platformState.IS_WEB_BLUETOOTH_SUPPORTED = false;
+    const strategy = createStrategy();
+    const bluetooth = new BluetoothM(() => Promise.resolve(strategy), logger);
+
+    await bluetooth.connect();
+
+    expect(strategy.connect).not.toHaveBeenCalled();
+    expect(bluetooth.status).toBe("disconnected");
+    expect(bluetooth.error).toBeNull();
+    expect(bluetooth.device).toBeNull();
+    expect(loggerMocks.warn).toHaveBeenCalledWith(
+      `[BLE_M] ${UNSUPPORTED_MESSAGE}`,
+    );
+  });
+
   it("connects through the injected strategy and refreshes battery", async () => {
     const strategy = createStrategy();
     const bluetooth = new BluetoothM(() => Promise.resolve(strategy), logger);
@@ -116,7 +143,7 @@ describe("BluetoothM", () => {
 
     expect(strategy.connect).not.toHaveBeenCalled();
     expect(bluetooth.status).toBe("disconnected");
-    expect(bluetooth.error).toBe("Подключение отменено.");
+    expect(bluetooth.error).toBeNull();
   });
 
   it("ignores a battery result that completes after disconnect", async () => {
@@ -168,5 +195,60 @@ describe("BluetoothM", () => {
     expect(bluetooth.error).toContain("Соединение разорвано");
     expect(bluetooth.device).toBeNull();
     expect(bluetooth.batteryLevel).toBeNull();
+  });
+
+  it("does not cancel a newer connection when a stale attempt settles later", async () => {
+    let resolveFirst:
+      ((result: IBluetoothConnectionResult) => void) | undefined;
+    let resolveSecond:
+      ((result: IBluetoothConnectionResult) => void) | undefined;
+    const firstStrategy = createStrategy();
+    firstStrategy.connect.mockImplementationOnce(
+      () =>
+        new Promise<IBluetoothConnectionResult>((resolve) => {
+          resolveFirst = resolve;
+        }),
+    );
+    const secondStrategy = createStrategy();
+    secondStrategy.connect.mockImplementationOnce(
+      (
+        _config: IBluetoothDeviceConfig,
+        _onDisconnect: () => void,
+        signal?: AbortSignal,
+      ) =>
+        new Promise<IBluetoothConnectionResult>((resolve, reject) => {
+          signal?.addEventListener("abort", () =>
+            reject(new DOMException("Подключение отменено.", "AbortError")),
+          );
+          void _config;
+          void _onDisconnect;
+          resolveSecond = resolve;
+        }),
+    );
+
+    const getStrategy = vi
+      .fn()
+      .mockResolvedValueOnce(firstStrategy)
+      .mockResolvedValueOnce(secondStrategy);
+    const bluetooth = new BluetoothM(getStrategy, logger);
+
+    const firstConnect = bluetooth.connect();
+    await Promise.resolve();
+    expect(firstStrategy.connect).toHaveBeenCalledTimes(1);
+    await bluetooth.disconnect();
+
+    const secondConnect = bluetooth.connect();
+    await Promise.resolve();
+    expect(secondStrategy.connect).toHaveBeenCalledTimes(1);
+
+    resolveFirst?.(CONNECTION_RESULT);
+    await firstConnect;
+
+    resolveSecond?.(CONNECTION_RESULT);
+    await secondConnect;
+
+    expect(bluetooth.isConnected).toBe(true);
+    expect(bluetooth.device).toEqual(CONNECTION_RESULT.device);
+    expect(secondStrategy.disconnect).not.toHaveBeenCalled();
   });
 });

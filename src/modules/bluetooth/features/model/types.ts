@@ -1,3 +1,6 @@
+export type TBluetoothStatus =
+  "disconnected" | "connecting" | "connected" | "disconnecting";
+
 export interface IBluetoothDeviceInfo {
   manufacturerName: string | null;
   modelNumber: string | null;
