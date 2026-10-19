@@ -1,0 +1,2 @@
+const __vite__mapDeps=(i,m=__vite__mapDeps,d=(m.f||(m.f=["web-z4wj0lHw.js","dist-62TeNfsI.js"])))=>i.map(i=>d[i]);
+import{i as e}from"./vendor-router-WHUVGGEl.js";import{i as t}from"./dist-62TeNfsI.js";var n=t(`Preferences`,{web:()=>e(()=>import(`./web-z4wj0lHw.js`).then(e=>new e.PreferencesWeb),__vite__mapDeps([0,1]))});export{n as Preferences};
