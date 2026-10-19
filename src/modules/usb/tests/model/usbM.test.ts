@@ -92,6 +92,24 @@ describe("UsbM", () => {
     );
   });
 
+  it("rejects USB on native non-Android platforms even when APIs are present", async () => {
+    platformState.IS_CAPACITOR = true;
+    platformState.IS_ANDROID = false;
+    platformState.IS_NATIVE_USB_AVAILABLE = true;
+    platformState.IS_WEB_USB_SUPPORTED = true;
+    const strategy = createStrategy();
+    const getStrategy = vi.fn(() => Promise.resolve(strategy));
+    const usb = new UsbM(getStrategy, logger);
+
+    expect(usb.isSupported).toBe(false);
+
+    await usb.connect();
+
+    expect(getStrategy).not.toHaveBeenCalled();
+    expect(strategy.connect).not.toHaveBeenCalled();
+    expect(usb.status).toBe("disconnected");
+  });
+
   it("connects when the native API is supported", async () => {
     platformState.IS_WEB_USB_SUPPORTED = false;
     platformState.IS_CAPACITOR = true;

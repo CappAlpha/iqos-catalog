@@ -1,18 +1,13 @@
 import { observer } from "mobx-react-lite";
 
-import { preloadRoute } from "@/app/routes/routeConfig";
 import { BluetoothIcon, CartIcon, CatalogIcon, USBIcon } from "@/assets/icons";
 import { bluetoothM } from "@/modules/bluetooth/features/model/bluetoothM";
 import { cartM } from "@/modules/cart/features/model/cartM";
 import { usbM } from "@/modules/usb/features/model/usbM";
-import { IS_IOS, ROUTES } from "@/shared/config";
-import { useMobile, useMobileM } from "@/shared/hooks/useBreakpoint";
+import { IS_ANDROID, IS_CAPACITOR, ROUTES } from "@/shared/config";
 import { Header, type IHeaderLinkItem } from "@/shared/ui/Header";
 
 export const AppHeader = observer(() => {
-  const isMobile = useMobile();
-  const isMobileM = useMobileM();
-
   const links: IHeaderLinkItem[] = [
     { to: ROUTES.CATALOG, text: "Каталог", Icon: CatalogIcon },
     {
@@ -20,12 +15,24 @@ export const AppHeader = observer(() => {
       text: "Bluetooth",
       Icon: BluetoothIcon,
       isConnected: bluetoothM.status === "connected",
+      disabledReason: bluetoothM.isSupported
+        ? undefined
+        : IS_CAPACITOR
+          ? "В приложении недоступен модуль Bluetooth."
+          : "Браузер или текущая среда не поддерживает Web Bluetooth.",
     },
     {
       to: ROUTES.USB,
       text: "USB",
       Icon: USBIcon,
       isConnected: usbM.status === "connected",
+      disabledReason: usbM.isSupported
+        ? undefined
+        : IS_CAPACITOR
+          ? IS_ANDROID
+            ? "В приложении не установлен модуль USB."
+            : "USB-подключение недоступно в iOS-приложении."
+          : "Браузер или текущая среда не поддерживает Web USB.",
     },
     {
       to: ROUTES.CART,
@@ -34,17 +41,7 @@ export const AppHeader = observer(() => {
       badgeCount: cartM.uniqueItemsCount,
       isBadgeUpdating: cartM.isCartUpdating,
     },
-  ].filter(({ to }) => !(to === ROUTES.USB && IS_IOS));
+  ];
 
-  const logoPlacement =
-    IS_IOS || !isMobileM ? "outside" : isMobile ? "hidden" : "split";
-
-  return (
-    <Header
-      links={links}
-      logoTo={ROUTES.CATALOG}
-      logoPlacement={logoPlacement}
-      onPreloadRoute={preloadRoute}
-    />
-  );
+  return <Header links={links} logoTo={ROUTES.CATALOG} />;
 });

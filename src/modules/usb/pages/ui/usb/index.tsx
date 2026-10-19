@@ -1,16 +1,9 @@
-import { Navigate } from "react-router";
-
 import { UsbConnect } from "@/modules/usb/features/ui/UsbConnect";
 import { UsbInfo } from "@/modules/usb/features/ui/UsbInfo";
-import { IS_IOS, ROUTES } from "@/shared/config";
 
 import s from "./UsbPage.module.scss";
 
 const UsbPage = () => {
-  if (IS_IOS) {
-    return <Navigate to={ROUTES.BLUETOOTH} replace />;
-  }
-
   return (
     <main className={s.root}>
       <div className={s.header}>

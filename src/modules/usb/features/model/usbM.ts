@@ -62,8 +62,8 @@ export class UsbM {
   }
 
   get isSupported() {
-    return IS_CAPACITOR && IS_ANDROID
-      ? IS_NATIVE_USB_AVAILABLE
+    return IS_CAPACITOR
+      ? IS_ANDROID && IS_NATIVE_USB_AVAILABLE
       : IS_WEB_USB_SUPPORTED;
   }
 

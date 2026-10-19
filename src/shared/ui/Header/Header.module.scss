@@ -170,6 +170,67 @@
   background: var(--additional-red);
 }
 
+.disabledLinkWrap {
+  position: relative;
+  display: inline-flex;
+}
+
+.navLink.disabled {
+  appearance: none;
+  border: 0;
+  font-family: inherit;
+  cursor: not-allowed;
+  color: var(--gray);
+  background: transparent;
+  opacity: 0.45;
+}
+
+.tooltip {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 50%;
+  z-index: 110;
+  width: max-content;
+  max-width: min(280px, 80vw);
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: var(--dark-gray);
+  color: var(--white, #fff);
+  font-size: 13px;
+  line-height: 1.35;
+  text-align: center;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transform: translate(-50%, -4px);
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease,
+    visibility 0.2s ease;
+
+  @include breakpoint(mobile-m) {
+    top: auto;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    max-width: min(280px, calc(100vw - 24px));
+    transform: translate(calc(-50% + var(--tooltip-shift-x, 0px)), 4px);
+  }
+}
+
+.tooltipVisible .tooltip,
+.disabledLinkWrap button:focus-visible ~ .tooltip {
+  opacity: 1;
+  visibility: visible;
+  transform: translate(-50%, 0);
+
+  @include breakpoint(mobile-m) {
+    .tooltipVisible .tooltip,
+    .disabledLinkWrap button:focus-visible ~ .tooltip {
+      transform: translate(calc(-50% + var(--tooltip-shift-x, 0px)), 0);
+    }
+  }
+}
+
 @keyframes jelloHorizontal {
   0% {
     transform: scale3d(1, 1, 1);
