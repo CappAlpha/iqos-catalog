@@ -1,11 +1,11 @@
 import { createBrowserRouter, RouterProvider } from "react-router";
 
 import { ROUTER_BASENAME } from "@/shared/config";
-import { lazyRouteChildren } from "@/shared/lib/routePreload";
-import { Header } from "@/shared/ui/Header";
 import { PageLoader } from "@/shared/ui/PageLoader";
 
+import { AppHeader } from "../layout/AppHeader";
 import { AppLayout } from "../layout/AppLayout";
+import { lazyRouteChildren } from "./routeConfig";
 import { ErrorPage } from "./ui/ErrorPage";
 import { NotFoundPage } from "./ui/NotFoundPage";
 
@@ -16,7 +16,7 @@ const router = createBrowserRouter(
       errorElement: <ErrorPage />,
       hydrateFallbackElement: (
         <>
-          <Header />
+          <AppHeader />
           <PageLoader />
         </>
       ),

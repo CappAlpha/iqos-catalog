@@ -1,29 +1,21 @@
 import { NavLink, type NavLinkProps } from "react-router";
 
-import { preloadRoute } from "@/shared/lib/routePreload";
-
 export interface ITransitionNavLinkProps extends NavLinkProps {
-  preload?: boolean;
+  onPreloadRoute?: (to: string) => void;
 }
 
 export const TransitionNavLink = ({
   to,
   children,
   className,
-  preload = true,
+  onPreloadRoute,
   onMouseEnter,
   onTouchStart,
   ...props
 }: ITransitionNavLinkProps) => {
   const handlePreload = () => {
-    if (!preload) {
-      return;
-    }
-
     const target = typeof to === "string" ? to : to.pathname;
-    if (target) {
-      preloadRoute(target);
-    }
+    if (target) onPreloadRoute?.(target);
   };
 
   return (

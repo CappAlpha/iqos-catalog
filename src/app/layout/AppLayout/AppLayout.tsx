@@ -1,8 +1,9 @@
 import { Outlet, useNavigation } from "react-router";
 
-import { Header } from "@/shared/ui/Header";
 import { PageLoader } from "@/shared/ui/PageLoader";
 import { PageProgressBar } from "@/shared/ui/PageProgressBar";
+
+import { AppHeader } from "../AppHeader";
 
 export const AppLayout = () => {
   const { state } = useNavigation();
@@ -11,7 +12,7 @@ export const AppLayout = () => {
   return (
     <>
       <PageProgressBar state={state} />
-      <Header />
+      <AppHeader />
       {isNavigating ? <PageLoader /> : <Outlet />}
     </>
   );

@@ -1,11 +1,14 @@
 import { ROUTES } from "@/shared/config";
 import { Button } from "@/shared/ui/Button";
-import { Header } from "@/shared/ui/Header";
+import { PageProgressBar } from "@/shared/ui/PageProgressBar";
 import { StatusPage } from "@/shared/ui/StatusPage";
+
+import { AppHeader } from "../../../layout/AppHeader";
 
 export const ErrorPage = () => (
   <>
-    <Header />
+    <PageProgressBar state="idle" />
+    <AppHeader />
     <StatusPage
       actions={
         <>
