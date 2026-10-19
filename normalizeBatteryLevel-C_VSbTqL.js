@@ -1,0 +1,1 @@
+var e=e=>e!==null&&Number.isInteger(e)&&e>=0&&e<=100?e:null;export{e as t};
