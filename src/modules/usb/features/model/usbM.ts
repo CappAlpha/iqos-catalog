@@ -9,6 +9,7 @@ import {
 import { actionPromiseWithTimeout } from "@/shared/lib/actionPromiseWithTimeout";
 import { getErrorMessage } from "@/shared/lib/getErrorMessage";
 import { logsM, type IAppLogger } from "@/shared/lib/logger";
+import { normalizeBatteryLevel } from "@/shared/lib/normalizeBatteryLevel";
 
 import { getUsbStrategy } from "../lib/getUsbStrategy";
 import {
@@ -71,11 +72,12 @@ export class UsbM {
     batteryAvailable,
     batteryLevel,
   }: IUsbConnectionResult) => {
+    const normalizedBatteryLevel = normalizeBatteryLevel(batteryLevel);
     this.status = "connected";
     this.error = null;
     this.device = device;
-    this.batteryAvailable = batteryAvailable;
-    this.batteryLevel = batteryLevel;
+    this.batteryAvailable = batteryAvailable && normalizedBatteryLevel !== null;
+    this.batteryLevel = normalizedBatteryLevel;
   };
 
   private readonly reset = (error: string | null = null) => {
@@ -234,7 +236,9 @@ export class UsbM {
     const connectionId = this.#currentConnectionId;
     this.isRefreshingBattery = true;
     try {
-      const battery = await this.#strategy?.getBatteryLevel();
+      const battery = normalizeBatteryLevel(
+        (await this.#strategy?.getBatteryLevel()) ?? null,
+      );
 
       if (!this.isConnected || this.#isStale(connectionId)) return;
 

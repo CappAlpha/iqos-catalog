@@ -1,5 +1,6 @@
 import { BaseConnectionStrategy } from "@/shared/lib/baseConnectionStrategy";
 import { logsM } from "@/shared/lib/logger";
+import { normalizeBatteryLevel } from "@/shared/lib/normalizeBatteryLevel";
 
 import {
   DEFAULT_CONFIGURATION,
@@ -104,7 +105,12 @@ export class WebUsb extends BaseConnectionStrategy<
       );
 
       if (result.status === "ok" && result.data && result.data.byteLength > 0) {
-        const level = result.data.getUint8(0);
+        const level = normalizeBatteryLevel(result.data.getUint8(0));
+        if (level === null) {
+          logsM.warn(`${LOG_PREFIX} Получено некорректное значение заряда.`);
+          return null;
+        }
+
         this.batteryAvailable = true;
         logsM.success(`${LOG_PREFIX} Заряд батареи: ${level}%.`);
         return level;
@@ -118,13 +124,8 @@ export class WebUsb extends BaseConnectionStrategy<
   /** Открывает устройство, выбирает конфигурацию и пытается захватить интерфейс. */
   private readonly configureWebUsbDevice = async (device: USBDevice) => {
     await device.open();
-    try {
-      if (device.configuration?.configurationValue !== DEFAULT_CONFIGURATION) {
-        await device.selectConfiguration(DEFAULT_CONFIGURATION);
-      }
-    } catch (err) {
-      await device.close().catch(() => {});
-      throw err;
+    if (device.configuration?.configurationValue !== DEFAULT_CONFIGURATION) {
+      await device.selectConfiguration(DEFAULT_CONFIGURATION);
     }
 
     try {

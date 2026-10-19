@@ -1,11 +1,11 @@
 import { logsM } from "@/shared/lib/logger";
+import { normalizeBatteryLevel } from "@/shared/lib/normalizeBatteryLevel";
 
 import { GAP } from "../model/constants";
 import type {
   IBluetoothConnectionResult,
   IBluetoothDeviceInfo,
 } from "../model/types";
-import { normalizeBatteryLevel } from "./normalizeBatteryLevel";
 import { createCharReader } from "./readCharacteristic";
 import { getEmptyDeviceInfo, readDeviceInfo } from "./readDeviceInfo";
 
