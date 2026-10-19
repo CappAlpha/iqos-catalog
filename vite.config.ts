@@ -27,36 +27,31 @@ export default defineConfig(({ mode }) => {
     build: {
       target: "es2022",
       minify: true,
-      rollupOptions: {
+      rolldownOptions: {
         output: {
-          manualChunks(id) {
-            if (!id.includes("node_modules")) return;
-
-            if (
-              id.includes("node_modules/react/") ||
-              id.includes("node_modules/react-dom/") ||
-              id.includes("node_modules/scheduler/")
-            ) {
-              return "vendor-react";
-            }
-
-            if (id.includes("node_modules/react-router")) {
-              return "vendor-router";
-            }
-
-            if (
-              id.includes("node_modules/mobx") ||
-              id.includes("node_modules/@tanstack")
-            ) {
-              return "vendor-state";
-            }
-
-            if (
-              id.includes("node_modules/axios") ||
-              id.includes("node_modules/sonner")
-            ) {
-              return "vendor-utils";
-            }
+          codeSplitting: {
+            groups: [
+              {
+                name: "vendor-react",
+                test: /node_modules[\\/](react|react-dom|scheduler)[\\/]/,
+                priority: 20,
+              },
+              {
+                name: "vendor-router",
+                test: /node_modules[\\/]react-router/,
+                priority: 15,
+              },
+              {
+                name: "vendor-state",
+                test: /node_modules[\\/](mobx|@tanstack)/,
+                priority: 10,
+              },
+              {
+                name: "vendor-utils",
+                test: /node_modules[\\/](axios|sonner)/,
+                priority: 5,
+              },
+            ],
           },
           assetFileNames: (assetInfo) => {
             const assetName = assetInfo.names?.[0] ?? "";
