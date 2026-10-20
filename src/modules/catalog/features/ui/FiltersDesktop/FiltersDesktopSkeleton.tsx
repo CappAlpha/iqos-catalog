@@ -8,7 +8,7 @@ interface IProps {
 
 export const FiltersDesktopSkeleton = ({ arrays, count }: IProps) => {
   return (
-    <div className={s.root}>
+    <div className={s.root} aria-hidden="true">
       <div className={s.titleSkeleton} />
 
       {Array.from({ length: arrays }, (_, i) => (

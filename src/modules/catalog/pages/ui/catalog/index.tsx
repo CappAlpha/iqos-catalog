@@ -7,7 +7,6 @@ import { catalogM } from "@/modules/catalog/features/model/catalogM";
 import { CatalogGrid } from "@/modules/catalog/features/ui/CatalogGrid";
 import { CatalogHeader } from "@/modules/catalog/features/ui/CatalogHeader";
 import { FiltersDesktop } from "@/modules/catalog/features/ui/FiltersDesktop";
-import { FiltersDesktopSkeleton } from "@/modules/catalog/features/ui/FiltersDesktop/FiltersDesktopSkeleton";
 import { Pagination } from "@/modules/catalog/features/ui/Pagination";
 import { useTablet } from "@/shared/hooks/useBreakpoint";
 
@@ -37,12 +36,7 @@ const CatalogPage = observer(() => {
       <CatalogHeader onScrollToTop={scrollToCatalogTop} />
 
       <div className={clsx(s.wrap, error && s.wrapError)}>
-        {showDesktopFilters &&
-          (isLoading ? (
-            <FiltersDesktopSkeleton arrays={3} count={5} />
-          ) : (
-            <FiltersDesktop />
-          ))}
+        {showDesktopFilters && <FiltersDesktop />}
 
         <CatalogGrid />
       </div>

@@ -55,14 +55,16 @@ export const FiltersMobile = observer(({ className, onApply }: IProps) => {
 
   return (
     <>
-      <Button
-        onClick={handleOpen}
-        className={clsx(s.btn, className)}
-        loading={isLoading}
-      >
-        Фильтры
-        {isAnyFilterSelected && <span className={s.activeBadge} />}
-      </Button>
+      {isLoading ? (
+        <div className={clsx(s.btnSkeleton, className)} aria-hidden="true">
+          Фильтры
+        </div>
+      ) : (
+        <Button onClick={handleOpen} className={clsx(s.btn, className)}>
+          Фильтры
+          {isAnyFilterSelected && <span className={s.activeBadge} />}
+        </Button>
+      )}
 
       {createPortal(
         <div className={clsx(s.root, isOpen && s.open)}>

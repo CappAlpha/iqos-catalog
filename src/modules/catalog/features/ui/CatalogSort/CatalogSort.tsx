@@ -22,7 +22,7 @@ export const CatalogSort = ({
   loading = false,
   compact = false,
 }: IProps) => {
-  if (loading) return <CatalogSortSkeleton />;
+  if (loading) return <CatalogSortSkeleton compact={compact} />;
 
   return (
     <Select

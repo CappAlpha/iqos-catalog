@@ -4,16 +4,20 @@ import { Button } from "@/shared/ui/Button";
 
 import { catalogM } from "../../model/catalogM";
 import { FiltersGroup } from "../FiltersGroup";
+import { FiltersDesktopSkeleton } from "./FiltersDesktopSkeleton";
 
 import s from "./FiltersDesktop.module.scss";
 
 export const FiltersDesktop = observer(() => {
   const {
+    isLoading,
     resetFilters,
     isAnyFilterSelected,
     selectedCategoryIds,
     toggleCategory,
   } = catalogM;
+
+  if (isLoading) return <FiltersDesktopSkeleton arrays={3} count={5} />;
 
   return (
     <div className={s.root}>

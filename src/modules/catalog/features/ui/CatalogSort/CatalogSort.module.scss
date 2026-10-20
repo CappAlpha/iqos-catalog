@@ -8,6 +8,12 @@
   border-radius: var(--catalog-control-radius);
 }
 
+.compactSkeleton {
+  border-left: 1px solid var(--gray-border);
+  border-radius: 0 calc(var(--catalog-control-radius) - 1px)
+    calc(var(--catalog-control-radius) - 1px) 0;
+}
+
 .trigger {
   display: flex;
   align-items: center;

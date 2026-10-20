@@ -115,6 +115,8 @@ $breakpoints: (
 
 @mixin skeleton {
   position: relative;
+  overflow: hidden;
+  color: transparent;
 
   &:before {
     @include pseudo;

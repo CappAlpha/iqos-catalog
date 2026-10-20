@@ -63,6 +63,13 @@
   color: var(--black);
 }
 
+.priceSkeleton {
+  @include skeleton;
+  width: 80px;
+  height: 24px;
+  border-radius: 4px;
+}
+
 .priceUnit {
   font-size: 14px;
   color: var(--gray);
