@@ -20,7 +20,7 @@ interface IModalProps {
   selectedIdx: number;
   isPending: boolean;
   onSelect: (idx: number) => void;
-  onClose: (e?: MouseEvent | KeyboardEvent) => void;
+  onClose: (e?: MouseEvent | PointerEvent | KeyboardEvent) => void;
 }
 
 export const ProductModal = ({

@@ -31,7 +31,7 @@ export const ProductCard = observer(
     const { price, pictureUrl, categoryTitle } = selectedProduct;
     const isImageFallback = !pictureUrl || failedImageUrl === pictureUrl;
 
-    const onClose = (e?: MouseEvent | KeyboardEvent) => {
+    const onClose = (e?: MouseEvent | PointerEvent | KeyboardEvent) => {
       if ((e?.target as Element)?.closest(".toast-root")) {
         return;
       }

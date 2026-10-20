@@ -41,6 +41,9 @@
   width: 100%;
   padding: 10px 36px 10px 12px;
   background: transparent;
+  color: var(--dark-gray);
+  appearance: none;
+  -webkit-appearance: none;
   border: 1px solid var(--gray-border);
   transition: all 0.2s ease-in-out;
   display: flex;
@@ -104,7 +107,12 @@
 }
 
 .option {
+  display: block;
+  width: 100%;
   padding: 10px 12px;
+  color: var(--dark-gray);
+  text-align: left;
+  cursor: pointer;
   transition: all 0.3s ease-in-out;
 
   @include hoverDevice {

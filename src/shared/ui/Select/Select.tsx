@@ -66,14 +66,16 @@ export const Select = <T extends string | number>({
 
       <ul className={clsx(s.options, isOpen && s.open)} role="listbox">
         {options.map(({ id, label }) => (
-          <li
-            key={id}
-            role="option"
-            aria-selected={id === value}
-            className={clsx(s.option, id === value && s.selected)}
-            onClick={(e) => handleSelect(id, e)}
-          >
-            {label}
+          <li key={id}>
+            <button
+              type="button"
+              role="option"
+              aria-selected={id === value}
+              className={clsx(s.option, id === value && s.selected)}
+              onClick={(e) => handleSelect(id, e)}
+            >
+              {label}
+            </button>
           </li>
         ))}
       </ul>
