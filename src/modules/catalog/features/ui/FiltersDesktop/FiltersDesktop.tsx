@@ -8,7 +8,12 @@ import { FiltersGroup } from "../FiltersGroup";
 import s from "./FiltersDesktop.module.scss";
 
 export const FiltersDesktop = observer(() => {
-  const { resetFilters, isAnyFilterSelected } = catalogM;
+  const {
+    resetFilters,
+    isAnyFilterSelected,
+    selectedCategoryIds,
+    toggleCategory,
+  } = catalogM;
 
   return (
     <div className={s.root}>
@@ -16,7 +21,10 @@ export const FiltersDesktop = observer(() => {
         <b>Фильтры</b>
       </h3>
 
-      <FiltersGroup />
+      <FiltersGroup
+        selectedCategoryIds={selectedCategoryIds}
+        onCategoryToggle={toggleCategory}
+      />
 
       <Button
         className={s.resetBtn}

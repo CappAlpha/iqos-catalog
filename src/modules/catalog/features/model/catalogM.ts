@@ -27,6 +27,7 @@ import type {
 
 class CatalogM {
   selectedCategoryIds = observable.set<string>();
+  pendingCategoryIds = observable.set<string>();
   sort: TSortKey = CATALOG_DEFAULT.sort;
   page = CATALOG_DEFAULT.page;
   pageSize = CATALOG_DEFAULT.pageSize;
@@ -340,6 +341,43 @@ class CatalogM {
       }
       this.page = CATALOG_DEFAULT.page;
     });
+  };
+
+  beginPendingCategorySelection = () => {
+    this.pendingCategoryIds.clear();
+    this.selectedCategoryIds.forEach((id) => this.pendingCategoryIds.add(id));
+  };
+
+  togglePendingCategory = (id: string) => {
+    if (this.pendingCategoryIds.has(id)) {
+      this.pendingCategoryIds.delete(id);
+    } else {
+      this.pendingCategoryIds.add(id);
+    }
+  };
+
+  resetPendingCategories = () => {
+    this.pendingCategoryIds.clear();
+  };
+
+  applyPendingCategories = () => {
+    const hasChanged =
+      this.selectedCategoryIds.size !== this.pendingCategoryIds.size ||
+      Array.from(this.selectedCategoryIds).some(
+        (id) => !this.pendingCategoryIds.has(id),
+      );
+
+    if (hasChanged) {
+      this.updateWithTransition(() => {
+        this.selectedCategoryIds.clear();
+        this.pendingCategoryIds.forEach((id) =>
+          this.selectedCategoryIds.add(id),
+        );
+        this.page = CATALOG_DEFAULT.page;
+      });
+    }
+
+    this.resetPendingCategories();
   };
 
   setPage = (n: number) => {

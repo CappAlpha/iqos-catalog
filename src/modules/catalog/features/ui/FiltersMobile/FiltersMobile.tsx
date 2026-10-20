@@ -1,4 +1,5 @@
 import clsx from "clsx";
+import { observer } from "mobx-react-lite";
 import { useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
@@ -6,48 +7,61 @@ import { useOutsideClick } from "@/shared/hooks/useOutsideClick";
 import { useScrollBlock } from "@/shared/hooks/useScrollBlock";
 import { Button } from "@/shared/ui/Button";
 
+import { catalogM } from "../../model/catalogM";
 import { FiltersGroup } from "../FiltersGroup";
 
 import s from "./FiltersMobile.module.scss";
 
 interface IProps {
   className?: string;
-  loading: boolean;
-  hasActiveFilters: boolean;
-  onReset: () => void;
   onApply: () => void;
 }
 
-export const FiltersMobile = ({
-  className,
-  loading,
-  hasActiveFilters,
-  onReset,
-  onApply,
-}: IProps) => {
+export const FiltersMobile = observer(({ className, onApply }: IProps) => {
+  const {
+    isLoading,
+    isAnyFilterSelected,
+    pendingCategoryIds,
+    beginPendingCategorySelection,
+    togglePendingCategory,
+    resetPendingCategories,
+    applyPendingCategories,
+  } = catalogM;
+
   const [isOpen, setIsOpen] = useState(false);
   const wrapRef = useRef<HTMLDivElement>(null);
+
+  const handleOpen = () => {
+    beginPendingCategorySelection();
+    setIsOpen(true);
+  };
+
+  const handleCancel = () => {
+    setIsOpen(false);
+    resetPendingCategories();
+  };
+
+  const handleApply = () => {
+    setIsOpen(false);
+    applyPendingCategories();
+    window.requestAnimationFrame(onApply);
+  };
 
   useScrollBlock(isOpen);
 
   useOutsideClick(() => {
-    if (isOpen) setIsOpen(false);
+    if (isOpen) handleCancel();
   }, wrapRef);
-
-  const handleApply = () => {
-    setIsOpen(false);
-    onApply();
-  };
 
   return (
     <>
       <Button
-        onClick={() => setIsOpen(true)}
+        onClick={handleOpen}
         className={clsx(s.btn, className)}
-        loading={loading}
+        loading={isLoading}
       >
         Фильтры
-        {hasActiveFilters && <span className={s.activeBadge} />}
+        {isAnyFilterSelected && <span className={s.activeBadge} />}
       </Button>
 
       {createPortal(
@@ -59,7 +73,7 @@ export const FiltersMobile = ({
               <h3 className={s.title}>Фильтры</h3>
               <Button
                 className={s.closeIconBtn}
-                onClick={() => setIsOpen(false)}
+                onClick={handleCancel}
                 color="transparent"
               >
                 &#10006;
@@ -67,15 +81,18 @@ export const FiltersMobile = ({
             </div>
 
             <div className={s.body}>
-              <FiltersGroup />
+              <FiltersGroup
+                selectedCategoryIds={pendingCategoryIds}
+                onCategoryToggle={togglePendingCategory}
+              />
             </div>
 
             <div className={s.footer}>
               <Button
                 className={s.resetBtn}
                 color="outline"
-                onClick={onReset}
-                disabled={!hasActiveFilters}
+                onClick={resetPendingCategories}
+                disabled={pendingCategoryIds.size === 0}
               >
                 Сбросить
               </Button>
@@ -89,4 +106,4 @@ export const FiltersMobile = ({
       )}
     </>
   );
-};
+});

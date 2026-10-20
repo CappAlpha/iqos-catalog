@@ -19,17 +19,7 @@ export const CatalogToolbar = observer(({ onScrollToTop }: IProps) => {
   const isTablet = useTablet();
   const { anchorRef, isFloating } = useCatalogToolbarFloating(isTablet);
 
-  const { isLoading, isAnyFilterSelected, sort, setSort, resetFilters } =
-    catalogM;
-
-  const handleFiltersApply = () => {
-    window.requestAnimationFrame(onScrollToTop);
-  };
-
-  const handleFiltersReset = () => {
-    resetFilters();
-    handleFiltersApply();
-  };
+  const { isLoading, sort, setSort } = catalogM;
 
   const handleSortChange = (nextSort: TSortKey) => {
     if (nextSort === sort) return;
@@ -42,13 +32,7 @@ export const CatalogToolbar = observer(({ onScrollToTop }: IProps) => {
     <div ref={anchorRef} className={s.root}>
       <div className={clsx(s.controls, isFloating && s.floating)}>
         {isTablet && (
-          <FiltersMobile
-            className={s.filterButton}
-            loading={isLoading}
-            hasActiveFilters={isAnyFilterSelected}
-            onReset={handleFiltersReset}
-            onApply={handleFiltersApply}
-          />
+          <FiltersMobile className={s.filterButton} onApply={onScrollToTop} />
         )}
 
         <CatalogSort
