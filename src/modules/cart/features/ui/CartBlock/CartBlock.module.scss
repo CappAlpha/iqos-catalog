@@ -51,7 +51,7 @@
 .emptyStateSkeleton {
   position: relative;
   display: flex;
-  gap: 30px;
+  gap: var(--cart-layout-gap);
   align-items: flex-start;
 
   @include breakpoint(tablet) {

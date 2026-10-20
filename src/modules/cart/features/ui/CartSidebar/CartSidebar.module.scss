@@ -1,5 +1,5 @@
 .sidebar {
-  width: clamp(300px, calc(31.25 * var(--vw) - 100px), 350px);
+  width: var(--cart-sidebar-width);
   position: sticky;
   top: 90px;
 
