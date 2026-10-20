@@ -22,7 +22,7 @@ export const CounterBtns = ({
   isCountChanged,
   onDecrease,
   onIncrease,
-  disabled,
+  disabled = false,
   className,
 }: IProps) => {
   return (

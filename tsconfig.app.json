@@ -26,6 +26,7 @@
 
     /* Linting */
     "strict": true,
+    "exactOptionalPropertyTypes": true,
     "erasableSyntaxOnly": true,
     "noUncheckedSideEffectImports": true,
     "isolatedModules": true,

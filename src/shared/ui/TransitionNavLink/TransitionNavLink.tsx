@@ -7,7 +7,6 @@ export interface ITransitionNavLinkProps extends NavLinkProps {
 export const TransitionNavLink = ({
   to,
   children,
-  className,
   onPreloadRoute,
   onMouseEnter,
   onTouchStart,
@@ -21,7 +20,6 @@ export const TransitionNavLink = ({
   return (
     <NavLink
       to={to}
-      className={className}
       viewTransition={true}
       onMouseEnter={(e) => {
         handlePreload();

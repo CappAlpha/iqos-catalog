@@ -19,10 +19,13 @@ export const customToastTemplate = ({
   duration = 5000,
   position,
 }: IToastOptions) => {
-  const options: Parameters<typeof toast>[1] = {
+  const options: NonNullable<Parameters<typeof toast>[1]> = {
     duration,
-    position,
   };
+
+  if (position !== undefined) {
+    options.position = position;
+  }
 
   if (description) {
     options.description = description;

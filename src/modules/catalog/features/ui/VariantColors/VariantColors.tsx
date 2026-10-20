@@ -15,8 +15,8 @@ interface IProps {
   selectedIdx: number;
   isPending: boolean;
   onSelect: (idx: number) => void;
-  onExpand?: () => void;
-  forceShowAll?: boolean;
+  onExpand?: (() => void) | undefined;
+  forceShowAll?: boolean | undefined;
 }
 
 export const VariantsColors = ({

@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, { type AxiosRequestConfig } from "axios";
 
 import { FEED_URL } from "@/shared/config";
 import { formatError } from "@/shared/lib/axiosFormatError";
@@ -34,15 +34,23 @@ async function executeRequest(
 ): Promise<string> {
   const startTime = Date.now();
 
-  const { data } = await axios.get<string>(url, {
-    signal,
-    timeout,
+  const requestConfig: AxiosRequestConfig = {
     responseType: "text",
     headers: {
       Accept: "application/xml, text/xml, */*",
       "Cache-Control": "no-cache",
     },
-  });
+  };
+
+  if (signal !== undefined) {
+    requestConfig.signal = signal;
+  }
+
+  if (timeout !== undefined) {
+    requestConfig.timeout = timeout;
+  }
+
+  const { data } = await axios.get<string>(url, requestConfig);
 
   const duration = Date.now() - startTime;
 

@@ -14,7 +14,7 @@ export interface IHeaderLinkItem {
   text: string;
   Icon: TIconType;
   isConnected?: boolean;
-  disabledReason?: string;
+  disabledReason?: string | undefined;
   badgeCount?: number;
   isBadgeUpdating?: boolean;
 }

@@ -8,7 +8,9 @@ import s from "./Button.module.scss";
 interface IButtonProps {
   color?: "transparent" | "outline" | "error";
   noPadding?: boolean;
-  onClick?: (event?: React.MouseEvent<HTMLButtonElement> | MouseEvent) => void;
+  onClick?:
+    | ((event?: React.MouseEvent<HTMLButtonElement> | MouseEvent) => void)
+    | undefined;
   onMouseDown?: (
     event?: React.MouseEvent<HTMLButtonElement> | MouseEvent,
   ) => void;

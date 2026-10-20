@@ -16,7 +16,7 @@ interface IProps {
 }
 
 export const AddCartButton = observer(
-  ({ selectedProduct, isPending, className }: IProps) => {
+  ({ selectedProduct, isPending = false, className }: IProps) => {
     const {
       setQuantity,
       addToCart,
