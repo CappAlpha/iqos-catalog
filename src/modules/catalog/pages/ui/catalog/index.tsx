@@ -14,30 +14,30 @@ import { useTablet } from "@/shared/hooks/useBreakpoint";
 import s from "./CatalogPage.module.scss";
 
 const CatalogPage = observer(() => {
-  const topRef = useRef<HTMLDivElement | null>(null);
+  const catalogRef = useRef<HTMLElement | null>(null);
+  const isTablet = useTablet();
 
   const { isLoading, error, totalPages, safePage, setPage } = catalogM;
-
-  const isTablet = useTablet();
+  const showDesktopFilters = !isTablet && !error;
+  const showPagination = !error && !isLoading && totalPages > 1;
 
   useCatalogUrlSync();
 
   const scrollToCatalogTop = () => {
-    topRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    catalogRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
-  const onPageChange = (nextPage: number) => {
+  const handlePageChange = (nextPage: number) => {
     setPage(nextPage);
     scrollToCatalogTop();
   };
 
   return (
-    <main className={s.root} ref={topRef}>
+    <main className={s.root} ref={catalogRef}>
       <CatalogHeader onScrollToTop={scrollToCatalogTop} />
 
       <div className={clsx(s.wrap, error && s.wrapError)}>
-        {!isTablet &&
-          !error &&
+        {showDesktopFilters &&
           (isLoading ? (
             <FiltersDesktopSkeleton arrays={3} count={5} />
           ) : (
@@ -47,11 +47,11 @@ const CatalogPage = observer(() => {
         <CatalogGrid />
       </div>
 
-      {!error && !isLoading && totalPages > 1 && (
+      {showPagination && (
         <Pagination
           page={safePage}
           totalPages={totalPages}
-          onChange={onPageChange}
+          onChange={handlePageChange}
         />
       )}
     </main>
