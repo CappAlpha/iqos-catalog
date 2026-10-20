@@ -1,3 +1,7 @@
+.root {
+  --select-radius: var(--catalog-control-radius);
+}
+
 .rootSkeleton {
   @include skeleton;
   height: var(--catalog-control-size);
