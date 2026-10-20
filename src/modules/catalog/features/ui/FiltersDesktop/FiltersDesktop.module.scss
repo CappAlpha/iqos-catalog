@@ -1,14 +1,18 @@
 .root {
+  --filters-top: calc(var(--header-height) + 30px);
+  --filter-section-gap: calc(1 * var(--vh));
+
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: calc(2 * var(--vh));
   position: sticky;
-  top: 100px;
+  top: var(--filters-top);
   height: fit-content;
+  max-height: calc(100 * var(--vh) - var(--filters-top) - 16px);
   padding: 15px;
   outline: 1px dashed var(--gray-border);
   border-radius: 10px;
-  transition: all 0.4s ease-in-out;
+  transition: outline-color 0.4s ease-in-out;
 
   @include hoverDevice($cursor: normal) {
     outline-color: var(--accent-color);
@@ -17,6 +21,15 @@
   @include breakpoint(desktop-s) {
     padding: 10px;
   }
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--filter-section-gap);
+  overflow-y: auto;
+
+  @include scrollbar(3px, 3px);
 }
 
 .resetBtn {

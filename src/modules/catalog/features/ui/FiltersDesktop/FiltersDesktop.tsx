@@ -25,10 +25,12 @@ export const FiltersDesktop = observer(() => {
         <b>Фильтры</b>
       </h3>
 
-      <FiltersGroup
-        selectedCategoryIds={selectedCategoryIds}
-        onCategoryToggle={toggleCategory}
-      />
+      <div className={s.body}>
+        <FiltersGroup
+          selectedCategoryIds={selectedCategoryIds}
+          onCategoryToggle={toggleCategory}
+        />
+      </div>
 
       <Button
         className={s.resetBtn}

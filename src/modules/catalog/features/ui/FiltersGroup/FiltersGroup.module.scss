@@ -7,8 +7,8 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: 15px;
-  padding-bottom: 20px;
+  gap: calc(1.5 * var(--vh));
+  padding-bottom: var(--filter-section-gap);
   animation: fromZeroWidth 0.3s ease-in-out;
 
   @include breakpoint(tablet) {
@@ -30,7 +30,7 @@
       @include absolute($bottom: 0);
       content: "";
       opacity: 1;
-      width: 100%;
+      width: 95%;
       height: 1px;
       background: var(--gray-border);
       animation: fromZeroWidth 0.4s ease-in-out;

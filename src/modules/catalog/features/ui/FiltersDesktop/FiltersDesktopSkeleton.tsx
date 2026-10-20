@@ -11,14 +11,16 @@ export const FiltersDesktopSkeleton = ({ arrays, count }: IProps) => {
     <div className={s.root} aria-hidden="true">
       <div className={s.titleSkeleton} />
 
-      {Array.from({ length: arrays }, (_, i) => (
-        <div key={i} className={groupS.categories}>
-          <div className={s.subtitleSkeleton} />
-          {Array.from({ length: count }, (_, i) => (
-            <div key={i} className={s.checkBoxSkeleton} />
-          ))}
-        </div>
-      ))}
+      <div className={s.body}>
+        {Array.from({ length: arrays }, (_, i) => (
+          <div key={i} className={groupS.categories}>
+            <div className={s.subtitleSkeleton} />
+            {Array.from({ length: count }, (_, i) => (
+              <div key={i} className={s.checkBoxSkeleton} />
+            ))}
+          </div>
+        ))}
+      </div>
     </div>
   );
 };
