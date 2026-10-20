@@ -1,11 +1,11 @@
 import { type RefObject, useEffect } from "react";
 
 export const useOutsideClick = (
-  onClickOutside: (e?: PointerEvent) => void,
+  onClickOutside: (e?: MouseEvent) => void,
   ref: RefObject<HTMLDivElement | null>,
 ) => {
   useEffect(() => {
-    const handlePointerDownOutside = (e: PointerEvent) => {
+    const handleClickOutside = (e: MouseEvent) => {
       const target = e.target as Element;
       if (target.closest(".toast-container")) return;
 
@@ -14,8 +14,8 @@ export const useOutsideClick = (
       }
     };
 
-    document.addEventListener("pointerdown", handlePointerDownOutside);
+    document.addEventListener("click", handleClickOutside, true);
     return () =>
-      document.removeEventListener("pointerdown", handlePointerDownOutside);
+      document.removeEventListener("click", handleClickOutside, true);
   }, [ref, onClickOutside]);
 };
