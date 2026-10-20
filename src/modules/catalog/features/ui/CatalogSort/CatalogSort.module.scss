@@ -1,0 +1,78 @@
+.rootSkeleton {
+  @include skeleton;
+  height: var(--catalog-control-size);
+  border-radius: var(--catalog-control-radius);
+}
+
+.trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  height: var(--catalog-control-size);
+  padding: 10px 12px;
+  overflow: hidden;
+  color: var(--dark-gray);
+  background: var(--white);
+  border: 1px solid var(--gray-border);
+  border-radius: var(--catalog-control-radius);
+  font-size: 14px;
+  line-height: 1.25;
+  text-align: left;
+  -webkit-tap-highlight-color: transparent;
+
+  @include hoverDevice {
+    border-color: var(--accent-color);
+  }
+}
+
+.value {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chevron {
+  @include absolute(
+    $top: calc(50%),
+    $right: 12px,
+    $transform: translateY(-50%)
+  );
+  width: 14px;
+  height: 10px;
+  margin-left: 12px;
+  color: var(--gray);
+  transition: transform 0.2s ease-in-out;
+
+  .open & {
+    transform: translateY(-50%) rotate(180deg);
+  }
+}
+
+.root:not(.compact) .open {
+  border-radius: var(--catalog-control-radius) var(--catalog-control-radius) 0 0;
+  border-bottom-color: transparent;
+}
+
+.compact .trigger {
+  justify-content: center;
+  padding: 10px;
+  border-color: transparent;
+  border-left-color: var(--gray-border);
+  border-radius: 0 calc(var(--catalog-control-radius) - 1px)
+    calc(var(--catalog-control-radius) - 1px) 0;
+}
+
+.sortIcon {
+  width: 22px;
+  height: 22px;
+}
+
+.root .compactMenu {
+  right: 0;
+  left: auto;
+  width: max-content;
+  min-width: 220px;
+  max-width: min(280px, calc(100vw - 32px));
+  border-radius: var(--catalog-control-radius);
+}

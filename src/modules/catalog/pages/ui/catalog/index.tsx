@@ -22,14 +22,18 @@ const CatalogPage = observer(() => {
 
   useCatalogUrlSync();
 
+  const scrollToCatalogTop = () => {
+    topRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
   const onPageChange = (nextPage: number) => {
     setPage(nextPage);
-    topRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    scrollToCatalogTop();
   };
 
   return (
     <main className={s.root} ref={topRef}>
-      <CatalogHeader />
+      <CatalogHeader onScrollToTop={scrollToCatalogTop} />
 
       <div className={clsx(s.wrap, error && s.wrapError)}>
         {!isTablet &&

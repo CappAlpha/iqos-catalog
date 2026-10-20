@@ -6,3 +6,5 @@ export { default as CartIcon } from "./header/cart.svg?react";
 export { default as USBIcon } from "./header/usb.svg?react";
 export { default as NotFoundDevice } from "./not-found-device.svg?react";
 export { default as TrashIcon } from "./trash.svg?react";
+export { default as SortIcon } from "./catalog/sort.svg?react";
+export { default as ChevronDownIcon } from "./catalog/chevron-down.svg?react";

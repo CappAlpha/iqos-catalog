@@ -24,3 +24,4 @@ bundle-stats.html
 *.njsproj
 *.sln
 *.sw?
+.eslintcache

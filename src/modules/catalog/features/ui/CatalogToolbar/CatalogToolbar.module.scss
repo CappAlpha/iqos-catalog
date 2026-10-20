@@ -1,0 +1,52 @@
+.root {
+  --catalog-control-size: 44px;
+  --catalog-control-radius: 10px;
+
+  position: relative;
+  z-index: 50;
+
+  @include breakpoint(tablet) {
+    height: var(--catalog-control-size);
+  }
+}
+
+.controls {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr);
+  grid-auto-rows: var(--catalog-control-size);
+
+  @include breakpoint(tablet) {
+    @include absolute($top: 0, $z-index: 10);
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 10px;
+    width: 100%;
+    outline: 1px solid transparent;
+    border-radius: var(--catalog-control-radius);
+  }
+}
+
+.filterButton {
+  height: var(--catalog-control-size);
+  transition: none;
+}
+
+.controls.floating {
+  position: fixed;
+  top: auto;
+  right: clamp(8px, 2vw, 32px);
+  bottom: calc(var(--header-height) + 16px);
+  left: auto;
+  grid-template-columns: auto var(--catalog-control-size);
+  gap: 0;
+  width: auto;
+  outline-color: var(--gray-border);
+
+  @include breakpoint(mobile-s) {
+    bottom: calc(var(--header-height-mobile) + 8px);
+  }
+
+  .filterButton {
+    border-radius: calc(var(--catalog-control-radius) - 1px) 0 0
+      calc(var(--catalog-control-radius) - 1px);
+  }
+}

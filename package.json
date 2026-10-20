@@ -7,8 +7,9 @@
     "dev": "vite dev",
     "build": "tsc -b && vite build",
     "build:capacitor": "tsc -b && vite build --mode capacitor && pnpm exec cap sync",
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
+    "lint": "eslint . --cache",
+    "lint:fix": "eslint . --cache --fix",
+    "lint:all": "eslint .",
     "knip": "knip",
     "test": "vitest run",
     "test:watch": "vitest",
@@ -19,7 +20,7 @@
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
-      "eslint --fix --no-warn-ignored",
+      "eslint --fix --cache --no-warn-ignored",
       "prettier --write"
     ],
     "*.{json,md,html,css,scss}": "prettier --write"

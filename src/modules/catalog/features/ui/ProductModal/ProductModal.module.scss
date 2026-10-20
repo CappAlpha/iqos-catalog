@@ -69,8 +69,6 @@
 }
 
 .closeBtn {
-  @include expandableArea;
-  --clickable-area-expandable-ratio: 16px;
   position: sticky;
   justify-content: flex-end;
   top: 12px;
