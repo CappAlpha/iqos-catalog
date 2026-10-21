@@ -19,8 +19,6 @@ export const FiltersDesktop = observer(() => {
     toggleCategory,
   } = catalogM;
 
-  if (isLoading) return <FiltersDesktopSkeleton arrays={3} count={5} />;
-
   return (
     <div className={s.root}>
       <h3 className={s.title}>
@@ -28,11 +26,15 @@ export const FiltersDesktop = observer(() => {
       </h3>
 
       <div className={s.body} ref={scrollContainerRef}>
-        <FiltersGroup
-          scrollContainerRef={scrollContainerRef}
-          selectedCategoryIds={selectedCategoryIds}
-          onCategoryToggle={toggleCategory}
-        />
+        {isLoading ? (
+          <FiltersDesktopSkeleton arrays={3} count={5} />
+        ) : (
+          <FiltersGroup
+            scrollContainerRef={scrollContainerRef}
+            selectedCategoryIds={selectedCategoryIds}
+            onCategoryToggle={toggleCategory}
+          />
+        )}
       </div>
 
       <Button
@@ -40,7 +42,7 @@ export const FiltersDesktop = observer(() => {
         noPadding
         color="transparent"
         onClick={resetFilters}
-        disabled={!isAnyFilterSelected}
+        disabled={isLoading || !isAnyFilterSelected}
       >
         &#8635; Сбросить фильтры
       </Button>

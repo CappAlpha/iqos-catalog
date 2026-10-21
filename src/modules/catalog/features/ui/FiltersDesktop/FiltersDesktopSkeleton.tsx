@@ -8,19 +8,17 @@ interface IProps {
 
 export const FiltersDesktopSkeleton = ({ arrays, count }: IProps) => {
   return (
-    <div className={s.root} aria-hidden="true">
-      <div className={s.titleSkeleton} />
-
-      <div className={s.body}>
-        {Array.from({ length: arrays }, (_, i) => (
-          <div key={i} className={groupS.categories}>
-            <div className={s.subtitleSkeleton} />
+    <>
+      {Array.from({ length: arrays }, (_, i) => (
+        <div key={i} className={s.skeletonGroup} aria-hidden="true">
+          <div className={s.subtitleSkeleton} />
+          <div className={groupS.categoryList}>
             {Array.from({ length: count }, (_, i) => (
               <div key={i} className={s.checkBoxSkeleton} />
             ))}
           </div>
-        ))}
-      </div>
-    </div>
+        </div>
+      ))}
+    </>
   );
 };

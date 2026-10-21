@@ -27,7 +27,9 @@
   display: flex;
   flex-direction: column;
   gap: var(--filter-section-gap);
+  min-height: 0;
   overflow-y: auto;
+  scrollbar-gutter: stable;
   scroll-behavior: smooth;
 
   @include scrollbar(3px, 3px);
@@ -40,29 +42,26 @@
   align-self: center;
 }
 
-.titleSkeleton,
 .subtitleSkeleton,
 .checkBoxSkeleton {
   @include skeleton;
   border-radius: 4px;
 }
 
-.titleSkeleton {
-  width: 50%;
-  height: 31px;
-}
-
 .subtitleSkeleton {
   width: 80%;
   height: 20px;
+  margin-bottom: 10px;
+}
+
+.skeletonGroup {
+  display: flex;
+  flex-direction: column;
+  padding-bottom: var(--filter-section-gap);
 }
 
 .checkBoxSkeleton {
-  min-width: 22px;
-  width: 22px;
-  height: 22px;
-
-  &:not(:last-child) {
-    margin-bottom: 10px;
-  }
+  min-width: 20px;
+  width: 20px;
+  height: 20px;
 }

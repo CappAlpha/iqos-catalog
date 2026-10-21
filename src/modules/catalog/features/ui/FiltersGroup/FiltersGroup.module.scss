@@ -9,7 +9,6 @@
   flex-direction: column;
   gap: calc(1.5 * var(--vh));
   padding-bottom: var(--filter-section-gap);
-  animation: fromZeroWidth 0.3s ease-in-out;
 
   @include breakpoint(tablet) {
     padding-bottom: 0;
