@@ -28,6 +28,7 @@
   flex-direction: column;
   gap: var(--filter-section-gap);
   overflow-y: auto;
+  scroll-behavior: smooth;
 
   @include scrollbar(3px, 3px);
 }

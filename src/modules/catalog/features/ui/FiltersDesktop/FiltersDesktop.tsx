@@ -1,4 +1,5 @@
 import { observer } from "mobx-react-lite";
+import { useRef } from "react";
 
 import { Button } from "@/shared/ui/Button";
 
@@ -9,6 +10,7 @@ import { FiltersDesktopSkeleton } from "./FiltersDesktopSkeleton";
 import s from "./FiltersDesktop.module.scss";
 
 export const FiltersDesktop = observer(() => {
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
   const {
     isLoading,
     resetFilters,
@@ -25,8 +27,9 @@ export const FiltersDesktop = observer(() => {
         <b>Фильтры</b>
       </h3>
 
-      <div className={s.body}>
+      <div className={s.body} ref={scrollContainerRef}>
         <FiltersGroup
+          scrollContainerRef={scrollContainerRef}
           selectedCategoryIds={selectedCategoryIds}
           onCategoryToggle={toggleCategory}
         />

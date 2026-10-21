@@ -79,6 +79,7 @@
   flex-direction: column;
   gap: 15px;
   overflow-y: auto;
+  scroll-behavior: smooth;
   padding: 24px;
 
   @include scrollbar(3px, 3px);

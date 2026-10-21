@@ -38,6 +38,44 @@
   }
 }
 
+.categories.collapsibleCategories {
+  gap: 0;
+}
+
+.categoryList {
+  display: flex;
+  flex-direction: column;
+  gap: calc(1.5 * var(--vh));
+}
+
+.extraCategories {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transition:
+    grid-template-rows 0.3s ease-in-out,
+    opacity 0.3s ease-in-out;
+
+  &.expanded {
+    grid-template-rows: 1fr;
+    opacity: 1;
+  }
+}
+
+.extraCategoriesInner {
+  position: relative;
+  overflow: hidden;
+
+  .categoryList {
+    padding-top: calc(1.5 * var(--vh));
+  }
+}
+
+.toggleBtn {
+  align-self: flex-start;
+  margin-top: calc(1.5 * var(--vh));
+}
+
 @keyframes fromZeroWidth {
   0% {
     opacity: 0;
