@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import type { TDeviceSupport } from "@/shared/config/types";
 import type { IAppLogger } from "@/shared/lib/logger";
 
 import { BluetoothM } from "../../features/model/bluetoothM";
@@ -10,13 +11,12 @@ import type {
   IBluetoothStrategy,
 } from "../../features/model/types";
 
-const platformState = vi.hoisted(() => ({
-  IS_CAPACITOR: false,
-  IS_NATIVE_BLUETOOTH_AVAILABLE: false,
-  IS_WEB_BLUETOOTH_SUPPORTED: true,
+const platformState = vi.hoisted((): { BLUETOOTH_SUPPORT: TDeviceSupport } => ({
+  BLUETOOTH_SUPPORT: {
+    transport: "web",
+    unavailableReason: null,
+  },
 }));
-
-const PLATFORM_DEFAULTS = { ...platformState };
 
 vi.mock("@/shared/config/platform", () => platformState);
 
@@ -57,11 +57,17 @@ const createStrategy = (result = CONNECTION_RESULT) =>
 
 describe("BluetoothM", () => {
   beforeEach(() => {
-    Object.assign(platformState, PLATFORM_DEFAULTS);
+    platformState.BLUETOOTH_SUPPORT = {
+      transport: "web",
+      unavailableReason: null,
+    };
   });
 
   it("keeps state clean when the API is unsupported", async () => {
-    platformState.IS_WEB_BLUETOOTH_SUPPORTED = false;
+    platformState.BLUETOOTH_SUPPORT = {
+      transport: null,
+      unavailableReason: "web-api-unavailable",
+    };
     const strategy = createStrategy();
     const bluetooth = new BluetoothM(() => Promise.resolve(strategy), logger);
 

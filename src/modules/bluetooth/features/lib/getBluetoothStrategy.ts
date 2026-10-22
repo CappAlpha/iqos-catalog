@@ -1,5 +1,6 @@
-import { IS_ANDROID, IS_IOS } from "@/shared/config/platform";
+import { BLUETOOTH_SUPPORT } from "@/shared/config/platform";
 
+import { UNSUPPORTED_MESSAGE } from "../model/constants";
 import type { IBluetoothStrategy } from "../model/types";
 
 let bleClientInitialization: Promise<void> | null = null;
@@ -18,11 +19,13 @@ const initializeBleClient = async (): Promise<void> => {
 };
 
 export const getBluetoothStrategy = async (): Promise<IBluetoothStrategy> => {
-  if (IS_ANDROID || IS_IOS) {
-    await initializeBleClient();
+  switch (BLUETOOTH_SUPPORT.transport) {
+    case "native":
+      await initializeBleClient();
+      return new (await import("../api/nativeBluetooth")).NativeBluetooth();
+    case "web":
+      return new (await import("../api/webBluetooth")).WebBluetooth();
+    default:
+      throw new Error(UNSUPPORTED_MESSAGE);
   }
-
-  return IS_ANDROID || IS_IOS
-    ? new (await import("../api/nativeBluetooth")).NativeBluetooth()
-    : new (await import("../api/webBluetooth")).WebBluetooth();
 };

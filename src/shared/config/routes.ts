@@ -7,4 +7,4 @@ export const ROUTES = {
   USB: "/usb",
 } as const;
 
-export const ROUTER_BASENAME = IS_CAPACITOR ? "/" : "/iqos-catalog/";
+export const ROUTER_BASENAME = IS_CAPACITOR ? "/" : import.meta.env.BASE_URL;

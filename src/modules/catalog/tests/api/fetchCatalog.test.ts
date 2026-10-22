@@ -55,6 +55,11 @@ describe("fetchCatalog source metadata", () => {
     expect(result.fetchedAt).toBeGreaterThanOrEqual(startedAt);
     expect(result.fetchedAt).toBeLessThanOrEqual(Date.now());
     expect(mocks.get).toHaveBeenCalledTimes(1);
+    expect(mocks.get).toHaveBeenCalledWith("https://example.invalid/feed", {
+      responseType: "text",
+      headers: { Accept: "application/xml, text/xml, */*" },
+      timeout: 30_000,
+    });
   });
 
   it("marks the bundled fallback as reserve after a primary failure", async () => {

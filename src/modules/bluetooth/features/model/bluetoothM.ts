@@ -1,10 +1,6 @@
 import { makeAutoObservable, observable, runInAction } from "mobx";
 
-import {
-  IS_CAPACITOR,
-  IS_NATIVE_BLUETOOTH_AVAILABLE,
-  IS_WEB_BLUETOOTH_SUPPORTED,
-} from "@/shared/config/platform";
+import { BLUETOOTH_SUPPORT } from "@/shared/config/platform";
 import { actionPromiseWithTimeout } from "@/shared/lib/actionPromiseWithTimeout";
 import { getErrorMessage } from "@/shared/lib/getErrorMessage";
 import { logsM, type IAppLogger } from "@/shared/lib/logger";
@@ -71,9 +67,7 @@ export class BluetoothM {
   }
 
   get isSupported() {
-    return IS_CAPACITOR
-      ? IS_NATIVE_BLUETOOTH_AVAILABLE
-      : IS_WEB_BLUETOOTH_SUPPORTED;
+    return BLUETOOTH_SUPPORT.transport !== null;
   }
 
   private readonly setConnected = ({

@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import type { TDeviceSupport } from "@/shared/config/types";
 import type { IAppLogger } from "@/shared/lib/logger";
 
 import {
@@ -13,14 +14,12 @@ import type {
 } from "../../features/model/types";
 import { UsbM } from "../../features/model/usbM";
 
-const platformState = vi.hoisted(() => ({
-  IS_ANDROID: false,
-  IS_CAPACITOR: false,
-  IS_NATIVE_USB_AVAILABLE: false,
-  IS_WEB_USB_SUPPORTED: true,
+const platformState = vi.hoisted((): { USB_SUPPORT: TDeviceSupport } => ({
+  USB_SUPPORT: {
+    transport: "web",
+    unavailableReason: null,
+  },
 }));
-
-const PLATFORM_DEFAULTS = { ...platformState };
 
 vi.mock("@/shared/config/platform", () => platformState);
 
@@ -56,11 +55,14 @@ const createStrategy = (result = CONNECTION_RESULT) => ({
 
 describe("UsbM", () => {
   beforeEach(() => {
-    Object.assign(platformState, PLATFORM_DEFAULTS);
+    platformState.USB_SUPPORT = { transport: "web", unavailableReason: null };
   });
 
   it("keeps state clean when the web API is unsupported", async () => {
-    platformState.IS_WEB_USB_SUPPORTED = false;
+    platformState.USB_SUPPORT = {
+      transport: null,
+      unavailableReason: "web-api-unavailable",
+    };
     const strategy = createStrategy();
     const usb = new UsbM(() => Promise.resolve(strategy), logger);
 
@@ -75,10 +77,10 @@ describe("UsbM", () => {
   });
 
   it("keeps state clean when the native API is unsupported", async () => {
-    platformState.IS_WEB_USB_SUPPORTED = true;
-    platformState.IS_CAPACITOR = true;
-    platformState.IS_ANDROID = true;
-    platformState.IS_NATIVE_USB_AVAILABLE = false;
+    platformState.USB_SUPPORT = {
+      transport: null,
+      unavailableReason: "native-plugin-unavailable",
+    };
     const strategy = createStrategy();
     const usb = new UsbM(() => Promise.resolve(strategy), logger);
 
@@ -92,11 +94,11 @@ describe("UsbM", () => {
     );
   });
 
-  it("rejects USB on native non-Android platforms even when APIs are present", async () => {
-    platformState.IS_CAPACITOR = true;
-    platformState.IS_ANDROID = false;
-    platformState.IS_NATIVE_USB_AVAILABLE = true;
-    platformState.IS_WEB_USB_SUPPORTED = true;
+  it("rejects an unsupported native platform before requesting a strategy", async () => {
+    platformState.USB_SUPPORT = {
+      transport: null,
+      unavailableReason: "native-platform-unsupported",
+    };
     const strategy = createStrategy();
     const getStrategy = vi.fn(() => Promise.resolve(strategy));
     const usb = new UsbM(getStrategy, logger);
@@ -111,10 +113,10 @@ describe("UsbM", () => {
   });
 
   it("connects when the native API is supported", async () => {
-    platformState.IS_WEB_USB_SUPPORTED = false;
-    platformState.IS_CAPACITOR = true;
-    platformState.IS_ANDROID = true;
-    platformState.IS_NATIVE_USB_AVAILABLE = true;
+    platformState.USB_SUPPORT = {
+      transport: "native",
+      unavailableReason: null,
+    };
     const strategy = createStrategy();
     const usb = new UsbM(() => Promise.resolve(strategy), logger);
 

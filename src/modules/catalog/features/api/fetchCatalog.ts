@@ -38,7 +38,6 @@ async function executeRequest(
     responseType: "text",
     headers: {
       Accept: "application/xml, text/xml, */*",
-      "Cache-Control": "no-cache",
     },
   };
 
