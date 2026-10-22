@@ -1,6 +1,6 @@
 import clsx from "clsx";
 
-import { useMobileS } from "@/shared/hooks/useBreakpoint";
+import { useViewport } from "@/shared/hooks/useViewport";
 
 import { buildPagination } from "../../lib/pagination";
 
@@ -13,7 +13,7 @@ interface IProps {
 }
 
 export const Pagination = ({ page, totalPages, onChange }: IProps) => {
-  const isMobileS = useMobileS();
+  const { isMobileS } = useViewport();
   const items = buildPagination(page, totalPages);
 
   return (

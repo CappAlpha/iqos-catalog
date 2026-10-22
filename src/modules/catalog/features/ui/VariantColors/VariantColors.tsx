@@ -1,6 +1,6 @@
 import clsx from "clsx";
 
-import { useMobileM } from "@/shared/hooks/useBreakpoint";
+import { useViewport } from "@/shared/hooks/useViewport";
 import { Button } from "@/shared/ui/Button";
 
 import { getColorHex } from "../../lib/getColorHex";
@@ -27,7 +27,7 @@ export const VariantsColors = ({
   onExpand,
   forceShowAll,
 }: IProps) => {
-  const isMobileM = useMobileM();
+  const { isMobileM } = useViewport();
   const hasMore =
     !forceShowAll && !isMobileM && variants.length > MAX_VISIBLE_COLORS;
 

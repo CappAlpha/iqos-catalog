@@ -1,10 +1,10 @@
 import clsx from "clsx";
 import { useRef, useState } from "react";
 
-import { useMobileM } from "@/shared/hooks/useBreakpoint";
 import { useOnButtonDown } from "@/shared/hooks/useOnButtonDown";
 import { useOutsideClick } from "@/shared/hooks/useOutsideClick";
 import { useScrollBlock } from "@/shared/hooks/useScrollBlock";
+import { useViewport } from "@/shared/hooks/useViewport";
 import { formatPrice } from "@/shared/lib/formatPrice";
 import { Button } from "@/shared/ui/Button";
 
@@ -41,7 +41,7 @@ export const ProductModal = ({
   useScrollBlock(true);
   useOutsideClick(onClose, wrapRef);
 
-  const isMobileM = useMobileM();
+  const { isMobileM } = useViewport();
   useOnButtonDown("Escape", onClose, isMobileM);
 
   return (

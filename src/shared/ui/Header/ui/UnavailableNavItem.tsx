@@ -1,7 +1,7 @@
 import clsx from "clsx";
 import { useRef, useState, type PointerEvent, type ReactNode } from "react";
 
-import { useMobileM } from "@/shared/hooks/useBreakpoint";
+import { useViewport } from "@/shared/hooks/useViewport";
 import { customToastTemplate } from "@/shared/lib/customToastTemplate";
 
 import s from "../Header.module.scss";
@@ -17,13 +17,13 @@ export const UnavailableNavItem = ({
   reason,
   tooltipId,
 }: IUnavailableNavItemProps) => {
-  const isMobile = useMobileM();
+  const { isMobileM } = useViewport();
   const [isHoveredWithMouse, setIsHoveredWithMouse] = useState(false);
   const wrapperRef = useRef<HTMLSpanElement>(null);
   const tooltipRef = useRef<HTMLSpanElement>(null);
 
   const updateTooltipPosition = () => {
-    if (!isMobile || !wrapperRef.current || !tooltipRef.current) return;
+    if (!isMobileM || !wrapperRef.current || !tooltipRef.current) return;
 
     const wrapperRect = wrapperRef.current.getBoundingClientRect();
     const tooltipRect = tooltipRef.current.getBoundingClientRect();
@@ -42,7 +42,7 @@ export const UnavailableNavItem = ({
   };
 
   const handleClick = () => {
-    if (!isMobile) return;
+    if (!isMobileM) return;
 
     customToastTemplate({
       title: "Страница недоступна",

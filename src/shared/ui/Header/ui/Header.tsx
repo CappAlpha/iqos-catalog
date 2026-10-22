@@ -2,7 +2,7 @@ import clsx from "clsx";
 
 import { preloadRoute } from "@/app/routes/routeConfig";
 import { LogoIqos, LogoLil } from "@/assets/icons";
-import { useMobile, useMobileM } from "@/shared/hooks/useBreakpoint";
+import { useViewport } from "@/shared/hooks/useViewport";
 
 import { TransitionNavLink } from "../../TransitionNavLink";
 import { UnavailableNavItem } from "./UnavailableNavItem";
@@ -25,8 +25,7 @@ interface IHeaderProps {
 }
 
 export const Header = ({ links, logoTo }: IHeaderProps) => {
-  const isMobile = useMobile();
-  const isMobileM = useMobileM();
+  const { isMobile, isMobileM } = useViewport();
   const logoPlacement = !isMobileM ? "outside" : isMobile ? "hidden" : "split";
 
   const logoLink = (

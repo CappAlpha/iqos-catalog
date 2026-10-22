@@ -8,13 +8,13 @@ import { CatalogGrid } from "@/modules/catalog/features/ui/CatalogGrid";
 import { CatalogHeader } from "@/modules/catalog/features/ui/CatalogHeader";
 import { FiltersDesktop } from "@/modules/catalog/features/ui/FiltersDesktop";
 import { Pagination } from "@/modules/catalog/features/ui/Pagination";
-import { useTablet } from "@/shared/hooks/useBreakpoint";
+import { useViewport } from "@/shared/hooks/useViewport";
 
 import s from "./CatalogPage.module.scss";
 
 const CatalogPage = observer(() => {
   const catalogRef = useRef<HTMLElement | null>(null);
-  const isTablet = useTablet();
+  const { isTablet } = useViewport();
 
   const { isLoading, error, totalPages, safePage, setPage } = catalogM;
   const showDesktopFilters = !isTablet && !error;

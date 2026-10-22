@@ -1,7 +1,7 @@
 import clsx from "clsx";
 import { observer } from "mobx-react-lite";
 
-import { useTablet } from "@/shared/hooks/useBreakpoint";
+import { useViewport } from "@/shared/hooks/useViewport";
 
 import { useCatalogToolbarFloating } from "../../hooks/useCatalogToolbarFloating";
 import { catalogM } from "../../model/catalogM";
@@ -16,7 +16,7 @@ interface IProps {
 }
 
 export const CatalogToolbar = observer(({ onScrollToTop }: IProps) => {
-  const isTablet = useTablet();
+  const { isTablet } = useViewport();
   const { anchorRef, isFloating } = useCatalogToolbarFloating(isTablet);
 
   const { isLoading, sort, setSort } = catalogM;

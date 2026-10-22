@@ -2,7 +2,7 @@
 @use "sass:meta";
 @use "animations" as *;
 
-// If change it there, also change in useBreakpoint hook
+// If change it there, also change in useViewport hook
 $breakpoints: (
   mobile: 390,
   mobile-s: 540,
