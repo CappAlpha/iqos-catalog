@@ -30,7 +30,6 @@ export const FiltersMobile = observer(({ className, onApply }: IProps) => {
 
   const [isOpen, setIsOpen] = useState(false);
   const wrapRef = useRef<HTMLDivElement>(null);
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const handleOpen = () => {
     beginPendingCategorySelection();
@@ -83,9 +82,8 @@ export const FiltersMobile = observer(({ className, onApply }: IProps) => {
               </Button>
             </div>
 
-            <div className={s.body} ref={scrollContainerRef}>
+            <div className={s.body}>
               <FiltersGroup
-                scrollContainerRef={scrollContainerRef}
                 selectedCategoryIds={pendingCategoryIds}
                 onCategoryToggle={togglePendingCategory}
               />

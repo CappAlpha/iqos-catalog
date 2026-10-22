@@ -1,11 +1,10 @@
 import clsx from "clsx";
 import { observer } from "mobx-react-lite";
-import type { RefObject } from "react";
+import { useState } from "react";
 
 import { Button } from "@/shared/ui/Button";
 import { Checkbox } from "@/shared/ui/Checkbox";
 
-import { useFiltersExpansion } from "../../hooks/useFiltersExpansion";
 import type { IFilterGroup } from "../../model/types";
 
 import s from "./FiltersGroup.module.scss";
@@ -13,7 +12,6 @@ import s from "./FiltersGroup.module.scss";
 interface IProps {
   className?: string | undefined;
   group: IFilterGroup;
-  scrollContainerRef: RefObject<HTMLDivElement | null>;
   selectedCategoryIds: ReadonlySet<string>;
   onCategoryToggle: (id: string) => void;
 }
@@ -21,15 +19,8 @@ interface IProps {
 const VISIBLE_CATEGORIES_COUNT = 5;
 
 export const FilterSection = observer(
-  ({
-    className,
-    group,
-    scrollContainerRef,
-    selectedCategoryIds,
-    onCategoryToggle,
-  }: IProps) => {
-    const { isExpanded, toggleExpanded, handleExpandEnd } =
-      useFiltersExpansion(scrollContainerRef);
+  ({ className, group, selectedCategoryIds, onCategoryToggle }: IProps) => {
+    const [isExpanded, setIsExpanded] = useState(false);
     const { title, categories } = group;
     const hasMore = categories.length > VISIBLE_CATEGORIES_COUNT;
     const checkboxes = categories.map(({ id, title }) => (
@@ -56,7 +47,6 @@ export const FilterSection = observer(
               <div
                 className={clsx(s.extraCategories, isExpanded && s.expanded)}
                 inert={!isExpanded}
-                onTransitionEnd={handleExpandEnd}
               >
                 <div className={s.extraCategoriesInner}>
                   <div className={s.categoryList}>
@@ -69,7 +59,7 @@ export const FilterSection = observer(
                 className={s.toggleBtn}
                 color="transparent"
                 noPadding
-                onClick={toggleExpanded}
+                onClick={() => setIsExpanded((expanded) => !expanded)}
               >
                 {isExpanded ? "Свернуть" : "Показать ещё"}
               </Button>
