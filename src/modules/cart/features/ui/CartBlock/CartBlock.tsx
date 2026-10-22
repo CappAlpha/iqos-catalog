@@ -11,7 +11,23 @@ import { CartSidebar } from "../CartSidebar";
 import s from "./CartBlock.module.scss";
 
 export const CartBlock = observer(() => {
-  const { isEmpty, isCartTransitioningToEmpty, isInitialized } = cartM;
+  const {
+    isEmpty,
+    isCartTransitioningToEmpty,
+    isInitialized,
+    storageError,
+    loadStore,
+  } = cartM;
+
+  if (storageError) {
+    return (
+      <div className={s.emptyState} role="alert">
+        <h2>Корзина недоступна</h2>
+        <p>{storageError}</p>
+        <Button onClick={loadStore}>Повторить загрузку</Button>
+      </div>
+    );
+  }
 
   if (!isInitialized) {
     return (

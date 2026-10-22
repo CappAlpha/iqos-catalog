@@ -6,7 +6,7 @@ import { customToastTemplate } from "@/shared/lib/customToastTemplate";
 import { logsM, type IAppLogger } from "@/shared/lib/logger";
 
 import { RESERVE_FEED_URL } from "../model/constants";
-import type { TFeedResult } from "../model/types";
+import type { TCatalogResult, TFeedResult } from "../model/types";
 import { parseXmlCatalog } from "./feedParser";
 
 interface IFetchParams {
@@ -114,13 +114,14 @@ export async function fetchCatalog({
   signal,
   timeout = 30_000,
   logger = logsM,
-}: IFetchParams = {}): Promise<TFeedResult> {
+}: IFetchParams = {}): Promise<TCatalogResult> {
   logger.info(`${LOG_PREFIX} Начало загрузки каталога...`);
 
   try {
     logger.info(`${LOG_PREFIX} Запрос фида: ${feedUrl}`);
 
-    return await loadFeed(feedUrl, signal, timeout, logger);
+    const result = await loadFeed(feedUrl, signal, timeout, logger);
+    return { ...result, source: "primary", fetchedAt: Date.now() };
   } catch (error: unknown) {
     throwIfAborted(error, signal);
     notifyFallback(feedUrl, error, logger);
@@ -130,7 +131,8 @@ export async function fetchCatalog({
         `${LOG_PREFIX} Запрос резервного фида: ${RESERVE_FEED_URL}...`,
       );
 
-      return await loadFeed(RESERVE_FEED_URL, signal, timeout, logger);
+      const result = await loadFeed(RESERVE_FEED_URL, signal, timeout, logger);
+      return { ...result, source: "reserve", fetchedAt: Date.now() };
     } catch (reserveError: unknown) {
       throwIfAborted(reserveError, signal);
 

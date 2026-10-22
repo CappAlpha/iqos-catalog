@@ -48,5 +48,10 @@ export type TFeedResult = {
   products: TProduct[];
 };
 
+export type TCatalogResult = TFeedResult & {
+  source: "primary" | "reserve";
+  fetchedAt: number;
+};
+
 export type TPaginationItem =
   { type: "page"; value: number } | { type: "dots"; side: "left" | "right" };

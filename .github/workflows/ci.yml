@@ -84,12 +84,16 @@ jobs:
       - name: Set up Java JDK
         uses: actions/setup-java@v5
         with:
-          distribution: 'temurin'
-          java-version: '21'
+          distribution: "temurin"
+          java-version: "21"
 
       - run: pnpm install --frozen-lockfile
 
       - run: pnpm run build:capacitor
+        env:
+          VITE_IQOS_ORIGIN: ${{ vars.VITE_IQOS_ORIGIN }}
+          VITE_FEED_URL: ${{ vars.VITE_FEED_URL }}
+          VITE_GITHUB_REPO: ${{ vars.VITE_GITHUB_REPO }}
 
       - name: Make gradlew executable
         run: chmod +x android/gradlew

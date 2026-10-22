@@ -10,13 +10,19 @@ interface IProps {
 }
 
 export const CatalogHeader = observer(({ onScrollToTop }: IProps) => {
-  const { error } = catalogM;
+  const { error, isReserveCatalog } = catalogM;
 
   return (
     <div className={s.root}>
       <h1 className={s.title}>Каталог</h1>
 
       {!error && <CatalogToolbar onScrollToTop={onScrollToTop} />}
+      {isReserveCatalog && (
+        <p className={s.notice}>
+          Показан резервный каталог. Цены и наличие могут отличаться от
+          актуальных.
+        </p>
+      )}
     </div>
   );
 });

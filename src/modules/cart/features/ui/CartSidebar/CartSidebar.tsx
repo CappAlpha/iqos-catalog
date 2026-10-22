@@ -18,6 +18,7 @@ export const CartSidebar = observer(() => {
     isCartUpdating,
     isCheckingAvailability,
     hasAvailableItems,
+    isReserveCatalog,
   } = cartM;
 
   const priceText = formatPrice(totalPrice);
@@ -56,6 +57,12 @@ export const CartSidebar = observer(() => {
             </span>{" "}
           </p>
         </div>
+        {isReserveCatalog && (
+          <p>
+            Цены и наличие не подтверждены. При оформлении повторим запрос
+            основного каталога.
+          </p>
+        )}
         <Button
           className={s.checkoutBtn}
           onClick={checkout}

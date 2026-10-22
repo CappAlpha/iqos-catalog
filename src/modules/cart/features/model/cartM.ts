@@ -3,7 +3,10 @@ import { queryClient } from "mobx-tanstack-query/preset";
 
 import { fetchCatalog } from "@/modules/catalog/features/api/fetchCatalog";
 import { CATALOG_QUERY_KEY } from "@/modules/catalog/features/model/constants";
-import type { TProduct } from "@/modules/catalog/features/model/types";
+import type {
+  TCatalogResult,
+  TProduct,
+} from "@/modules/catalog/features/model/types";
 import { customToastTemplate } from "@/shared/lib/customToastTemplate";
 import { parseSafe } from "@/shared/lib/parseSafe";
 
@@ -22,6 +25,9 @@ class CartM {
   items: TCartItem[] = [];
   orderHistory: TOrder[] = [];
   isInitialized = false;
+  isLoadingStorage = false;
+  storageError: string | null = null;
+  isReserveCatalog = false;
   isCheckingAvailability = false;
   recentOrderId: string | null = null;
 
@@ -109,6 +115,11 @@ class CartM {
   };
 
   loadStore = async () => {
+    if (this.isInitialized || this.isLoadingStorage) return;
+
+    this.isLoadingStorage = true;
+    this.storageError = null;
+
     try {
       const [{ value: cart }, { value: orders }] = await Promise.all([
         storage.get(CART_STORAGE_KEY),
@@ -125,13 +136,23 @@ class CartM {
       if (this.#catalogProducts.size > 0) this.notifyUnavailableItems();
     } catch (e) {
       console.error("Ошибка загрузки хранилища", e);
-      runInAction(() => (this.isInitialized = true));
+      runInAction(() => {
+        this.storageError =
+          "Не удалось загрузить корзину и историю заказов. Повторите попытку.";
+      });
+    } finally {
+      runInAction(() => {
+        this.isLoadingStorage = false;
+      });
     }
   };
 
-  syncCatalogAndNotify = (products: TProduct[]) => {
+  syncCatalogAndNotify = (catalog: TCatalogResult) => {
+    this.isReserveCatalog = catalog.source === "reserve";
+    if (this.isReserveCatalog) return;
+
     this.#catalogProducts = new Map(
-      products.map((product) => [getProductKey(product), product]),
+      catalog.products.map((product) => [getProductKey(product), product]),
     );
     this.syncItemsWithCatalog();
     if (this.isInitialized && !this.isCheckingAvailability) {
@@ -163,7 +184,17 @@ class CartM {
     try {
       const catalog = await fetchCatalog();
       queryClient.setQueryData(CATALOG_QUERY_KEY, catalog);
-      this.syncCatalogAndNotify(catalog.products);
+      this.syncCatalogAndNotify(catalog);
+
+      if (catalog.source === "reserve") {
+        customToastTemplate({
+          title: "Не удалось проверить наличие товаров",
+          type: "warning",
+          description:
+            "Доступен только резервный каталог. Повторите оформление позже.",
+        });
+        return false;
+      }
 
       return true;
     } catch (error: unknown) {

@@ -7,6 +7,7 @@ import { GITHUB_RELEASES_API } from "@/shared/config";
 import { customToastTemplate } from "@/shared/lib/customToastTemplate";
 
 const VERSION_REGEX = /^v?(\d+)(?:\.(\d+))?(?:\.(\d+))?(?:[-+].*)?$/;
+const UPDATE_CHECK_TIMEOUT = 10_000;
 
 interface IGitHubAsset {
   name: string;
@@ -19,6 +20,24 @@ interface IGitHubRelease {
 }
 
 let isDownloadInProgress = false;
+let updateCheck: Promise<void> | undefined;
+
+const isGitHubAsset = (value: unknown): value is IGitHubAsset =>
+  typeof value === "object" &&
+  value !== null &&
+  "name" in value &&
+  typeof value.name === "string" &&
+  "browser_download_url" in value &&
+  typeof value.browser_download_url === "string";
+
+const isGitHubRelease = (value: unknown): value is IGitHubRelease =>
+  typeof value === "object" &&
+  value !== null &&
+  "tag_name" in value &&
+  typeof value.tag_name === "string" &&
+  "assets" in value &&
+  Array.isArray(value.assets) &&
+  value.assets.every(isGitHubAsset);
 
 const parseVersion = (version: string): [number, number, number] | null => {
   const match = VERSION_REGEX.exec(version);
@@ -92,7 +111,7 @@ const downloadAndInstall = async (
   }
 };
 
-export const checkApkUpdate = async (): Promise<void> => {
+const runUpdateCheck = async (): Promise<void> => {
   try {
     const cacheResult = await Filesystem.readdir({
       path: "",
@@ -101,7 +120,7 @@ export const checkApkUpdate = async (): Promise<void> => {
 
     for (const file of cacheResult.files) {
       const fileName = typeof file === "string" ? file : file.name;
-      if (fileName?.endsWith(".apk")) {
+      if (fileName?.startsWith("update-") && fileName.endsWith(".apk")) {
         await Filesystem.deleteFile({
           path: fileName,
           directory: Directory.Cache,
@@ -114,12 +133,14 @@ export const checkApkUpdate = async (): Promise<void> => {
 
   try {
     const appInfo = await App.getInfo();
-    const response = await fetch(GITHUB_RELEASES_API);
+    const response = await fetch(GITHUB_RELEASES_API, {
+      signal: AbortSignal.timeout(UPDATE_CHECK_TIMEOUT),
+    });
 
     if (!response.ok) return;
 
-    const release = (await response.json()) as unknown as IGitHubRelease;
-    if (!release?.tag_name) return;
+    const release: unknown = await response.json();
+    if (!isGitHubRelease(release) || !release.tag_name) return;
 
     const remoteVersion = release.tag_name.replace(/^v/, "");
 
@@ -147,4 +168,9 @@ export const checkApkUpdate = async (): Promise<void> => {
   } catch (error) {
     console.error("Ошибка проверки обновлений:", error);
   }
+};
+
+export const checkApkUpdate = (): Promise<void> => {
+  updateCheck ??= runUpdateCheck();
+  return updateCheck;
 };

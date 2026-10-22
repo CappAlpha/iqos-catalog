@@ -40,7 +40,7 @@ class CatalogM {
     queryKey: CATALOG_QUERY_KEY,
     queryFn: async ({ signal }) => {
       const catalog = await fetchCatalog({ signal });
-      cartM.syncCatalogAndNotify(catalog.products);
+      cartM.syncCatalogAndNotify(catalog);
       return catalog;
     },
     staleTime: 5 * 60 * 1000,
@@ -56,6 +56,10 @@ class CatalogM {
 
   get products() {
     return this.catalogQuery.data?.products ?? [];
+  }
+
+  get isReserveCatalog() {
+    return this.catalogQuery.data?.source === "reserve";
   }
 
   get childrenMap(): Map<string, string[]> {

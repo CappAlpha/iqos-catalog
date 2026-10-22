@@ -1,9 +1,9 @@
-import { Suspense } from "react";
+import { Suspense, useEffect } from "react";
 import { preconnect, prefetchDNS } from "react-dom";
 import { Toaster } from "sonner";
 
 import "@/app/styles/global.scss";
-import { IQOS_ORIGIN } from "@/shared/config";
+import { IQOS_ORIGIN, IS_ANDROID } from "@/shared/config";
 import { useVh } from "@/shared/hooks/useVh";
 import { PageLoader } from "@/shared/ui/PageLoader";
 
@@ -14,6 +14,16 @@ function App() {
   prefetchDNS(IQOS_ORIGIN);
 
   useVh();
+
+  useEffect(() => {
+    if (!IS_ANDROID) return;
+
+    void import("@/shared/lib/apkUpdater")
+      .then(({ checkApkUpdate }) => checkApkUpdate())
+      .catch((error: unknown) => {
+        console.error("Ошибка проверки обновления приложения", error);
+      });
+  }, []);
 
   return (
     <>
